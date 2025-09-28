@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { Navbar } from "../components/Navbar";
 
 const anton = Anton({
   variable: "--font-anton",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${anton.variable} ${ibmPlexSans.variable} antialiased`}
       >
+        <Navbar />
         {children}
       </body>
     </html>
