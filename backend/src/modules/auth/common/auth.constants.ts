@@ -1,0 +1,5 @@
+export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
+
+export const DEFAULT_ACCESS_TOKEN_EXPIRES_IN = '15m';
+export const DEFAULT_REFRESH_TOKEN_EXPIRES_IN = '7d';
+export const DEFAULT_BCRYPT_SALT = 10;
