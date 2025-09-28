@@ -60,9 +60,16 @@
     },
     "border": {
       "radius": {"lg": 16, "md": 12, "sm": 8, "pill": 9999},
-      "width": {"hairline": 1, "emphasis": 2}
+      "width": {"hairline": 1, "emphasis": 2},
+      "section_divider": {"color": "#000000", "width": "2px"},
+      "grid_item_border": {"color": "#000000", "width": "2px"}
     }
   },
+  "general_rules": [
+    "No border radius for the whole website except for buttons and chips",
+    "Each section is divided with a black line of width 2px",
+    "Each item in a grid has a black border with width 2px"
+  ],
   "grid_and_layout": {
     "breakpoints": {
       "mobile": {"min": 0, "max": 599},
