@@ -25,32 +25,32 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       {/* Problem Section */}
-      <section className="py-16 px-4 bg-secondary">
+      <section className="py-16 px-4 bg-background">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-dark mb-12">
             Masalah Birokrasi yang Menghambat Pertumbuhan
           </h2>
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <h3 className="font-heading text-xl font-semibold text-neutral-dark mb-4">Kompleksitas Regulasi</h3>
               <p className="text-neutral-mid">
                 Proses perizinan penuh dengan jargon hukum dan alur yang tidak jelas, membuat founder bingung.
               </p>
             </div>
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <h3 className="font-heading text-xl font-semibold text-neutral-dark mb-4">Beban Administratif</h3>
               <p className="text-neutral-mid">
                 Founder menghabiskan puluhan jam mengisi formulir, waktu yang seharusnya untuk produk dan pelanggan.
               </p>
             </div>
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <h3 className="font-heading text-xl font-semibold text-neutral-dark mb-4">Keterbatasan Anggaran</h3>
               <p className="text-neutral-mid">
                 Belum ada anggaran untuk konsultan hukum mahal, semua urusan administratif ditangani sendiri.
               </p>
             </div>
           </div>
-          <div className="bg-white p-8 border-black border-2 shadow-card max-w-2xl mx-auto">
+          <div className="bg-secondary p-8 border-black border-2 shadow-card max-w-2xl mx-auto">
             <h3 className="font-heading text-2xl font-semibold text-neutral-dark mb-4">Cerita Sari Dewi</h3>
             <p className="text-neutral-mid mb-4">
               Sari, founder "Kopi Harapan" di Sleman, merasa tersesat saat mengurus PIRT dan Halal. "Saya lelah mengisi formulir yang mirip satu sama lain," katanya.
@@ -74,7 +74,7 @@ export default function Home() {
             Aksara Legal AI mengotomatiskan proses perizinan dengan tiga pilar utama, menghemat hingga 80% waktu administrasi.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -85,7 +85,7 @@ export default function Home() {
                 Dapatkan checklist langkah demi langkah yang disesuaikan dengan jenis usaha Anda. Panduan jelas untuk setiap dokumen yang dibutuhkan.
               </p>
             </div>
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -96,7 +96,7 @@ export default function Home() {
                 Tanyakan pertanyaan hukum kapan saja. AI kami memberikan jawaban akurat dalam bahasa yang mudah dipahami.
               </p>
             </div>
-            <div className="bg-white p-6 border-black border-2 shadow-card">
+            <div className="bg-secondary p-6 border-black border-2 shadow-card">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -114,38 +114,38 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       {/* How It Works Section */}
-      <section className="py-16 px-4 bg-secondary">
+      <section className="py-16 px-4 bg-background">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-dark mb-12 text-center">
             Cara Kerja Aksara Legal AI
           </h2>
           <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">1</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Daftar</h3>
               <p className="text-sm text-neutral-mid">Buat akun gratis dalam hitungan menit</p>
             </div>
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">2</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Profile</h3>
               <p className="text-sm text-neutral-mid">Isi profil usaha Anda</p>
             </div>
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">3</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Checklist</h3>
               <p className="text-sm text-neutral-mid">Dapatkan checklist perizinan</p>
             </div>
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">4</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">AI Chat</h3>
               <p className="text-sm text-neutral-mid">Tanyakan pertanyaan hukum</p>
             </div>
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">5</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Generate</h3>
               <p className="text-sm text-neutral-mid">Buat draf dokumen</p>
             </div>
-            <div className="text-center border-black border-2 bg-white p-6 shadow-card">
+            <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">6</div>
               <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Upgrade</h3>
               <p className="text-sm text-neutral-mid">Tingkatkan untuk fitur premium</p>
