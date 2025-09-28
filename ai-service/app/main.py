@@ -2,17 +2,11 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import ORJSONResponse
 from structlog.contextvars import bind_contextvars, clear_contextvars
-
-try:
-    from scalar_fastapi import Theme, get_scalar_api_reference
-except ImportError:
-    get_scalar_api_reference = None
-    Theme = None  # type: ignore[assignment]
 
 from app.api.router import router
 from app.core.config import get_settings
@@ -20,6 +14,15 @@ from app.core.logging import configure_logging, get_logger
 from app.utils.auth import decode_jwt
 from app.utils.ids import generate_request_id
 from app.utils.rate_limiter import rate_limiter
+
+try:
+    from scalar_fastapi import get_scalar_api_reference as _scalar_reference_factory
+except ImportError:
+    _scalar_reference_factory = None  # type: ignore[assignment]
+
+scalar_reference_factory: Callable[..., Any] | None = cast(
+    Callable[..., Any] | None, _scalar_reference_factory
+)
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -34,14 +37,12 @@ app = FastAPI(
 )
 app.include_router(router)
 
-if get_scalar_api_reference is not None:
-    scalar_kwargs: dict[str, Any] = {
-        "openapi_url": app.openapi_url or "/openapi.json",
-        "title": "Aksara Legal API Reference",
-    }
-    if Theme is not None:
-        scalar_kwargs["theme"] = Theme.DEEP_SPACE
-    app.mount("/docs", get_scalar_api_reference(**scalar_kwargs), name="scalar-docs")
+if scalar_reference_factory is not None:
+    scalar_app = scalar_reference_factory(
+        openapi_url=app.openapi_url or "/openapi.json",
+        title="Aksara Legal API Reference",
+    )
+    app.mount("/docs", scalar_app, name="scalar-docs")
 else:
     logger.info("scalar_docs_disabled")
 
