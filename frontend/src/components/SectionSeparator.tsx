@@ -1,5 +1,5 @@
 export function SectionSeparatorHorizontal() {
-  return <hr className="border-black border-2" />;
+  return <div className="border-t-2 border-black w-full"></div>;
 }
 
 export function SectionSeparatorVertical() {
