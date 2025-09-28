@@ -3,7 +3,6 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict
 
 from fastapi import HTTPException, status
 
@@ -30,7 +29,7 @@ class RateLimiter:
     def __init__(self, capacity: int = 30, refill_rate: float = 0.5) -> None:
         self.capacity = capacity
         self.refill_rate = refill_rate
-        self.buckets: Dict[str, TokenBucket] = defaultdict(self._create_bucket)
+        self.buckets: dict[str, TokenBucket] = defaultdict(self._create_bucket)
 
     def _create_bucket(self) -> TokenBucket:
         return TokenBucket(self.capacity, self.refill_rate, self.capacity, time.monotonic())

@@ -95,7 +95,7 @@ class AutopilotService:
         if options.get("format") == "pdf" and self.settings.enable_pdf_export:
             try:
                 pdf_bytes = await self.renderer.maybe_convert_pdf(docx_bytes)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.warning("pdf_conversion_failed", error=str(exc))
 
         outputs = await self.renderer.persist_outputs(

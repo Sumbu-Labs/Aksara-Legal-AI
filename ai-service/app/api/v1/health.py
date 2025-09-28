@@ -18,21 +18,22 @@ async def health_check(session=Depends(get_db_session)) -> HealthStatus:
     try:
         await session.execute(text("SELECT 1"))
         details["db"] = "ok"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         details["db"] = f"error: {exc}"
 
     try:
         result = await session.execute(select(func.count()).select_from(Chunk))
         count = result.scalar_one()
         details["rag"] = "ok" if count and count > 0 else "empty"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         details["rag"] = f"error: {exc}"
 
     try:
         client = get_gemini_client()
-        assert client is not None
+        if client is None:
+            raise RuntimeError("Gemini client unavailable")
         details["llm"] = "ok"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         details["llm"] = f"error: {exc}"
 
     status_value = "ok" if all(value in {"ok", "empty"} for value in details.values()) else "error"

@@ -27,14 +27,20 @@ class RetrievalService:
         self.settings = get_settings()
         self.gemini = get_gemini_client()
 
-    async def search(self, query: str, filters: dict[str, str | None]) -> list[RetrievedChunk]:
+    async def search(
+        self, query: str, filters: dict[str, str | None]
+    ) -> list[RetrievedChunk]:
         embedding = await self.gemini.embed_text(query)
-        vector_stmt = self._build_vector_stmt(embedding, filters).limit(self.settings.retrieval_topk)
+        vector_stmt = self._build_vector_stmt(embedding, filters).limit(
+            self.settings.retrieval_topk
+        )
 
         vector_rows = (await self.session.execute(vector_stmt)).all()
         vector_results = [self._row_to_chunk(row, base=0.5) for row in vector_rows]
 
-        text_stmt = self._build_text_stmt(query, filters).limit(self.settings.retrieval_topk)
+        text_stmt = self._build_text_stmt(query, filters).limit(
+            self.settings.retrieval_topk
+        )
         text_rows = (await self.session.execute(text_stmt)).all()
         text_results = [self._row_to_chunk(row, base=0.3) for row in text_rows]
 
@@ -47,7 +53,9 @@ class RetrievalService:
             reranked = combined
         return reranked[: self.settings.rerank_topk]
 
-    def _build_vector_stmt(self, embedding: list[float], filters: dict[str, str | None]) -> Select[Any]:
+    def _build_vector_stmt(
+        self, embedding: list[float], filters: dict[str, str | None]
+    ) -> Select[Any]:
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
         if filters.get("permit_type"):
             stmt = stmt.where(Chunk.metadata["permit_type"].astext == filters["permit_type"])
@@ -56,7 +64,9 @@ class RetrievalService:
         stmt = stmt.order_by(Chunk.embedding.cosine_distance(embedding))
         return stmt
 
-    def _build_text_stmt(self, query: str, filters: dict[str, str | None]) -> Select[Any]:
+    def _build_text_stmt(
+        self, query: str, filters: dict[str, str | None]
+    ) -> Select[Any]:
         like_term = f"%{query.lower()}%"
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
         stmt = stmt.where(func.lower(Chunk.text).like(like_term))
@@ -68,10 +78,18 @@ class RetrievalService:
         return stmt
 
     @staticmethod
-    def _merge_results(vector_results: list[RetrievedChunk], text_results: list[RetrievedChunk]) -> list[RetrievedChunk]:
+    def _merge_results(
+        vector_results: list[RetrievedChunk], text_results: list[RetrievedChunk]
+    ) -> list[RetrievedChunk]:
         merged: dict[str, RetrievedChunk] = {}
         for item in vector_results + text_results:
-            key = f"{item.metadata.get('source_url')}::{item.metadata.get('section')}::{item.metadata.get('order')}"
+            key = "::".join(
+                [
+                    str(item.metadata.get('source_url')),
+                    str(item.metadata.get('section')),
+                    str(item.metadata.get('order')),
+                ]
+            )
             if key in merged:
                 merged[key].score = max(merged[key].score, item.score)
             else:

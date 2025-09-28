@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -9,8 +9,8 @@ from app.schemas.common import Citation, ModelMeta, RetrievalMeta
 
 class QaRequest(BaseModel):
     question: str
-    permit_type: Optional[Literal["PIRT", "HALAL", "BPOM"]] = Field(default=None)
-    region: Optional[Literal["DIY"]] = Field(default="DIY")
+    permit_type: Literal["PIRT", "HALAL", "BPOM"] | None = Field(default=None)
+    region: Literal["DIY"] | None = Field(default="DIY")
     user_id: str
 
 

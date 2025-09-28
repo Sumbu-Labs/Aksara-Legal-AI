@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from functools import lru_cache
-from typing import Any, Iterable
+from typing import Any
 
 import httpx
 from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_exponential
@@ -85,7 +86,11 @@ class GeminiClient:
         if not candidates:
             return []
         payload = {
-            "system_instruction": {"parts": [{"text": "You are a legal document reranker. Rank passages by relevance."}]},
+            "system_instruction": {
+                "parts": [
+                    {"text": "You are a legal document reranker. Rank passages by relevance."}
+                ]
+            },
             "contents": [
                 {
                     "role": "user",

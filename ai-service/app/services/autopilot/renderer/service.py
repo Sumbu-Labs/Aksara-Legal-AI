@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import tempfile
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from docxtpl import DocxTemplate
@@ -68,11 +68,21 @@ class DocumentRenderer:
                 raise PdfExportError("LibreOffice conversion failed")
             return pdf_path.read_bytes()
 
-    async def persist_outputs(self, base_name: str, docx_bytes: bytes, pdf_bytes: Optional[bytes]) -> dict[str, Any]:
-        doc_url = await self.storage.upload_bytes(f"{base_name}.docx", docx_bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    async def persist_outputs(
+        self, base_name: str, docx_bytes: bytes, pdf_bytes: bytes | None
+    ) -> dict[str, Any]:
+        doc_url = await self.storage.upload_bytes(
+            f"{base_name}.docx",
+            docx_bytes,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
         signed_doc_url = self.storage.sign_url(doc_url)
         result = {"doc_url": signed_doc_url}
         if pdf_bytes:
-            pdf_url = await self.storage.upload_bytes(f"{base_name}.pdf", pdf_bytes, "application/pdf")
+            pdf_url = await self.storage.upload_bytes(
+                f"{base_name}.pdf",
+                pdf_bytes,
+                "application/pdf",
+            )
             result["pdf_url"] = self.storage.sign_url(pdf_url)
         return result

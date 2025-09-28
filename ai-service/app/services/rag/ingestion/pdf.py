@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from typing import Iterable
+from collections.abc import Iterable
 
 import httpx
 from pdfminer.high_level import extract_text_to_fp

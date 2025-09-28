@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Awaitable, Callable
+from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import ORJSONResponse
@@ -38,7 +38,7 @@ async def request_context_middleware(
         try:
             payload = decode_jwt(token)
             user_key = payload.get("sub", user_key)
-        except Exception:  # noqa: BLE001
+        except Exception:
             user_key = request.client.host if request.client else "unknown"
     response: Response | None = None
     try:

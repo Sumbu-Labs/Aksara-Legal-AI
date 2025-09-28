@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, Request, status
 from app.core.config import get_settings
 
 
-def decode_jwt(token: str) -> Dict[str, Any]:
+def decode_jwt(token: str) -> dict[str, Any]:
     settings = get_settings()
     try:
         payload = jwt.decode(
@@ -20,13 +20,19 @@ def decode_jwt(token: str) -> Dict[str, Any]:
         )
         return payload
     except jwt.PyJWTError as exc:  # type: ignore[attr-defined]
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        ) from exc
 
 
-async def get_current_user(request: Request) -> Dict[str, Any]:
+async def get_current_user(request: Request) -> dict[str, Any]:
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing token",
+        )
     token = auth_header.split(" ", 1)[1]
     return decode_jwt(token)
 
@@ -34,5 +40,8 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
 async def require_user_id(user=Depends(get_current_user)) -> str:
     user_id = user.get("sub")
     if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing user id")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing user id",
+        )
     return str(user_id)

@@ -8,7 +8,10 @@ router = APIRouter(prefix="/v1/ingest", tags=["ingest"])
 
 
 @router.post("/upsert", response_model=IngestUpsertResponse)
-async def upsert_sources(payload: IngestUpsertRequest, session=Depends(get_db_session)) -> IngestUpsertResponse:
+async def upsert_sources(
+    payload: IngestUpsertRequest,
+    session=Depends(get_db_session),
+) -> IngestUpsertResponse:
     service = IngestionService(session)
     results = []
     for source in payload.sources:

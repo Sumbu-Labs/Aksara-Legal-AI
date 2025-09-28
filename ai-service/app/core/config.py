@@ -1,7 +1,7 @@
 from functools import lru_cache
-from typing import Literal, Optional
+from typing import Literal
 
-from pydantic import AnyHttpUrl, Field, HttpUrl, SecretStr
+from pydantic import AnyHttpUrl, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,7 +12,10 @@ class AppSettings(BaseSettings):
 
     app_env: Literal['local', 'dev', 'staging', 'prod'] = Field(default='local', alias='APP_ENV')
     port: int = Field(default=8000, alias='PORT')
-    log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = Field(default='INFO', alias='LOG_LEVEL')
+    log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = Field(
+        default='INFO',
+        alias='LOG_LEVEL',
+    )
 
     database_url: SecretStr = Field(alias='DATABASE_URL')
     vector_dim: int = Field(default=1536, alias='VECTOR_DIM')
@@ -39,7 +42,7 @@ class AppSettings(BaseSettings):
 
     storage_signed_url_ttl_seconds: int = Field(default=3600)
 
-    libreoffice_binary: Optional[str] = Field(default=None, alias='LIBREOFFICE_BINARY')
+    libreoffice_binary: str | None = Field(default=None, alias='LIBREOFFICE_BINARY')
 
 
 @lru_cache(maxsize=1)

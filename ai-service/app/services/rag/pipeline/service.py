@@ -5,8 +5,8 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.core.prompts import get_prompt
 from app.core.logging import get_logger
+from app.core.prompts import get_prompt
 from app.services.llm.gemini import get_gemini_client
 from app.services.rag.retrieval.service import RetrievalService, RetrievedChunk
 

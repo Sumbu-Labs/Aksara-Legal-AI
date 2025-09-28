@@ -8,10 +8,16 @@ router = APIRouter(prefix="/v1/qa", tags=["qa"])
 
 
 @router.post("/query", response_model=QaResponse)
-async def query_qa(payload: QaRequest, pipeline: RagPipeline = Depends(get_rag_pipeline)) -> QaResponse:
+async def query_qa(
+    payload: QaRequest,
+    pipeline: RagPipeline = Depends(get_rag_pipeline),
+) -> QaResponse:
     result = await pipeline.answer(payload.model_dump())
     if not result.get("answer_md"):
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Gagal memproses permintaan")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Gagal memproses permintaan",
+        )
     if result["answer_md"].startswith("Saya tidak dapat memverifikasi"):
         return QaResponse(
             answer_md=result["answer_md"],

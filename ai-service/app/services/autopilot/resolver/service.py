@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from app.core.prompts import get_prompt
 from app.core.logging import get_logger
+from app.core.prompts import get_prompt
 from app.services.llm.gemini import get_gemini_client
 
 logger = get_logger(__name__)

@@ -15,5 +15,8 @@ async def get_template(
     service = TemplateService(session)
     schema = await service.get_schema(permit_type, "DIY")
     if not schema:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Template tidak ditemukan")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template tidak ditemukan",
+        )
     return TemplateResponse(permit_type=permit_type, region="DIY", schema=schema)

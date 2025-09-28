@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, HttpUrl
 
 
 class IngestSource(BaseModel):
     url: HttpUrl
-    permit_type: Optional[str] = None
-    region: Optional[str] = None
-    title: Optional[str] = None
-    version_date: Optional[str] = None
-    selectors: Optional[dict[str, Any]] = None
+    permit_type: str | None = None
+    region: str | None = None
+    title: str | None = None
+    version_date: str | None = None
+    selectors: dict[str, Any] | None = None
 
 
 class IngestUpsertRequest(BaseModel):

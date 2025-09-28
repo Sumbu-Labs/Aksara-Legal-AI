@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.logging import get_logger
 from app.core.config import get_settings
+from app.core.logging import get_logger
 from app.models import Template
 
 logger = get_logger(__name__)

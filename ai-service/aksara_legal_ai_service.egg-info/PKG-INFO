@@ -1,0 +1,173 @@
+Metadata-Version: 2.4
+Name: aksara-legal-ai-service
+Version: 0.1.0
+Summary: Aksara Legal AI microservice providing grounded legal Q&A and Autopilot document generation.
+Author-email: Aksara Legal AI Platform Team <platform@aksara.id>
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.111.0
+Requires-Dist: uvicorn[standard]>=0.30.1
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: pydantic-settings>=2.2.1
+Requires-Dist: sqlalchemy[asyncio]>=2.0.30
+Requires-Dist: sqlalchemy-utils>=0.41.2
+Requires-Dist: alembic>=1.13.2
+Requires-Dist: psycopg[binary,pool]>=3.1.19
+Requires-Dist: pgvector>=0.2.4
+Requires-Dist: python-docx>=1.1.0
+Requires-Dist: docxtpl>=0.16.7
+Requires-Dist: tenacity>=8.3.0
+Requires-Dist: structlog>=24.1.0
+Requires-Dist: python-json-logger>=2.0.7
+Requires-Dist: redis>=5.0.5
+Requires-Dist: orjson>=3.10.5
+Requires-Dist: pyjwt[crypto]>=2.8.0
+Requires-Dist: passlib[bcrypt]>=1.7.4
+Requires-Dist: aiofiles>=23.2.1
+Requires-Dist: aiohttp>=3.9.5
+Requires-Dist: respx>=0.20.2
+Requires-Dist: qdrant-client>=1.9.0
+Requires-Dist: rapidfuzz>=3.9.0
+Requires-Dist: numpy>=1.26.4
+Requires-Dist: jinja2>=3.1.4
+Requires-Dist: phonenumberslite>=8.13.37
+Requires-Dist: beautifulsoup4>=4.12.3
+Requires-Dist: readability-lxml>=0.8.1
+Requires-Dist: pdfminer.six>=20231228
+Requires-Dist: python-slugify>=8.0.1
+Provides-Extra: dev
+Requires-Dist: ruff>=0.5.6; extra == "dev"
+Requires-Dist: mypy>=1.10.0; extra == "dev"
+Requires-Dist: pytest>=8.3.2; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.7; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+Requires-Dist: responses>=0.25.0; extra == "dev"
+Requires-Dist: respx>=0.20.2; extra == "dev"
+Requires-Dist: freezegun>=1.5.1; extra == "dev"
+
+# Aksara Legal AI Service
+
+FastAPI microservice providing grounded legal Q&A with citations and Autopilot document generation for UMKM permit workflows (PIRT, Halal, BPOM) in DIY Yogyakarta.
+
+## Features
+
+- **Grounded Q&A** via Gemini 2.5 Pro with hybrid RAG (pgvector embeddings + BM25) and guardrails.
+- **Autopilot document generation** producing `.docx` (and optional `.pdf`) using JSON schema templates, deterministic mappings, and field-level audit trails.
+- **Ingestion pipeline** for HTML/PDF sources with chunking, embeddings, and metadata versioning.
+- **Operational tooling**: structured logging, request IDs, rate limiting, Alembic migrations, Docker/Docker Compose, GitHub Actions CI.
+
+## Quick Start
+
+1. Copy `.env.example` to `.env` and fill secrets (Gemini API key, JWT public key, storage URL, etc.).
+2. Create virtualenv & install dependencies:
+
+   ```sh
+   python -m venv .venv
+   .venv/Scripts/pip install --upgrade pip
+   .venv/Scripts/pip install -e .[dev]
+   ```
+
+3. Start Postgres locally (or `docker-compose up postgres`), then apply migrations:
+
+   ```sh
+   .venv/Scripts/alembic upgrade head
+   ```
+
+4. Launch the API:
+
+   ```sh
+   .venv/Scripts/uvicorn app.main:app --reload
+   ```
+
+5. Open `http://localhost:8000/docs` for OpenAPI UI.
+
+### Docker Compose
+
+```sh
+docker-compose up --build
+```
+
+The API listens on `http://localhost:8000`; Postgres is available on `localhost:5432`.
+
+## Key Environment Variables
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Async SQLAlchemy DSN (`postgresql+psycopg://...`). |
+| `GEMINI_API_KEY` | Google Gemini API key. |
+| `STORAGE_BUCKET_URL` | Base URL for generated documents. |
+| `ENABLE_PDF_EXPORT` | `true` to enable LibreOffice PDF conversion. |
+| `JWT_PUBLIC_KEY` | PEM-encoded RSA public key for token validation. |
+
+See `.env.example` for the full list.
+
+## API Overview
+
+- `POST /v1/qa/query` — ask legal questions; always returns grounded answers or "Saya tidak dapat memverifikasi ini.". Citations include URL, section, and version date metadata.
+- `POST /v1/autopilot/generate` — generate application documents; responds with download URLs or missing field guidance.
+- `GET /v1/templates/{permit_type}` — fetch JSON schema template metadata.
+- `POST /v1/ingest/upsert` — ingest/refresh regulatory sources.
+- `GET /v1/health` — checks DB connectivity, RAG readiness, and LLM config.
+
+Use `Authorization: Bearer <JWT>` headers to enable per-user rate limiting and context binding.
+
+## Development Workflow
+
+- Format & lint: `make fmt` / `make lint`
+- Run tests: `make test`
+- Create migrations: `make migrate-rev`
+- Apply migrations: `make migrate-up`
+
+## Tests
+
+- Unit tests cover chunking, field validation, and guardrails (`tests/unit`).
+- Golden snapshots (`tests/golden`) are scaffolded; populate with curated Q&A fixtures once the RAG index is seeded.
+- Autopilot integration tests should be extended with template fixtures and storage mocks.
+
+Run the full suite via:
+
+```sh
+pytest
+```
+
+## Demo Script (Sample)
+
+```sh
+# 1. Ask a question
+echo '{"question":"Apa perbedaan PIRT dan BPOM?","permit_type":"PIRT","region":"DIY","user_id":"demo-user"}' \
+  | http POST :8000/v1/qa/query Authorization:"Bearer $JWT"
+
+# 2. Generate document
+http POST :8000/v1/autopilot/generate Authorization:"Bearer $JWT" \
+  permit_type=PIRT region=DIY user_id=demo-user \
+  business_profile:='{"nama_usaha":"Warung Sehat","alamat":"Jl. Malioboro"}' \
+  options:='{"format":"docx"}'
+```
+
+## Repository Structure
+
+```bash
+app/
+  api/            # FastAPI routers and dependencies
+  core/           # Config, logging, prompt loader
+  db/             # Session management
+  models/         # SQLAlchemy models
+  schemas/        # Pydantic request/response models
+  services/       # RAG, Autopilot, storage, LLM clients
+  utils/          # Helpers (IDs, rate limiting, auth)
+
+alembic/          # Migrations
+PROMPTS.md        # Shared prompt definitions
+Dockerfile, docker-compose.yml, Makefile
+```
+
+## Next Steps
+
+- Seed regulatory sources via `/v1/ingest/upsert` to build the retrieval index (20–30 curated DIY references).
+- Upload template schemas/docx files into the `templates` table and storage bucket.
+- Expand CI with integration tests connecting to ephemeral Postgres + mocked Gemini endpoints.
+
+## License
+
+See [LICENSE](../LICENSE).

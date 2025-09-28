@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from sqlalchemy import DateTime, MetaData, func
 from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column
@@ -17,20 +16,43 @@ def _naming_convention() -> dict[str, str]:
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=_naming_convention())
 
+    @classmethod
     @declared_attr.directive
     def __tablename__(cls) -> str:  # type: ignore[override]
         return cls.__name__.lower()
 
-    created_at = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    created_at = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        nullable=False,
+    )
 
 
 class TimestampMixin:
-    created_at = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
-    updated_at = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        nullable=False,
+    )
+    updated_at = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
 
 class AuditMixin:
     created_by = mapped_column(nullable=True)
     updated_by = mapped_column(nullable=True)
-    created_at = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
-    updated_at = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        nullable=False,
+    )
+    updated_at = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )

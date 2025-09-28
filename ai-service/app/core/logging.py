@@ -29,7 +29,9 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
 
 
-def bind_request(request_id: str, span_id: str | None = None, user_id: str | None = None) -> dict[str, str]:
+def bind_request(
+    request_id: str, span_id: str | None = None, user_id: str | None = None
+) -> dict[str, str]:
     context: dict[str, str] = {"request_id": request_id}
     if span_id:
         context["span_id"] = span_id

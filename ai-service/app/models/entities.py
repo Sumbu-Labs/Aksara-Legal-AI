@@ -4,7 +4,7 @@ import enum
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -68,7 +68,10 @@ class AutopilotJob(Base):
     region: Mapped[str] = mapped_column(String(32), nullable=False)
     input_json: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
     field_audit: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
-    status: Mapped[AutopilotJobStatus] = mapped_column(Enum(AutopilotJobStatus, name="autopilot_status"), nullable=False)
+    status: Mapped[AutopilotJobStatus] = mapped_column(
+        Enum(AutopilotJobStatus, name="autopilot_status"),
+        nullable=False,
+    )
     doc_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     pdf_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)

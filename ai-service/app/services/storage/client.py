@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -27,7 +26,7 @@ class StorageClient:
         logger.info("storage_upload", path=str(target), content_type=content_type)
         return f"{self.base_url.rstrip('/')}/{safe_name}"
 
-    def sign_url(self, path: str, ttl_seconds: Optional[int] = None) -> str:
+    def sign_url(self, path: str, ttl_seconds: int | None = None) -> str:
         ttl = ttl_seconds or self.settings.storage_signed_url_ttl_seconds
         expires_at = datetime.utcnow() + timedelta(seconds=ttl)
         signature = hash((path, self.signing_key, ttl)) & 0xFFFFFFFF
