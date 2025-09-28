@@ -8,4 +8,4 @@ from pydantic import BaseModel
 class TemplateResponse(BaseModel):
     permit_type: str
     region: str
-    schema: dict[str, Any]
+    schema_data: dict[str, Any]

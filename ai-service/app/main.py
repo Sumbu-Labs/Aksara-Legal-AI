@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import ORJSONResponse
 from structlog.contextvars import bind_contextvars, clear_contextvars
+
+try:
+    from scalar_fastapi import Theme, get_scalar_api_reference
+except ImportError:
+    get_scalar_api_reference = None
+    Theme = None  # type: ignore[assignment]
 
 from app.api.router import router
 from app.core.config import get_settings
@@ -22,8 +29,22 @@ app = FastAPI(
     title="Aksara Legal AI Service",
     version="0.1.0",
     default_response_class=ORJSONResponse,
+    docs_url=None,
+    redoc_url=None,
 )
 app.include_router(router)
+
+if get_scalar_api_reference is not None:
+    scalar_kwargs: dict[str, Any] = {
+        "openapi_url": app.openapi_url or "/openapi.json",
+        "title": "Aksara Legal API Reference",
+    }
+    if Theme is not None:
+        scalar_kwargs["theme"] = Theme.DEEP_SPACE
+    app.mount("/docs", get_scalar_api_reference(**scalar_kwargs), name="scalar-docs")
+else:
+    logger.info("scalar_docs_disabled")
+
 
 
 @app.middleware("http")
@@ -40,15 +61,12 @@ async def request_context_middleware(
             user_key = payload.get("sub", user_key)
         except Exception:
             user_key = request.client.host if request.client else "unknown"
-    response: Response | None = None
+    rate_limiter.check(str(user_key))
+    bind_contextvars(request_id=request_id, user_id=str(user_key))
     try:
-        rate_limiter.check(str(user_key))
-        bind_contextvars(request_id=request_id, user_id=str(user_key))
         response = await call_next(request)
     finally:
         clear_contextvars()
-    if response is None:
-        response = Response(status_code=500)
     response.headers["X-Request-ID"] = request_id
     return response
 

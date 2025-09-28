@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
+from jwt import PyJWTError
 
 from app.core.config import get_settings
 
@@ -18,8 +19,8 @@ def decode_jwt(token: str) -> dict[str, Any]:
             audience=settings.jwt_audience,
             issuer=settings.jwt_issuer,
         )
-        return payload
-    except jwt.PyJWTError as exc:  # type: ignore[attr-defined]
+        return cast(dict[str, Any], payload)
+    except PyJWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",

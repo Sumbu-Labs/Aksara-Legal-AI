@@ -18,7 +18,7 @@ class Base(DeclarativeBase):
 
     @classmethod
     @declared_attr.directive
-    def __tablename__(cls) -> str:  # type: ignore[override]
+    def __tablename__(cls) -> str:
         return cls.__name__.lower()
 
     created_at = mapped_column(

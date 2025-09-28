@@ -103,7 +103,7 @@ class IngestionService:
             chunk_model = ChunkModel(
                 document_id=document_id,
                 text=chunk.text,
-                metadata={**metadata_base, "section": chunk.section, "order": chunk.order},
+                chunk_metadata={**metadata_base, "section": chunk.section, "order": chunk.order},
                 embedding=embedding,
             )
             self.session.add(chunk_model)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 import httpx
 from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_exponential
@@ -36,7 +36,7 @@ class GeminiClient:
                 with attempt:
                     response = await client.post(url, json=payload)
                     response.raise_for_status()
-                    data = response.json()
+                    data = cast(dict[str, Any], response.json())
                     logger.debug("gemini_api_response", payload=payload, data=data)
                     return data
         raise RuntimeError("Gemini API call failed")
@@ -51,10 +51,13 @@ class GeminiClient:
         }
         endpoint = f"models/{self._embed_model}:embedContent"
         data = await self._post(endpoint, payload)
-        embedding = data.get("embedding", {}).get("values")
-        if not embedding:
+        values = data.get("embedding", {}).get("values")
+        if not isinstance(values, list):
             raise ValueError("Empty embedding response from Gemini")
-        return embedding  # type: ignore[return-value]
+        try:
+            return [float(value) for value in values]
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid embedding response from Gemini") from exc
 
     async def generate_answer(self, prompt: str, contents: Iterable[dict[str, Any]]) -> dict[str, Any]:
         payload = {

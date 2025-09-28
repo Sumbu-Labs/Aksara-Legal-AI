@@ -58,7 +58,11 @@ class AutopilotService:
             "uploaded_docs": uploaded_docs,
         }
         resolved_records = await resolver.resolve(missing, context)
-        resolved_map = {record.get("field"): record for record in resolved_records if record.get("field")}
+        resolved_map: dict[str, dict[str, Any]] = {}
+        for record in resolved_records:
+            field_key = record.get("field")
+            if isinstance(field_key, str):
+                resolved_map[field_key] = record
 
         for field, record in resolved_map.items():
             value = record.get("value")
@@ -105,12 +109,13 @@ class AutopilotService:
         field_audit: dict[str, Any] = {}
         for field, value in mapped_fields.items():
             source = self._determine_source(field, business_profile, uploaded_docs, resolved_map)
-            source_type = resolved_map.get(field, {}).get("source_type", source)
+            resolved_entry = resolved_map.get(field, {})
+            source_type = str(resolved_entry.get("source_type", source))
             field_audit[field] = {
                 "value": value,
                 "source": source,
                 "source_type": source_type,
-                "rationale": resolved_map.get(field, {}).get("rationale"),
+                "rationale": resolved_entry.get("rationale"),
             }
 
         await self._record_job(
@@ -142,10 +147,12 @@ class AutopilotService:
         if field in business_profile:
             return "profile"
         for doc in uploaded_docs:
-            if field in doc.get("fields", {}):
+            doc_fields = doc.get("fields")
+            if isinstance(doc_fields, dict) and field in doc_fields:
                 return "doc"
         if field in resolved_map:
-            return resolved_map[field].get("source_type", "model_inference")
+            source_value = resolved_map[field].get("source_type", "model_inference")
+            return str(source_value)
         return "model_inference"
 
     async def _record_job(

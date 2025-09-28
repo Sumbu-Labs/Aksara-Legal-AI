@@ -58,9 +58,9 @@ class RetrievalService:
     ) -> Select[Any]:
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
         if filters.get("permit_type"):
-            stmt = stmt.where(Chunk.metadata["permit_type"].astext == filters["permit_type"])
+            stmt = stmt.where(Chunk.chunk_metadata["permit_type"].astext == filters["permit_type"])
         if filters.get("region"):
-            stmt = stmt.where(Chunk.metadata["region"].astext == filters["region"])
+            stmt = stmt.where(Chunk.chunk_metadata["region"].astext == filters["region"])
         stmt = stmt.order_by(Chunk.embedding.cosine_distance(embedding))
         return stmt
 
@@ -71,9 +71,9 @@ class RetrievalService:
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
         stmt = stmt.where(func.lower(Chunk.text).like(like_term))
         if filters.get("permit_type"):
-            stmt = stmt.where(Chunk.metadata["permit_type"].astext == filters["permit_type"])
+            stmt = stmt.where(Chunk.chunk_metadata["permit_type"].astext == filters["permit_type"])
         if filters.get("region"):
-            stmt = stmt.where(Chunk.metadata["region"].astext == filters["region"])
+            stmt = stmt.where(Chunk.chunk_metadata["region"].astext == filters["region"])
         stmt = stmt.order_by(func.length(Chunk.text))
         return stmt
 
@@ -100,7 +100,7 @@ class RetrievalService:
     def _row_to_chunk(row: Any, base: float) -> RetrievedChunk:
         chunk: Chunk = row[0]
         document: Document = row[1]
-        metadata = dict(chunk.metadata)
+        metadata = dict(chunk.chunk_metadata)
         metadata.setdefault("source_title", metadata.get("source_title") or document.url)
         metadata.setdefault("version_date", metadata.get("version_date"))
         return RetrievedChunk(text=chunk.text, metadata=metadata, score=base)

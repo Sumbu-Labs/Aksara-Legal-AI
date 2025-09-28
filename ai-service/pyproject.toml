@@ -36,7 +36,8 @@ dependencies = [
     "beautifulsoup4>=4.12.3",
     "readability-lxml>=0.8.1",
     "pdfminer.six>=20231228",
-    "python-slugify>=8.0.1"
+    "python-slugify>=8.0.1",
+    "scalar-fastapi>=0.3.1"
 ]
 
 [project.optional-dependencies]
@@ -87,3 +88,6 @@ packages = ["app"]
 [tool.setuptools.packages.find]
 where = ['.']
 include = ['app*', 'alembic*']
+[[tool.mypy.overrides]]
+module = ["pgvector.*", "docxtpl.*", "readability.*"]
+ignore_missing_imports = true

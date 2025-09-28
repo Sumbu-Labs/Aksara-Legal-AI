@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 class StorageClient:
     def __init__(self) -> None:
         self.settings = get_settings()
-        self.base_url = self.settings.storage_bucket_url
+        self.base_url = str(self.settings.storage_bucket_url)
         self.signing_key = self.settings.storage_signing_key.get_secret_value()
         self.output_dir = Path("generated")
         self.output_dir.mkdir(exist_ok=True)

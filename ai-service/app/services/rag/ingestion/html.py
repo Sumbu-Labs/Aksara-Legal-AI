@@ -4,6 +4,7 @@ from collections.abc import Iterable
 
 import httpx
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from readability import Document as ReadabilityDocument
 
 from app.core.logging import get_logger
@@ -35,12 +36,12 @@ def extract_sections(html: str) -> Iterable[tuple[str, str]]:
     current_heading = ""
     buffer: list[str] = []
     for element in soup.descendants:
-        if element.name and element.name.startswith("h") and element.name[1:].isdigit():
+        if isinstance(element, Tag) and element.name and element.name.startswith("h") and element.name[1:].isdigit():
             if buffer and current_heading:
                 yield current_heading, "\n".join(buffer)
                 buffer.clear()
             current_heading = element.get_text(strip=True)
-        elif element.name == "p":
+        elif isinstance(element, Tag) and element.name == "p":
             buffer.append(element.get_text(strip=True))
     if buffer and current_heading:
         yield current_heading, "\n".join(buffer)

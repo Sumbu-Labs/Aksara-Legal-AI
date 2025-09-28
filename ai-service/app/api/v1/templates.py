@@ -19,4 +19,4 @@ async def get_template(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Template tidak ditemukan",
         )
-    return TemplateResponse(permit_type=permit_type, region="DIY", schema=schema)
+    return TemplateResponse(permit_type=permit_type, region="DIY", schema_data=schema)

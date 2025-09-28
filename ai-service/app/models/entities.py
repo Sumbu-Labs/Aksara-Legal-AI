@@ -36,7 +36,7 @@ class Chunk(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    metadata: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
+    chunk_metadata: Mapped[dict[str, object]] = mapped_column("metadata", JSONB, nullable=False)
     embedding: Mapped[list[float]] = mapped_column(Vector, nullable=False)
 
     document: Mapped[Document] = relationship(back_populates="chunks")

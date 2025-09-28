@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, text
 
@@ -36,6 +38,8 @@ async def health_check(session=Depends(get_db_session)) -> HealthStatus:
     except Exception as exc:
         details["llm"] = f"error: {exc}"
 
-    status_value = "ok" if all(value in {"ok", "empty"} for value in details.values()) else "error"
+    status_value: Literal["ok", "error"] = (
+        "ok" if all(value in {"ok", "empty"} for value in details.values()) else "error"
+    )
     return HealthStatus(status=status_value, details=details)
 

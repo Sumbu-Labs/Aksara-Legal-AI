@@ -101,10 +101,12 @@ class RagPipeline:
     @staticmethod
     def _extract_text(response: dict[str, Any]) -> str:
         try:
-            return response["candidates"][0]["content"]["parts"][0]["text"].strip()
+            raw_text = response["candidates"][0]["content"]["parts"][0]["text"]
+            if isinstance(raw_text, str):
+                return raw_text.strip()
         except (KeyError, IndexError, TypeError, AttributeError):
             logger.warning("gemini_answer_parse_failed", response=response)
-            return ""
+        return ""
 
     def _build_citations(self, chunks: list[RetrievedChunk]) -> list[dict[str, Any]]:
         citations: list[dict[str, Any]] = []
@@ -126,7 +128,11 @@ class RagPipeline:
         return citations
 
     def _build_retrieval_meta(self, chunks: list[RetrievedChunk]) -> dict[str, Any]:
-        versions = [c.metadata.get("version_date") for c in chunks if c.metadata.get("version_date")]
+        versions: list[str] = []
+        for chunk in chunks:
+            version_value = chunk.metadata.get("version_date")
+            if isinstance(version_value, str):
+                versions.append(version_value)
         latest = max(versions) if versions else None
         return {
             "chunks_considered": len(chunks),

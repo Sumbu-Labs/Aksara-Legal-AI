@@ -32,7 +32,7 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
    .venv/Scripts/uvicorn app.main:app --reload
    ```
 
-5. Open `http://localhost:8000/docs` for OpenAPI UI.
+5. Open `http://localhost:8000/docs` to launch the Scalar API Reference (served from this service).
 
 ### Docker Compose
 
@@ -53,6 +53,10 @@ The API listens on `http://localhost:8000`; Postgres is available on `localhost:
 | `JWT_PUBLIC_KEY` | PEM-encoded RSA public key for token validation. |
 
 See `.env.example` for the full list.
+
+## API Reference
+- Scalar UI: `http://localhost:8000/docs` (renders the OpenAPI spec with live calls)
+- Raw OpenAPI schema: `http://localhost:8000/openapi.json`
 
 ## API Overview
 
