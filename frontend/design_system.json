@@ -1,0 +1,243 @@
+{
+  "metadata": {
+    "document_title": "Aksara Legal AI Frontend Design System",
+    "version": "1.0.0",
+    "last_updated": "2025-09-28",
+    "source_references": ["hackathon design screenshots", "PRD v2.2"],
+    "intended_audience": ["Frontend developers", "Product designers", "QA engineers"]
+  },
+  "brand_foundations": {
+    "brand_personality": ["smart", "empathetic", "professional", "optimistic"],
+    "tone_of_voice": {
+      "primary": "Encouraging and confidence-building, using Bahasa Indonesia with plain-language explanations.",
+      "secondary": "Concise, informative English for technical terms and AI messaging.",
+      "microcopy_guidelines": [
+        "Use action verbs for CTAs (e.g., \"Buat Checklist\", \"Generate Dokumen\").",
+        "Highlight value in benefit statements (\"Hemat 80% waktu administrasi\").",
+        "Avoid legal jargon; when required, provide tooltips or AI explanations." ]
+    }
+  },
+  "design_tokens": {
+    "color_palette": {
+      "primary": {"name": "Deep Teal", "hex": "#1e4b64", "usage": ["Primary buttons", "Active states", "Links", "Main action button", "Main section"]},
+      "primary_dark": {"name": "Teal Deep", "hex": "#0d2a36", "usage": ["Hero backgrounds", "Hover states"]},
+      "secondary": {"name": "Light Blue", "hex": "#c2dbf7", "usage": ["Footer", "Bento grid bg", "Highlights", "Notification badge", "Success moments"]},
+      "neutral_dark": {"name": "Charcoal", "hex": "#1F2937", "usage": ["Body text", "Titles"]},
+      "neutral_mid": {"name": "Slate", "hex": "#4B5563", "usage": ["Secondary text", "Icons"]},
+      "neutral_light": {"name": "Cloud", "hex": "#E5E7EB", "usage": ["Card borders", "Dividers"], "opacity_variants": ["08", "16"]},
+      "background_base": {"name": "Light Gray", "hex": "#f2f2f2", "usage": ["App background", "Empty states"]},
+      "accent_success": {"name": "Emerald", "hex": "#10B981", "usage": ["Success toasts", "Plan upgrade confirmation"]},
+      "accent_warning": {"name": "Amber", "hex": "#F59E0B", "usage": ["Checklist pending", "AI latency alerts"]},
+      "accent_error": {"name": "Crimson", "hex": "#EF4444", "usage": ["Validation errors", "AI fallback state"]}
+    },
+    "typography": {
+      "primary_font": {"family": "IBM Plex Sans", "fallback": "Inter, 'Helvetica Neue', Arial, sans-serif", "usage": ["Body text", "Paragraphs"]},
+      "heading_font": {"family": "Anton", "fallback": "Arial, Helvetica, sans-serif", "usage": ["Headings (h1-h6)", "Titles"]},
+      "secondary_font": {"family": "GeistMono", "usage": ["Code snippets", "Inline AI source quotes"]},
+      "scale": {
+        "display": {"size": "48px", "line_height": "56px", "weight": 700, "usage": ["Hero headline"]},
+        "h1": {"size": "36px", "line_height": "44px", "weight": 700, "usage": ["Dashboard title", "Permit page title"]},
+        "h2": {"size": "28px", "line_height": "36px", "weight": 600, "usage": ["Section headers", "Modal titles"]},
+        "h3": {"size": "22px", "line_height": "30px", "weight": 600, "usage": ["Card titles", "FAQ entries"]},
+        "body_lg": {"size": "18px", "line_height": "28px", "weight": 400, "usage": ["Intro paragraphs", "Empty state messaging"]},
+        "body_md": {"size": "16px", "line_height": "24px", "weight": 400, "usage": ["Standard copy", "Form labels"]},
+        "body_sm": {"size": "14px", "line_height": "20px", "weight": 400, "usage": ["Helper text", "Tooltip content"]},
+        "caption": {"size": "12px", "line_height": "16px", "weight": 500, "usage": ["Badge text", "Table headers"]}
+      }
+    },
+    "spacing": {
+      "unit": 4,
+      "scale": {"xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "2xl": 32, "3xl": 48},
+      "usage_guidelines": [
+        "Apply 24px vertical rhythm between major sections.",
+        "Card internal padding uses 24px top/bottom and 20px left/right (6x and 5x units).",
+        "Form fields stack with 12px spacing; group blocks with 24px." ]
+    },
+    "elevation": {
+      "card": {"shadow": "0px 4px 16px rgba(47, 73, 208, 0.08)", "border_radius": 16},
+      "modal": {"shadow": "0px 12px 32px rgba(15, 23, 42, 0.18)", "border_radius": 20},
+      "tooltip": {"shadow": "0px 8px 18px rgba(15, 23, 42, 0.12)", "border_radius": 12}
+    },
+    "border": {
+      "radius": {"lg": 16, "md": 12, "sm": 8, "pill": 9999},
+      "width": {"hairline": 1, "emphasis": 2}
+    }
+  },
+  "grid_and_layout": {
+    "breakpoints": {
+      "mobile": {"min": 0, "max": 599},
+      "tablet": {"min": 600, "max": 1023},
+      "desktop": {"min": 1024, "max": 1439},
+      "wide": {"min": 1440}
+    },
+    "container_widths": {"mobile": "100%", "tablet": "90%", "desktop": "1140px", "wide": "1320px"},
+    "grid_system": {
+      "columns": 12,
+      "gutter": "24px",
+      "usage": [
+        "Dashboard cards span 4 columns on desktop, full width on mobile.",
+        "Permit detail layout uses 8-column content area and 4-column sidebar for AI chat.",
+        "Pricing cards align center with max width 320px per card on desktop." ]
+    }
+  },
+  "iconography_and_imagery": {
+    "icon_style": "Line-based with rounded caps, weight 2px, sized at 24px standard.",
+    "primary_icon_set": "Lucide/Phosphor line icons",
+    "usage_rules": [
+      "Use filled variants only for notification badges or status indicators.",
+      "Chat assistant icon uses custom sparkles motif in Sunrise Orange." ],
+    "illustration_guidelines": {
+      "style": "Soft gradients with indigo-to-purple transitions, rounded abstract shapes representing documents and conversations.",
+      "placement": "Hero banner, empty states, upgrade CTA panels." }
+  },
+  "component_library": {
+    "atoms": {
+      "button": {
+        "variants": {
+          "primary": {"background": "#2F49D0", "text_color": "#FFFFFF", "hover": "#1E2E8C", "focus_outline": "2px solid rgba(47, 73, 208, 0.4)"},
+          "secondary": {"background": "transparent", "text_color": "#2F49D0", "border": "1px solid rgba(47, 73, 208, 0.32)", "hover": "rgba(47, 73, 208, 0.08)"},
+          "tertiary": {"background": "transparent", "text_color": "#4B5563", "icon_alignment": "left"},
+          "destructive": {"background": "#EF4444", "text_color": "#FFFFFF"}
+        },
+        "sizes": {
+          "large": {"height": 56, "padding": "0 24px", "font": "body_md", "border_radius": 9999},
+          "medium": {"height": 48, "padding": "0 20px", "font": "body_md"},
+          "small": {"height": 40, "padding": "0 16px", "font": "body_sm"}
+        }
+      },
+      "input": {
+        "default_style": {
+          "height": 48,
+          "padding": "12px 16px",
+          "border": "1px solid rgba(79, 70, 229, 0.2)",
+          "border_radius": 12,
+          "background": "#FFFFFF",
+          "placeholder_color": "rgba(15, 23, 42, 0.4)"
+        },
+        "states": {
+          "focused": {"border": "1px solid #2F49D0", "shadow": "0 0 0 4px rgba(47, 73, 208, 0.15)"},
+          "error": {"border": "1px solid #EF4444", "helper_text_color": "#EF4444"},
+          "disabled": {"background": "rgba(229, 231, 235, 0.6)", "text_color": "rgba(31, 45, 61, 0.5)"}
+        }
+      },
+      "badge": {
+        "styles": {
+          "status_ready": {"background": "rgba(16, 185, 129, 0.12)", "text_color": "#047857", "icon": "check"},
+          "status_pending": {"background": "rgba(245, 158, 11, 0.12)", "text_color": "#B45309", "icon": "clock"},
+          "plan_pro": {"background": "rgba(47, 73, 208, 0.12)", "text_color": "#2F49D0", "icon": "sparkles"}
+        }
+      }
+    },
+    "molecules": {
+      "card": {
+        "base": {"padding": "24px", "border_radius": 16, "background": "#FFFFFF", "shadow": "card"},
+        "permit_card": {
+          "header_icon": 48,
+          "title_typography": "h3",
+          "body_typography": "body_md",
+          "footer_cta": {"label": "Lihat Detail", "icon": "arrow-right"},
+          "status_indicator": {"badge": "status_ready"}
+        },
+        "checklist_card": {"shows_steps": true, "progress_bar": {"height": 6, "radius": 9999, "fill_color": "#2F49D0"}}
+      },
+      "chat_bubble": {
+        "user": {"background": "#2F49D0", "text_color": "#FFFFFF", "border_radius": "24px 24px 4px 24px"},
+        "assistant": {"background": "#FFFFFF", "border": "1px solid rgba(47, 73, 208, 0.18)", "text_color": "#1F2937", "border_radius": "24px 24px 24px 4px", "icon": "sparkles"}
+      },
+      "navigation_header": {
+        "height": 72,
+        "background": "#FFFFFF",
+        "logo_lockup": {"icon_size": 32, "wordmark_font": "h3"},
+        "menu_items": [{"label": "Dashboard", "path": "/dashboard"}, {"label": "Dokumen", "path": "/documents"}, {"label": "Harga", "path": "/pricing"}],
+        "actions": {"notification_bell": true, "profile_avatar": true, "plan_badge": true}
+      }
+    },
+    "organisms": {
+      "dashboard_overview": {
+        "layout": ["Hero summary", "Checklist CTA", "Permit cards grid", "AI tips carousel"],
+        "kpi_tiles": {
+          "background": "linear-gradient(135deg, #2F49D0 0%, #5B7BFF 100%)",
+          "text_color": "#FFFFFF",
+          "metrics": ["Checklist Ready", "Dokumen Terunggah", "Pertanyaan AI"]
+        }
+      },
+      "permit_detail_page": {
+        "hero_section": {"title": "h1", "subtitle": "body_md", "badge": "status_ready"},
+        "content_tabs": ["Ringkasan", "Persyaratan", "Checklist Langkah"],
+        "sidebar": {"width": "32%", "chat_panel": true, "autopilot_cta": {"button_label": "Buatkan Draf Dokumen", "icon": "wand"}}
+      },
+      "pricing_page": {
+        "hero_heading": "Paket fleksibel untuk setiap fase pertumbuhan",
+        "plan_cards": ["Gratis", "Satuan", "Pro"],
+        "highlight_plan": "Pro",
+        "comparison_table": {
+          "rows": ["AI Q&A", "Autopilot", "Unggah Dokumen", "Checklist"],
+          "icons": {"included": "check", "limited": "minus", "excluded": "x"}
+        },
+        "testimonial_strip": {"quote": "80% administrasi selesai dalam hitungan menit.", "author": "Sari Dewi"}
+      }
+    }
+  },
+  "interaction_and_motion": {
+    "transition_duration": {"fast": "120ms", "medium": "240ms", "slow": "360ms"},
+    "easing": {"standard": "cubic-bezier(0.2, 0.8, 0.2, 1)", "entrance": "cubic-bezier(0.16, 1, 0.3, 1)", "exit": "cubic-bezier(0.4, 0, 1, 1)"},
+    "micro_interactions": [
+      "Checklist cards animate upward 8px on hover with shadow intensification.",
+      "Autopilot button emits subtle glow (box-shadow pulse) while processing.",
+      "Notification bell shakes gently when new alerts arrive." ]
+  },
+  "accessibility": {
+    "color_contrast": "All text combinations meet WCAG AA (contrast >= 4.5:1).",
+    "keyboard_navigation": [
+      "Logical tab order from header to primary content to sidebar.",
+      "Visible focus outlines using indigo glow.",
+      "Chat input supports Enter to send and Shift+Enter for new lines." ],
+    "aria_guidelines": [
+      "Use aria-live polite for AI chat responses.",
+      "Autopilot progress modal announces status via aria-labels.",
+      "Notification bell uses aria-expanded and aria-haspopup attributes." ]
+  },
+  "responsive_behavior": {
+    "mobile_patterns": [
+      "Dashboard cards convert to horizontal scroll carousel (snap).",
+      "Permit detail chat collapses into bottom sheet toggle.",
+      "Pricing cards stack vertically with sticky CTA at bottom." ],
+    "tablet_patterns": [
+      "Maintain dual-column layout with reduced gutters.",
+      "Chat panel overlays content via slide-in drawer." ],
+    "desktop_patterns": [
+      "Full grid layout, sticky sidebar for AI chat.",
+      "Notification dropdown aligned to header right edge." ]
+  },
+  "content_guidelines": {
+    "primary_language": "Bahasa Indonesia",
+    "style_examples": {
+      "button": "Buat Checklist",
+      "toast": "Checklist Anda siap! 3 izin ditemukan.",
+      "modal_header": "Pratinjau Dokumen PIRT",
+      "helper_text": "Gunakan nama resmi sesuai NIB Anda."},
+    "empty_states": {
+      "documents": {"title": "Belum ada dokumen", "body": "Unggah KTP, NIB, dan dokumen lain untuk mempercepat proses izin.", "cta": "Unggah Dokumen"},
+      "checklist": {"title": "Mulai dengan profil bisnis", "body": "Isi profil untuk mendapatkan rekomendasi izin yang sesuai.", "cta": "Lengkapi Profil"}
+    }
+  },
+  "implementation_notes": {
+    "technology_stack": {
+      "css": "TailwindCSS with custom theme overrides",
+      "component_library": "Headless UI + custom components",
+      "icon_library": "Lucide react icons"
+    },
+    "tailwind_theme_overrides": {
+      "colors": {"primary": "#1e4b64", "primary-dark": "#0d2a36", "secondary": "#c2dbf7", "background": "#f2f2f2", "success": "#10B981", "warning": "#F59E0B", "danger": "#EF4444"},
+      "fontFamily": {"sans": ["'IBM Plex Sans'", "'Inter'", "sans-serif"], "heading": ["'Anton'", "Arial", "sans-serif"], "mono": ["'GeistMono'", "'Fira Code'", "monospace"]},
+      "borderRadius": {"lg": "1rem", "xl": "1.25rem", "pill": "9999px"},
+      "boxShadow": {"card": "0 4px 16px rgba(30, 75, 100, 0.08)", "modal": "0 12px 32px rgba(15, 23, 42, 0.18)"}
+    },
+    "component_priorities": [
+      {"name": "NavigationHeader", "status": "ready_for_build", "dependencies": ["Badge", "Button", "Icon"]},
+      {"name": "PermitCard", "status": "ready_for_build", "dependencies": ["Card", "Badge", "Button"]},
+      {"name": "ChatPanel", "status": "requires_research", "notes": "Confirm AI response streaming design."},
+      {"name": "AutopilotModal", "status": "ready_for_build", "dependencies": ["Modal", "Button", "ProgressStep"]}
+    ]
+  }
+}
