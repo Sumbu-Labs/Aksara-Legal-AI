@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    environment:
+      - APP_ENV=local
+      - PORT=8000
+      - LOG_LEVEL=DEBUG
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/aksara
+      - VECTOR_DIM=1536
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-changeme}
+      - GEMINI_MODEL_QA=gemini-2.5-pro
+      - GEMINI_MODEL_EMBED=text-embedding-004
+      - STORAGE_BUCKET_URL=http://storage:9000/aksara
+      - STORAGE_SIGNING_KEY=local-signing
+      - ENABLE_PDF_EXPORT=false
+      - RETRIEVAL_TOPK=24
+      - RERANK_TOPK=8
+      - JWT_ISSUER=https://auth.aksara.id/
+      - JWT_AUDIENCE=aksara-legal-ai
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - LIBREOFFICE_BINARY=soffice
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: ankane/pgvector:pg16
+    environment:
+      POSTGRES_DB: aksara
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

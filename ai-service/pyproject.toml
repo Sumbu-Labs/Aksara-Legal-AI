@@ -1,0 +1,80 @@
+[project]
+name = "aksara-legal-ai-service"
+version = "0.1.0"
+description = "Aksara Legal AI microservice providing grounded legal Q&A and Autopilot document generation."
+authors = ["Aksara Legal AI Platform Team <platform@aksara.id>"]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.1",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "sqlalchemy-utils>=0.41.2",
+    "alembic>=1.13.2",
+    "psycopg[binary,pool]>=3.1.19",
+    "pgvector>=0.2.4",
+    "python-docx>=1.1.0",
+    "docxtpl>=0.16.7",
+    "tenacity>=8.3.0",
+    "structlog>=24.1.0",
+    "python-json-logger>=2.0.7",
+    "redis>=5.0.5",
+    "orjson>=3.10.5",
+    "pyjwt[crypto]>=2.8.0",
+    "passlib[bcrypt]>=1.7.4",
+    "aiofiles>=23.2.1",
+    "aiohttp>=3.9.5",
+    "respx>=0.20.2",
+    "qdrant-client>=1.9.0",
+    "rapidfuzz>=3.9.0",
+    "numpy>=1.26.4",
+    "jinja2>=3.1.4",
+    "phonenumberslite>=8.13.37",
+    "beautifulsoup4>=4.12.3",
+    "readability-lxml>=0.9.2",
+    "pdfminer.six>=20231228",
+    "python-slugify>=8.0.1"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.5.6",
+    "mypy>=1.10.0",
+    "pytest>=8.3.2",
+    "pytest-asyncio>=0.23.7",
+    "pytest-cov>=5.0.0",
+    "responses>=0.25.0",
+    "respx>=0.20.2",
+    "freezegun>=1.5.1"
+]
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --disable-warnings"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "N", "B", "UP", "S", "RUF"]
+ignore = ["B008", "B905", "S311", "S105", "S106", "S107"]
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+warn_unused_configs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+strict_optional = true
+namespace_packages = true
+packages = ["app"]
