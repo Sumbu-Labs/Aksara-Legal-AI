@@ -33,7 +33,7 @@ const benefits = [
 
 export function BenefitsSection() {
   return (
-    <section id="services" className="bg-background py-20 px-4 scroll-mt-24">
+    <section id="services" className="bg-background py-20 px-4 scroll-mt-16">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
