@@ -75,7 +75,7 @@ Aksara Legal AI adalah platform web SaaS yang bertindak sebagai Asisten Kepatuha
 
 - **US-17** – Pengguna melihat tombol "Buatkan Draf Dokumen" sesuai paket.
 - **US-18** – AI membuat draf dokumen menggunakan data profil dan berkas terunggah.
-- **US-19** – Pengguna dapat meninjau dan mengunduh dokumen (.docx/.pdf).
+- **US-19** – Pengguna dapat meninjau dan mengunduh dokumen (.html/.pdf).
 
 ### Epic: Manajemen Dokumen
 

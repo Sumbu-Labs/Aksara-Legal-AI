@@ -13,7 +13,10 @@ class UploadedDocument(BaseModel):
 
 
 class AutopilotOptions(BaseModel):
-    format: Literal["docx", "pdf"] = Field(default="docx")
+    format: Literal["html", "pdf", "docx"] = Field(
+        default="html",
+        description="Preferred output format. DOCX is deprecated and falls back to HTML.",
+    )
 
 
 class AutopilotRequest(BaseModel):
@@ -36,7 +39,7 @@ class FieldAuditEntry(BaseModel):
 
 class AutopilotSuccessResponse(BaseModel):
     status: Literal["ok"]
-    doc_url: str
+    doc_url: str = Field(description="Signed URL to the generated HTML document.")
     pdf_url: str | None = None
     field_audit: dict[str, FieldAuditEntry]
     model_meta: dict[str, Any]

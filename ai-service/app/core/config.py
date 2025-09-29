@@ -85,8 +85,6 @@ class AppSettings(BaseSettingsType):
 
     storage_signed_url_ttl_seconds: int = Field(default=3600)
 
-    libreoffice_binary: Optional[str] = Field(default=None, alias='LIBREOFFICE_BINARY')
-
 
 @lru_cache(maxsize=1)
 def get_settings() -> AppSettings:

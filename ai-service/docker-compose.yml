@@ -23,7 +23,6 @@ services:
       - JWT_ISSUER=https://auth.aksara.id/
       - JWT_AUDIENCE=aksara-legal-ai
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
-      - LIBREOFFICE_BINARY=soffice
     ports:
       - "7700:7700"
     networks:

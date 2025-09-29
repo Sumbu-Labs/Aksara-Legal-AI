@@ -33,8 +33,8 @@ class TemplateService:
         if not template:
             return None
         schema: dict[str, Any] = dict(template.json_schema)
-        metadata: dict[str, Any] = dict(schema.get("metadata", {}))
-        metadata["docx_template_url"] = template.docx_template_url
+    metadata: dict[str, Any] = dict(schema.get("metadata", {}))
+    metadata["html_template_url"] = template.html_template_url
         metadata["version_date"] = template.version_date.isoformat()
         schema["metadata"] = metadata
         return schema

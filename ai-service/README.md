@@ -5,7 +5,7 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
 ## Features
 
 - **Grounded Q&A** via Gemini 2.5 Pro with hybrid RAG (pgvector embeddings + BM25) and guardrails.
-- **Autopilot document generation** producing `.docx` (and optional `.pdf`) using JSON schema templates, deterministic mappings, and field-level audit trails.
+- **Autopilot document generation** producing accessible HTML (and optional WeasyPrint-powered PDF) using JSON schema templates, deterministic mappings, and field-level audit trails.
 - **Ingestion pipeline** for HTML/PDF sources with chunking, embeddings, and metadata versioning.
 - **Operational tooling**: structured logging, request IDs, rate limiting, Alembic migrations, Docker/Docker Compose, GitHub Actions CI.
 
@@ -58,7 +58,7 @@ This helper script builds the image defined in `Dockerfile`, then launches the c
 | `DATABASE_URL` | Async SQLAlchemy DSN (`postgresql+psycopg://...`). |
 | `GEMINI_API_KEY` | Google Gemini API key. |
 | `STORAGE_BUCKET_URL` | Base URL for generated documents. |
-| `ENABLE_PDF_EXPORT` | `true` to enable LibreOffice PDF conversion. |
+| `ENABLE_PDF_EXPORT` | `true` to enable HTML-to-PDF export via WeasyPrint. |
 | `JWT_PUBLIC_KEY` | PEM-encoded RSA public key for token validation. |
 
 See `.env.example` for the full list.
@@ -108,7 +108,7 @@ echo '{"question":"Apa perbedaan PIRT dan BPOM?","permit_type":"PIRT","region":"
 http POST :7700/v1/autopilot/generate Authorization:"Bearer $JWT" \
   permit_type=PIRT region=DIY user_id=demo-user \
   business_profile:='{"nama_usaha":"Warung Sehat","alamat":"Jl. Malioboro"}' \
-  options:='{"format":"docx"}'
+  options:='{"format":"pdf"}'
 ```
 
 ## Repository Structure
@@ -131,7 +131,7 @@ Dockerfile, docker-compose.yml, Makefile
 ## Next Steps
 
 - Seed regulatory sources via `/v1/ingest/upsert` to build the retrieval index (20–30 curated DIY references).
-- Upload template schemas/docx files into the `templates` table and storage bucket.
+- Upload template schemas/HTML files into the `templates` table and storage bucket.
 - Expand CI with integration tests connecting to ephemeral Postgres + mocked Gemini endpoints.
 
 ## License
