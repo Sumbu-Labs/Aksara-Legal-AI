@@ -1,0 +1,368 @@
+{
+  "metadata": {
+    "document_title": "Aksara Legal AI - MVP Technical Design",
+    "version": "1.0.0",
+    "last_updated": "2025-09-28",
+    "authors": [
+      "Hackathon Engineering Squad"
+    ],
+    "status": "Draft for implementation"
+  },
+  "product_overview": {
+    "vision": "Menjadi legal co-pilot yang terjangkau dan andal untuk UMKM dan Startup di Indonesia, mengotomatiskan kepatuhan regulasi agar para founder bisa fokus pada pertumbuhan bisnis mereka.",
+    "mission_hackathon": "Deliver a functional SaaS prototype that showcases personalized compliance discovery, AI-assisted Q&A, and automatic document generation for key permits (Halal, PIRT, BPOM).",
+    "problem_statement": {
+      "complexity": "Regulatory pathways are convoluted and filled with legal jargon, making it hard for founders to navigate requirements like Halal, PIRT, and BPOM permits.",
+      "administrative_burden": "Early-stage founders spend dozens of hours filling repetitive forms and managing compliance documents instead of growing their business.",
+      "budget_constraint": "UMKM and startups lack the funds to hire in-house legal staff or external consultants for every compliance need."
+    },
+    "key_quote": "Bagi startup dan UMKM, setiap jam dan setiap rupiah sangat berarti. Kami membangun Aksara Legal AI agar mereka tidak perlu lagi memilih antara pertumbuhan dan kepatuhan.",
+    "differentiators": [
+      "Personalized checklist generator tailored to Indonesian compliance requirements.",
+      "Conversational AI assistant powered by Gemini Pro for regulatory Q&A.",
+      "Aksara Autopilot that generates draft documents using business profile data and uploaded assets, reducing manual effort by approximately 80%."
+    ]
+  },
+  "user_personas": [
+    {
+      "name": "Sari Dewi",
+      "age": 32,
+      "role": "Founder of Kopi Harapan (UMKM)",
+      "location": "Sleman, DI Yogyakarta",
+      "needs": [
+        "Clear understanding of required permits based on business profile.",
+        "Fast, reliable support when interpreting regulatory differences like PIRT vs BPOM.",
+        "Automated assistance to generate submission-ready documents without hiring a consultant."
+      ],
+      "pain_points": [
+        "Feels lost when self-managing PIRT and Halal licensing processes.",
+        "Frustrated by repetitive data entry across multiple government forms.",
+        "Limited budget forces her to handle compliance tasks personally."
+      ],
+      "motivations": [
+        "Keep the business compliant while focusing on product and customers.",
+        "Minimize costs while maintaining professional operations.",
+        "Have confidence that documents and steps are accurate for audits." ]
+    }
+  ],
+  "goals_and_success_metrics": {
+    "mvp_objectives": [
+      "Demonstrate an end-to-end flow covering onboarding, checklist generation, AI Q&A, and automated document drafting.",
+      "Enable document upload management, notification viewing, and simulated payments within the same experience.",
+      "Showcase the value proposition of Aksara Autopilot through a live preview of generated permit documents."
+    ],
+    "demo_success_criteria": [
+      "The checklist generation sequence completes without error and displays three relevant permit cards (Halal, PIRT, BPOM).",
+      "The AI chat responds within 5 seconds, including supporting references when available.",
+      "The generate document button produces a preview-ready file populated with profile data."
+    ],
+    "post_demo_metrics": [
+      "Prototype readiness score from judges >= 8/10.",
+      "Document generation accuracy above 80% vs expected template fields.",
+      "Positive qualitative feedback on usability from at least 3 evaluators."
+    ]
+  },
+  "scope": {
+    "in_scope": [
+      "Email/password authentication with session handling.",
+      "Business profile onboarding and persistence.",
+      "Permit checklist engine for Halal, PIRT, BPOM based on business attributes.",
+      "Permit detail view with AI chat and Autopilot document generator.",
+      "Document upload center with metadata (filename, upload date).",
+      "Header notifications for checklist completion and payment status.",
+      "Pricing page with plan comparison and simulated Midtrans checkout.",
+      "Role-based gating that restricts Autopilot to eligible plans." ],
+    "out_of_scope": [
+      "Mobile applications (responsive web only).",
+      "Real Midtrans production integration (sandbox simulation only).",
+      "Advanced analytics dashboards beyond basic telemetry events.",
+      "Support for permits outside Halal, PIRT, BPOM in MVP." ]
+  },
+  "user_stories": [
+    {"id": "US-01", "epic": "Onboarding & Setup", "as_a": "new user", "i_want": "register with name, email, password", "so_that": "I can secure my account"},
+    {"id": "US-02", "epic": "Onboarding & Setup", "as_a": "registered user", "i_want": "login with email/password", "so_that": "I can access my dashboard"},
+    {"id": "US-03", "epic": "Onboarding & Setup", "as_a": "logged-in user", "i_want": "logout", "so_that": "my session stays secure"},
+    {"id": "US-04", "epic": "Onboarding & Setup", "as_a": "first time user", "i_want": "complete business profile", "so_that": "I receive relevant recommendations"},
+    {"id": "US-05", "epic": "Compliance Discovery", "as_a": "profiled user", "i_want": "generate checklist", "so_that": "I know required permits"},
+    {"id": "US-06", "epic": "Compliance Discovery", "as_a": "profiled user", "i_want": "view permit cards", "so_that": "I understand my obligations"},
+    {"id": "US-07", "epic": "Compliance Discovery", "as_a": "profiled user", "i_want": "open permit detail", "so_that": "I can deep dive and chat with AI"},
+    {"id": "US-08", "epic": "AI Assistant", "as_a": "permit-focused user", "i_want": "ask natural language questions", "so_that": "I receive quick guidance"},
+    {"id": "US-09", "epic": "AI Assistant", "as_a": "permit-focused user", "i_want": "see AI responses with references", "so_that": "I can trust the output"},
+    {"id": "US-10", "epic": "Document Management", "as_a": "user", "i_want": "upload compliance documents", "so_that": "I can reuse them later"},
+    {"id": "US-11", "epic": "Document Management", "as_a": "user", "i_want": "list uploaded documents", "so_that": "I can track my assets"},
+    {"id": "US-12", "epic": "Notifications", "as_a": "user", "i_want": "view notification bell", "so_that": "I know important updates"},
+    {"id": "US-13", "epic": "Notifications", "as_a": "user", "i_want": "open notification list", "so_that": "I can mark updates as read"},
+    {"id": "US-14", "epic": "Subscription Upgrade", "as_a": "free user", "i_want": "view pricing tiers", "so_that": "I can evaluate upgrades"},
+    {"id": "US-15", "epic": "Subscription Upgrade", "as_a": "free user", "i_want": "initiate upgrade via Midtrans simulation", "so_that": "I can unlock premium features"},
+    {"id": "US-16", "epic": "Subscription Upgrade", "as_a": "upgraded user", "i_want": "see account status update", "so_that": "I know I am Pro"},
+    {"id": "US-17", "epic": "Autopilot", "as_a": "eligible user", "i_want": "see generate document button", "so_that": "I can trigger automation"},
+    {"id": "US-18", "epic": "Autopilot", "as_a": "eligible user", "i_want": "auto-generated draft using profile data", "so_that": "I avoid manual work"},
+    {"id": "US-19", "epic": "Autopilot", "as_a": "eligible user", "i_want": "preview and download document", "so_that": "I can submit to authorities"}
+  ],
+  "experience_design": {
+    "primary_flows": [
+      {
+        "name": "Onboarding to Checklist",
+        "steps": [
+          "Registration form captures name, email, password with validation messages.",
+          "Email verification optional for MVP (flagged as future enhancement).",
+          "Business profile wizard collects business name, category, scale, location (DI Yogyakarta defaults).",
+          "Upon save, trigger checklist generation job and redirect to dashboard."
+        ],
+        "ui_notes": [
+          "Use progress indicator during checklist generation (skeleton cards).",
+          "Ensure responsive layout for 1280px demo screens and mobile fallback." ]
+      },
+      {
+        "name": "Permit Detail to Autopilot",
+        "steps": [
+          "User selects a permit card (e.g., PIRT) to open detail view.",
+          "Display permit overview, key steps, and compliance timeline.",
+          "Chat panel docked on right side for Q&A with source references.",
+          "Autopilot CTA visible if plan allows; clicking opens modal with loading state.",
+          "Generated preview displayed with inline PDF/Docx viewer and download button." ],
+        "ui_notes": [
+          "Highlight value proposition of Autopilot with success badge (\"80% faster\").",
+          "Provide fallback message when AI generation fails." ]
+      },
+      {
+        "name": "Pricing to Upgrade",
+        "steps": [
+          "User opens pricing page from header.",
+          "Cards compare Gratis, Satuan, Pro with feature checklist.",
+          "Upgrade button launches Midtrans sandbox modal (mock).",
+          "Upon success callback, show toast confirmation and update account badge." ],
+        "ui_notes": [
+          "Use accent color for Pro plan, highlight Autopilot unlimited benefit.",
+          "Include contact CTA for Partner Network (future)." ]
+      }
+    ],
+    "ux_requirements": [
+      "Consistent design system using TailwindCSS; leverage reusable components for cards, modals, chat interface.",
+      "Localization-ready copy (Bahasa Indonesia primary, English fallback).",
+      "Accessibility: maintain color contrast ratios >= 4.5:1 and keyboard navigability for primary flows." ]
+  },
+  "system_design": {
+    "architecture_overview": {
+      "description": "Three-tier architecture with Next.js frontend, NestJS backend, and AI microservice for RAG + document generation.",
+      "deployment_targets": {
+        "frontend": "Containerized Next.js app served on port 7500 (Docker).",
+        "backend": "NestJS service exposing REST/GraphQL APIs, containerized (default port 3000).",
+        "ai_service": "Python FastAPI microservice orchestrating Gemini Pro calls and template filling, containerized (port 8000).",
+        "database": "Managed PostgreSQL instance (with pgvector)."
+      }
+    },
+    "frontend_module": {
+      "framework": "Next.js 15 with App Router and TailwindCSS",
+      "key_pages": ["/login", "/register", "/onboarding", "/dashboard", "/permit/[id]", "/documents", "/pricing", "/notifications"],
+      "state_management": "React Server Components for data fetching, SWR/hooks for client interactions, Zustand (optional) for shared client state.",
+      "api_integration": "Use REST endpoints via fetch/axios with JWT session token stored in httpOnly cookies (SSR friendly).",
+      "realtime_needs": "Notification bell polls backend every 30s; future upgrade to WebSocket." },
+    "backend_module": {
+      "framework": "NestJS with modular architecture (AuthModule, ProfileModule, ComplianceModule, DocumentModule, NotificationModule, BillingModule).",
+      "authentication": "JWT + bcrypt password hashing; refresh token rotation for longer sessions.",
+      "business_logic": [
+        "Checklist service maps business attributes to permit requirements using rule engine tables.",
+        "Document service stores metadata and S3-compatible file references (mocked local storage for hackathon).",
+        "Billing service integrates with Midtrans sandbox APIs for charge simulation." ],
+      "integration_points": [
+        "Calls AI microservice for Q&A and document generation.",
+        "Triggers email (optional) or in-app notification using NotificationModule." ]
+    },
+    "ai_microservice": {
+      "stack": "Python FastAPI, Sentence Transformers for embeddings, pgvector for semantic retrieval, Gemini Pro for generative responses.",
+      "pipelines": [
+        {
+          "name": "Regulation Q&A",
+          "steps": ["Embed question", "Retrieve top-k regulation snippets", "Construct context-aware prompt", "Call Gemini Pro", "Post-process response with sources"]
+        },
+        {
+          "name": "Autopilot Document Generation",
+          "steps": ["Select document template", "Fetch user profile + uploaded docs", "Fill structured fields via template engine (Docx/PDF)", "Return base64 + metadata"]
+        }
+      ],
+      "latency_targets": {
+        "qa_response_ms": 5000,
+        "document_generation_ms": 8000
+      }
+    },
+    "data_storage": {
+      "primary_db": "PostgreSQL with pgvector extension",
+      "schemas": [
+        {
+          "table": "users",
+          "fields": {"id": "uuid", "name": "text", "email": "text unique", "password_hash": "text", "plan": "enum('FREE','SINGLE','PRO')", "created_at": "timestamp"}
+        },
+        {
+          "table": "business_profiles",
+          "fields": {"id": "uuid", "user_id": "uuid", "business_name": "text", "industry": "text", "scale": "text", "location": "text", "completed_at": "timestamp"}
+        },
+        {
+          "table": "permits",
+          "fields": {"id": "uuid", "type": "enum('HALAL','PIRT','BPOM')", "title": "text", "description": "text", "requirements": "jsonb"}
+        },
+        {
+          "table": "checklists",
+          "fields": {"id": "uuid", "user_id": "uuid", "permit_id": "uuid", "status": "enum('PENDING','READY','IN_PROGRESS','COMPLETED')", "generated_at": "timestamp"}
+        },
+        {
+          "table": "documents",
+          "fields": {"id": "uuid", "user_id": "uuid", "filename": "text", "storage_url": "text", "category": "text", "uploaded_at": "timestamp"}
+        },
+        {
+          "table": "notifications",
+          "fields": {"id": "uuid", "user_id": "uuid", "title": "text", "body": "text", "status": "enum('UNREAD','READ')", "created_at": "timestamp"}
+        },
+        {
+          "table": "transactions",
+          "fields": {"id": "uuid", "user_id": "uuid", "amount": "integer", "currency": "text", "plan": "text", "provider": "text", "status": "enum('PENDING','SUCCESS','FAILED')", "created_at": "timestamp"}
+        }
+      ],
+      "vector_store": {
+        "table": "regulation_chunks",
+        "fields": {"id": "uuid", "permit_type": "text", "content": "text", "embedding": "vector[1536]", "source_url": "text"}
+      }
+    },
+    "integration_contracts": {
+      "frontend_to_backend": {
+        "auth_endpoints": ["POST /auth/register", "POST /auth/login", "POST /auth/logout"],
+        "profile_endpoints": ["GET /profiles/me", "PUT /profiles/me"],
+        "checklist_endpoints": ["POST /checklists", "GET /checklists"],
+        "permit_endpoints": ["GET /permits/:id"],
+        "chat_endpoint": "POST /ai/chat",
+        "autopilot_endpoint": "POST /ai/autopilot",
+        "documents_endpoints": ["POST /documents", "GET /documents", "DELETE /documents/:id"],
+        "notifications_endpoints": ["GET /notifications", "POST /notifications/:id/read"],
+        "billing_endpoints": ["GET /pricing", "POST /billing/checkout", "POST /billing/webhook"]
+      },
+      "backend_to_ai": {
+        "chat": {
+          "endpoint": "POST /qa",
+          "payload": {"user_id": "uuid", "permit_type": "string", "question": "string"},
+          "response": {"answer": "string", "sources": [{"title": "string", "url": "string"}]}
+        },
+        "autopilot": {
+          "endpoint": "POST /documents/generate",
+          "payload": {"user_id": "uuid", "permit_type": "string", "profile": "object", "uploaded_documents": ["url"]},
+          "response": {"document_url": "string", "format": "string", "generated_at": "timestamp"}
+        }
+      },
+      "backend_to_payment": {
+        "midtrans": "Sandbox Snap API", "flow": ["Create transaction token", "Return payment URL", "Handle webhook callback"]
+      }
+    }
+  },
+  "non_functional_requirements": {
+    "performance": [
+      "Page-to-page navigation within 1s on broadband demo connection.",
+      "Checklist generation API < 3s for three permits.",
+      "File uploads up to 5 MB per document with progress indicator." ],
+    "scalability": [
+      "Architecture designed to support containerized deployment with horizontal scaling for frontend/backend.",
+      "AI service can queue document generation requests; consider worker pool for scale." ],
+    "security": [
+      "Enforce HTTPS for all endpoints (handled via proxy in deployment).",
+      "Store secrets using environment variables and secure secret manager on cloud deployment.",
+      "Implement RBAC checks for Autopilot access (plan-based).",
+      "Log all administrative actions for audit." ],
+    "observability": [
+      "Structured logging with request IDs.",
+      "Metrics for chat latency, document generation success rate, payment conversions.",
+      "Alerting on AI service failure or Midtrans callback errors." ]
+  },
+  "deployment_plan": {
+    "environments": ["local", "demo"],
+    "local_setup": {
+      "frontend": "npm run dev or docker-compose up --build (port 7500)",
+      "backend": "NestJS npm run start:dev (port 3000)",
+      "ai_service": "uvicorn main:app --reload (port 8000)",
+      "database": "Dockerized PostgreSQL with pgvector extension"
+    },
+    "containerization": [
+      "Frontend Dockerfile (already configured) using Next.js standalone output.",
+      "Backend Dockerfile to be created with multi-stage build for NestJS.",
+      "AI service Dockerfile with Python base, dependencies pinned.",
+      "docker-compose stack orchestrating services with shared network." ],
+    "demo_environment": {
+      "hosting": "Cloud VM or managed container platform (e.g., GCP Cloud Run / AWS ECS).",
+      "domain": "Custom subdomain with TLS termination.",
+      "monitoring": "Use lightweight uptime monitor (Statuscake/Better Uptime)."
+    }
+  },
+  "analytics_and_experiments": {
+    "core_events": [
+      "onboarding_completed",
+      "checklist_generated",
+      "permit_detail_viewed",
+      "ai_chat_message_sent",
+      "autopilot_document_generated",
+      "document_uploaded",
+      "notification_opened",
+      "pricing_viewed",
+      "plan_upgraded"
+    ],
+    "dashboards": "Simple metrics board showing daily active users, documents generated, conversion funnel (free -> single -> pro).",
+    "experimentation_notes": "A/B testing out of scope for MVP but instrumentation supports future experiments."
+  },
+  "risks_and_mitigations": [
+    {
+      "risk": "Gemini API quota or latency issues during live demo",
+      "impact": "AI responses failing or slow",
+      "mitigation": "Cache canonical responses for top questions and provide scripted fallback message."
+    },
+    {
+      "risk": "Autopilot document templates misaligned with official forms",
+      "impact": "Generated output unusable",
+      "mitigation": "Validate templates with SMEs and include manual edit field in preview." },
+    {
+      "risk": "Midtrans sandbox downtime",
+      "impact": "Upgrade flow breaks",
+      "mitigation": "Provide offline simulation toggle with mocked success response." },
+    {
+      "risk": "Limited time to implement full notification center",
+      "impact": "Feature gap versus PRD",
+      "mitigation": "Ship MVP with in-app toast log and stub icon; expand post-hackathon." }
+  ],
+  "implementation_timeline": {
+    "assumptions": ["Team of 3 full-stack developers over hackathon weekend"],
+    "phases": [
+      {
+        "name": "Day 0 (Pre-hack)",
+        "focus": ["Finalize architecture", "Prepare templates and seed data", "Set up repositories and CI"],
+        "deliverables": ["Design document (this file)", "Project scaffolding"]
+      },
+      {
+        "name": "Day 1",
+        "focus": ["Authentication & onboarding", "Checklist engine backend", "Dashboard UI skeleton"],
+        "deliverables": ["Auth flows working", "Checklist generation API", "Dashboard permit cards"]
+      },
+      {
+        "name": "Day 2",
+        "focus": ["AI Q&A integration", "Document management module", "Autopilot service"],
+        "deliverables": ["Chat UI with live responses", "Upload & list documents", "Autopilot preview ready"]
+      },
+      {
+        "name": "Day 3",
+        "focus": ["Pricing & payment simulation", "Notifications", "Polish + demo script"],
+        "deliverables": ["Upgrade flow demo-ready", "Notification bell with feed", "Staging environment with seeded data"]
+      }
+    ]
+  },
+  "appendices": {
+    "business_model_summary": {
+      "plans": [
+        {"name": "Gratis", "price_idr": 0, "features": ["10 AI questions per month", "3 document uploads", "Checklist access"]},
+        {"name": "Satuan", "price_idr": 75000, "features": ["Unlimited Q&A for purchased permit", "Unlimited uploads for permit", "1x Autopilot per permit"]},
+        {"name": "Pro", "price_idr": 49000, "billing": "monthly (charged annually)", "features": ["Unlimited AI Q&A", "Unlimited uploads", "Unlimited Autopilot", "Priority support"]}
+      ],
+      "conversion_path": ["Gratis discovery", "Pay-per-permit upgrade", "Annual Pro subscription"],
+      "future_extension": "Aksara Partner Network for certified legal consultants with revenue share."
+    },
+    "demo_script_outline": [
+      "Hook with Sari persona and problem narrative.",
+      "Showcase login, profile, checklist generation.",
+      "Demonstrate AI Q&A differentiator.",
+      "Trigger Autopilot and highlight completion speed.",
+      "Complete upgrade flow and reinforce long-term vision." ]
+  }
+}
