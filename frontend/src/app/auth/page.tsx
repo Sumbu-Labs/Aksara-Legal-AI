@@ -104,21 +104,12 @@ export default function AuthPage(): JSX.Element {
         >
           <div className="relative h-full w-full overflow-hidden">
             <Image
-              src="/images/login.png"
-              alt="Profesional sedang meninjau dokumen kepatuhan"
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className={`object-cover transition-opacity duration-700 ease-in-out ${isLogin ? 'opacity-100' : 'opacity-0'}`}
-              priority
-            />
-            <Image
               src="/images/login2.png"
-              alt="Tim bisnis berkolaborasi menggunakan Aksara Legal AI"
+              alt="Ilustrasi profesional yang menggunakan Aksara Legal AI"
               fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className={`object-cover transition-opacity duration-700 ease-in-out ${isLogin ? 'opacity-0' : 'opacity-100'}`}
+              className="object-cover"
               priority
-            />
+            />            
           </div>
         </aside>
       </div>
