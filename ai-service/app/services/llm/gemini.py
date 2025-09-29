@@ -23,9 +23,13 @@ class GeminiClient:
         self._timeout = settings.llm_timeout_seconds
         self._max_retries = settings.llm_max_retries
         self._base_url = "https://generativelanguage.googleapis.com/v1beta"
+        self._default_headers = {
+            "x-goog-api-key": self._api_key,
+            "Content-Type": "application/json",
+        }
 
     async def _post(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
-        url = f"{self._base_url}/{endpoint}?key={self._api_key}"
+        url = f"{self._base_url}/{endpoint}"
         async with httpx.AsyncClient(timeout=self._timeout) as client:
             async for attempt in AsyncRetrying(
                 stop=stop_after_attempt(self._max_retries),
@@ -34,7 +38,7 @@ class GeminiClient:
                 reraise=True,
             ):
                 with attempt:
-                    response = await client.post(url, json=payload)
+                    response = await client.post(url, json=payload, headers=self._default_headers)
                     response.raise_for_status()
                     data = cast(dict[str, Any], response.json())
                     logger.debug("gemini_api_response", payload=payload, data=data)
@@ -43,15 +47,20 @@ class GeminiClient:
 
     async def embed_text(self, text: str) -> list[float]:
         payload = {
-            "input": {
-                "content": {
-                    "parts": [{"text": text}],
-                }
+            "content": {
+                "parts": [{"text": text}],
             }
         }
         endpoint = f"models/{self._embed_model}:embedContent"
         data = await self._post(endpoint, payload)
-        values = data.get("embedding", {}).get("values")
+        embedding: Any | None = data.get("embedding")
+        if embedding is None and "embeddings" in data:
+            embeddings = data.get("embeddings")
+            if isinstance(embeddings, list) and embeddings:
+                embedding = embeddings[0]
+        values = None
+        if isinstance(embedding, dict):
+            values = embedding.get("values") or embedding.get("value")
         if not isinstance(values, list):
             raise ValueError("Empty embedding response from Gemini")
         try:
@@ -63,7 +72,9 @@ class GeminiClient:
         payload = {
             "system_instruction": {"parts": [{"text": prompt}]},
             "contents": list(contents),
-            "safety_settings": [{"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_LOW_AND_ABOVE"}],
+            "safetySettings": [
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_LOW_AND_ABOVE"}
+            ],
         }
         endpoint = f"models/{self._qa_model}:generateContent"
         return await self._post(endpoint, payload)

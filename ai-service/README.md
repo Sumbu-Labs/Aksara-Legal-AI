@@ -68,6 +68,42 @@ See `.env.example` for the full list.
 - Scalar UI: `http://localhost:7700/docs` (renders the OpenAPI spec with live calls)
 - Raw OpenAPI schema: `http://localhost:7700/openapi.json`
 
+### Authentication & Rate Limiting
+
+- JWT bearer auth is required for every endpoint except `GET /v1/health`.
+- Provide `Authorization: Bearer <JWT>` in Scalar's "Authorize" dialog (top-right) or attach headers manually.
+- Valid tokens unlock tenant-aware rate limiting and context binding; requests without a token are rejected with `401`.
+
+### Standard Error Format
+
+All error responses conform to `ErrorResponse`:
+
+```json
+{
+  "status": "error",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "message": "You have reached the limit of 5 requests per minute."
+}
+```
+
+- `code` values map to internal error identifiers (e.g., `RESOURCE_NOT_FOUND`, `MODEL_UNAVAILABLE`).
+- Inspect Scalar's Responses section for each route to view HTTP status mappings (401, 404, 429, 500).
+
+### Tag Overview
+
+- **QA** — grounded legal Q&A endpoints backed by RAG.
+- **Autopilot** — document generation workflows and template helpers.
+- **Ingest** — content ingestion and refresh operations.
+- **Templates** — permit-specific JSON schema metadata.
+- **Health** — unauthenticated readiness probe.
+
+Server URLs declared in the spec:
+
+| Environment | Base URL |
+| --- | --- |
+| Local | `http://localhost:7700` |
+| Production (example) | `https://api.aksaralegal.id` |
+
 ## API Overview
 
 - `POST /v1/qa/query` — ask legal questions; always returns grounded answers or "Saya tidak dapat memverifikasi ini.". Citations include URL, section, and version date metadata.

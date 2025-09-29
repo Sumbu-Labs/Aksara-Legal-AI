@@ -13,8 +13,19 @@ from app.services.llm.gemini import get_gemini_client
 router = APIRouter(prefix="/v1/health", tags=["health"])
 
 
-@router.get("", response_model=HealthStatus)
+@router.get(
+    "",
+    response_model=HealthStatus,
+    summary="System readiness probe",
+    response_description="Aggregated health indicators for core dependencies.",
+    responses={
+        500: {
+            "description": "The service is running but one or more dependencies are unhealthy.",
+        }
+    },
+)
 async def health_check(session=Depends(get_db_session)) -> HealthStatus:
+    """Check readiness of database, retrieval index, and LLM providers."""
     details: dict[str, str] = {}
 
     try:
