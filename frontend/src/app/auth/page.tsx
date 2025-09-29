@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { FormEvent, JSX } from 'react';
 import { useCallback, useState } from 'react';
@@ -96,15 +97,19 @@ export default function AuthPage(): JSX.Element {
         </section>
 
         <aside
-          className={`absolute inset-y-0 left-0 hidden w-full transform bg-secondary transition-transform duration-500 ease-in-out lg:block lg:w-1/2 lg:z-20 ${
+          className={`absolute inset-y-0 left-0 hidden w-full transform transition-transform duration-500 ease-in-out lg:block lg:w-1/2 lg:z-20 ${
             isLogin ? 'translate-x-0' : 'translate-x-full'
           }`}
           aria-hidden="true"
         >
-          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_rgba(0,0,0,0.15))] text-center text-neutral-mid">
-            <span className="max-w-xs text-sm font-semibold uppercase tracking-[0.3em]">
-              Area Visual
-            </span>
+          <div className="relative h-full w-full overflow-hidden">
+            <Image
+              src="/images/login2.png"
+              alt="Ilustrasi profesional yang menggunakan Aksara Legal AI"
+              fill
+              className="object-cover"
+              priority
+            />            
           </div>
         </aside>
       </div>
