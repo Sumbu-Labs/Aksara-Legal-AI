@@ -13,13 +13,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 @import "tailwindcss";
 
 :root {
@@ -43,13 +36,6 @@
   --box-shadow-modal: 0 12px 32px rgba(15, 23, 42, 0.18);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -58,8 +44,38 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-anton), Arial, Helvetica, sans-serif;
+  font-weight: 500;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-anton), Arial, Helvetica, sans-serif;
+html {
+  scroll-behavior: smooth;
+}
+
+.partner-marquee {
+  display: flex;
+  width: max-content;
+  animation: partner-marquee 60s linear infinite;
+}
+
+.partner-marquee:hover {
+  animation-play-state: paused;
+}
+
+.partner-track {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  padding-right: 3rem;
+  padding-left: 0;
+  list-style: none;
+  margin: 0;
+}
+
+@keyframes partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

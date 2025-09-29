@@ -1,0 +1,71 @@
+import Image from 'next/image';
+
+const partners = [
+  {
+    name: 'GIK UGM',
+    logoSrc: '/partners/gik.png',
+    width: 180,
+    height: 87,
+  },
+  {
+    name: 'UGM',
+    logoSrc: '/partners/gadjah-mada.png',
+    width: 80,
+    height: 80,
+  },
+  {
+    name: 'DTETI UGM',
+    logoSrc: '/partners/dteti.png',
+    width: 225,
+    height: 225,
+  },
+  {
+    name: 'DIKE UGM',
+    logoSrc: '/partners/dike-ugm.png',
+    width: 225,
+    height: 225,
+  },
+];
+
+// Duplicate the lineup so the marquee never shows an empty gap mid-loop.
+const marqueePartners = Array.from({ length: 3 }).flatMap(() => partners);
+
+export function PartnersSection() {
+  return (
+    <section className="bg-secondary/30 py-12">
+      <div className="w-full">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-mid md:text-base">
+            Dipercayai oleh
+          </p>
+        </div>
+        <div className="mt-8 overflow-hidden">
+          <div className="partner-marquee">
+            {[0, 1].map((index) => (
+              <ul
+                key={index}
+                className="partner-track"
+                aria-hidden={index === 1}
+              >
+                {marqueePartners.map((partner, partnerIndex) => (
+                  <li
+                    key={`${partner.name}-${index}-${partnerIndex}`}
+                    className="flex h-24 w-48 shrink-0 items-center justify-center border-2 border-neutral-light bg-white/90 p-4 shadow-card backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg"
+                  >
+                    <Image
+                      src={partner.logoSrc}
+                      alt={partner.name}
+                      width={partner.width}
+                      height={partner.height}
+                      className="h-12 w-auto object-contain"
+                    />
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
