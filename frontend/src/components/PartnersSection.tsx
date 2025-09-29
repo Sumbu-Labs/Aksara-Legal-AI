@@ -27,6 +27,9 @@ const partners = [
   },
 ];
 
+// Duplicate the lineup so the marquee never shows an empty gap mid-loop.
+const marqueePartners = Array.from({ length: 3 }).flatMap(() => partners);
+
 export function PartnersSection() {
   return (
     <section className="bg-secondary/30 py-12">
@@ -44,9 +47,9 @@ export function PartnersSection() {
                 className="partner-track"
                 aria-hidden={index === 1}
               >
-                {partners.map((partner) => (
+                {marqueePartners.map((partner, partnerIndex) => (
                   <li
-                    key={`${partner.name}-${index}`}
+                    key={`${partner.name}-${index}-${partnerIndex}`}
                     className="flex h-24 w-48 shrink-0 items-center justify-center rounded-2xl border border-neutral-light bg-white/90 p-4 shadow-card backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg"
                   >
                     <Image

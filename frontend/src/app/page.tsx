@@ -12,6 +12,8 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <HeroSection />
 
+      <SectionSeparatorHorizontal />
+
       <PartnersSection />
 
       <SectionSeparatorHorizontal />

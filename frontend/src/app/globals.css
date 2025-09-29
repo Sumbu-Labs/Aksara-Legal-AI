@@ -50,7 +50,7 @@ h1, h2, h3, h4, h5, h6 {
 .partner-marquee {
   display: flex;
   width: max-content;
-  animation: partner-marquee 28s linear infinite;
+  animation: partner-marquee 60s linear infinite;
 }
 
 .partner-marquee:hover {
