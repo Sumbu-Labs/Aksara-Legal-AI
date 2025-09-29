@@ -23,15 +23,15 @@ export default function Home() {
 
       <SectionSeparatorHorizontal />
 
+      <HowItWorksSection />
+
+      <SectionSeparatorHorizontal />
+
       <ProblemSection />
 
       <SectionSeparatorHorizontal />
 
       <SolutionSection />
-
-      <SectionSeparatorHorizontal />
-
-      <HowItWorksSection />
 
       <SectionSeparatorHorizontal />
 

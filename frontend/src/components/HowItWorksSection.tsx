@@ -1,41 +1,51 @@
+const steps = [
+  {
+    title: 'Buat akun & pilih tujuan',
+    description:
+      'Daftarkan tim Anda, pilih jenis usaha, dan tentukan target kepatuhan yang ingin dicapai.',
+  },
+  {
+    title: 'Lengkapi profil bisnis',
+    description:
+      'Jawab beberapa pertanyaan kunci seputar legalitas, lokasi, dan struktur usaha untuk memetakan kewajiban.',
+  },
+  {
+    title: 'Aktifkan co-pilot',
+    description:
+      'Terima checklist prioritas, atur workflow, dan gunakan AI untuk menjawab pertanyaan serta menyiapkan dokumen.',
+  },
+];
+
 export function HowItWorksSection() {
   return (
-    <section className="py-16 px-4 bg-background">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-dark mb-12 text-center">
-          Cara Kerja Aksara Legal AI
-        </h2>
-        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">1</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Daftar</h3>
-            <p className="text-sm text-neutral-mid">Buat akun gratis dalam hitungan menit</p>
-          </div>
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">2</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Profile</h3>
-            <p className="text-sm text-neutral-mid">Isi profil usaha Anda</p>
-          </div>
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">3</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Checklist</h3>
-            <p className="text-sm text-neutral-mid">Dapatkan checklist perizinan</p>
-          </div>
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">4</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">AI Chat</h3>
-            <p className="text-sm text-neutral-mid">Tanyakan pertanyaan hukum</p>
-          </div>
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">5</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Generate</h3>
-            <p className="text-sm text-neutral-mid">Buat draf dokumen</p>
-          </div>
-          <div className="text-center border-black border-2 bg-secondary p-6 shadow-card">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto text-white font-bold text-lg">6</div>
-            <h3 className="font-heading text-lg font-semibold text-neutral-dark mb-2">Upgrade</h3>
-            <p className="text-sm text-neutral-mid">Tingkatkan untuk fitur premium</p>
-          </div>
+    <section className="bg-secondary/40 py-20 px-4">
+      <div className="mx-auto max-w-6xl">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
+            How it works?
+          </p>
+          <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
+            Mulai dalam tiga langkah mudah
+          </h2>
+        </div>
+
+        <div className="mt-16 grid gap-10 md:grid-cols-3">
+          {steps.map((step, index) => (
+            <div
+              key={step.title}
+              className="flex flex-col gap-6 border border-neutral-light bg-white/90 p-8 text-left shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg"
+            >
+              <div className="flex items-center gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-semibold text-white">
+                  {index + 1}
+                </span>
+                <h3 className="font-heading text-xl font-semibold text-neutral-dark">
+                  {step.title}
+                </h3>
+              </div>
+              <p className="text-base leading-relaxed text-neutral-mid">{step.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
