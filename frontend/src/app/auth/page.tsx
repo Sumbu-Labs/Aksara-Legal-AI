@@ -232,7 +232,7 @@ function RegisterForm({ onSwitchMode, onSubmit, isSubmitting }: RegisterFormProp
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          className="w-full cursor-pointer border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Memproses...' : 'Daftar'}
@@ -311,7 +311,7 @@ function LoginForm({ onSwitchMode, onSubmit, isSubmitting }: LoginFormProps): JS
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          className="w-full cursor-pointer border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Memproses...' : 'Masuk'}
