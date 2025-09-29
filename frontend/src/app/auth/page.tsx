@@ -77,7 +77,7 @@ function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Eleme
             name="name"
             type="text"
             required
-            placeholder="Contoh: Dzikran Maulana"
+            placeholder="Contoh: Fulan bin Fulan"
             className="w-full border-2 border-neutral-light bg-secondary/20 px-4 py-3 text-sm text-neutral-dark transition-colors focus:border-primary focus:outline-none"
           />
         </div>
