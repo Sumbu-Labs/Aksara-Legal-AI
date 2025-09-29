@@ -21,9 +21,6 @@ export function HowItWorksSection() {
     <section className="bg-secondary/40 py-20 px-4">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
-            How it works?
-          </p>
           <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
             Mulai dalam tiga langkah mudah
           </h2>
