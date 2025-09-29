@@ -32,15 +32,24 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
    .venv/Scripts/uvicorn app.main:app --reload
    ```
 
-5. Open `http://localhost:8000/docs` to launch the Scalar API Reference (served from this service).
+5. Open `http://localhost:7700/docs` to launch the Scalar API Reference (served from this service).
 
 ### Docker Compose
 
 ```sh
+docker network create aksara_network  # run once if the shared network doesn't exist
 docker-compose up --build
 ```
 
-The API listens on `http://localhost:8000`; Postgres is available on `localhost:5432`.
+The compose stack attaches to the shared `aksara_network` bridge so it can talk to sibling services (backend, frontend, etc.). The API listens on `http://localhost:7700`; Postgres is available on `localhost:5432`.
+
+### One-shot Docker build & run script
+
+```sh
+./scripts/run-docker.sh
+```
+
+This helper script builds the image defined in `Dockerfile`, then launches the container while mounting `generated/` back to the host. Customize behavior with flags such as `--port 9000`, `--env-file path/to/.env`, `--image my-registry/aksara`, or `--build-only` to skip the run step. Pass extra `docker run` options after `--`, for example `./scripts/run-docker.sh -- -e DEBUG=true`.
 
 ## Key Environment Variables
 
@@ -55,8 +64,9 @@ The API listens on `http://localhost:8000`; Postgres is available on `localhost:
 See `.env.example` for the full list.
 
 ## API Reference
-- Scalar UI: `http://localhost:8000/docs` (renders the OpenAPI spec with live calls)
-- Raw OpenAPI schema: `http://localhost:8000/openapi.json`
+
+- Scalar UI: `http://localhost:7700/docs` (renders the OpenAPI spec with live calls)
+- Raw OpenAPI schema: `http://localhost:7700/openapi.json`
 
 ## API Overview
 
@@ -92,10 +102,10 @@ pytest
 ```sh
 # 1. Ask a question
 echo '{"question":"Apa perbedaan PIRT dan BPOM?","permit_type":"PIRT","region":"DIY","user_id":"demo-user"}' \
-  | http POST :8000/v1/qa/query Authorization:"Bearer $JWT"
+  | http POST :7700/v1/qa/query Authorization:"Bearer $JWT"
 
 # 2. Generate document
-http POST :8000/v1/autopilot/generate Authorization:"Bearer $JWT" \
+http POST :7700/v1/autopilot/generate Authorization:"Bearer $JWT" \
   permit_type=PIRT region=DIY user_id=demo-user \
   business_profile:='{"nama_usaha":"Warung Sehat","alamat":"Jl. Malioboro"}' \
   options:='{"format":"docx"}'

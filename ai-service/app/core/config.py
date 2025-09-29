@@ -11,7 +11,7 @@ class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=('.env',), env_file_encoding='utf-8', extra='ignore')
 
     app_env: Literal['local', 'dev', 'staging', 'prod'] = Field(default='local', alias='APP_ENV')
-    port: int = Field(default=8000, alias='PORT')
+    port: int = Field(default=7700, alias='PORT')
     log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = Field(
         default='INFO',
         alias='LOG_LEVEL',

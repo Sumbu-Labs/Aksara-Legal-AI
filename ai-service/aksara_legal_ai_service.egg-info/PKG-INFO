@@ -80,7 +80,7 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
    .venv/Scripts/uvicorn app.main:app --reload
    ```
 
-5. Open `http://localhost:8000/docs` for OpenAPI UI.
+5. Open `http://localhost:7700/docs` for OpenAPI UI.
 
 ### Docker Compose
 
@@ -88,7 +88,7 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
 docker-compose up --build
 ```
 
-The API listens on `http://localhost:8000`; Postgres is available on `localhost:5432`.
+The API listens on `http://localhost:7700`; Postgres is available on `localhost:5432`.
 
 ## Key Environment Variables
 
@@ -136,10 +136,10 @@ pytest
 ```sh
 # 1. Ask a question
 echo '{"question":"Apa perbedaan PIRT dan BPOM?","permit_type":"PIRT","region":"DIY","user_id":"demo-user"}' \
-  | http POST :8000/v1/qa/query Authorization:"Bearer $JWT"
+  | http POST :7700/v1/qa/query Authorization:"Bearer $JWT"
 
 # 2. Generate document
-http POST :8000/v1/autopilot/generate Authorization:"Bearer $JWT" \
+http POST :7700/v1/autopilot/generate Authorization:"Bearer $JWT" \
   permit_type=PIRT region=DIY user_id=demo-user \
   business_profile:='{"nama_usaha":"Warung Sehat","alamat":"Jl. Malioboro"}' \
   options:='{"format":"docx"}'

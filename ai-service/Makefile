@@ -20,7 +20,7 @@ test:
 	.venv/Scripts/pytest
 
 dev:
-	.venv/Scripts/uvicorn app.main:app --reload --host 0.0.0.0 --port $${PORT:-8000}
+	.venv/Scripts/uvicorn app.main:app --reload --host 0.0.0.0 --port $${PORT:-7700}
 
 run:
-	.venv/Scripts/uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000}
+	.venv/Scripts/uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-7700}

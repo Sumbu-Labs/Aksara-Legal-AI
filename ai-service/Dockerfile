@@ -17,5 +17,5 @@ COPY --from=builder /usr/local /usr/local
 COPY . .
 RUN mkdir -p generated && chown -R appuser:appuser /app
 USER appuser
-EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 7700
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7700"]
