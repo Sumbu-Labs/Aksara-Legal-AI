@@ -16,6 +16,8 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   businessProfile  BusinessProfile?
+  documents        Document[]
+  documentVersions DocumentVersion[] @relation("DocumentVersionUploader")
 }
 
 model BusinessProfile {
@@ -32,6 +34,7 @@ model BusinessProfile {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   permits        BusinessPermitProfile[]
+  documents     Document[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -51,6 +54,48 @@ model BusinessPermitProfile {
 
   @@unique([businessProfileId, permitType])
   @@index([permitType])
+}
+
+model Document {
+  id               String             @id @default(uuid())
+  userId           String
+  businessProfileId String?
+  permitType       PermitType?
+  label            String?
+  currentVersionId String? @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessProfile  BusinessProfile?   @relation(fields: [businessProfileId], references: [id], onDelete: SetNull)
+  currentVersion   DocumentVersion?   @relation("CurrentDocumentVersion", fields: [currentVersionId], references: [id])
+  versions         DocumentVersion[]
+
+  @@index([userId])
+  @@index([businessProfileId])
+}
+
+model DocumentVersion {
+  id               String           @id @default(uuid())
+  documentId       String
+  version          Int
+  storageKey       String           @unique
+  originalFilename String
+  mimeType         String
+  size             BigInt
+  checksum         String?
+  notes            String?
+  metadata         Json?
+  uploadedBy       String?
+  createdAt        DateTime         @default(now())
+
+  document         Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  uploader         User?            @relation("DocumentVersionUploader", fields: [uploadedBy], references: [id], onDelete: SetNull)
+  currentFor       Document?        @relation("CurrentDocumentVersion")
+
+  @@unique([documentId, version])
+  @@index([uploadedBy])
 }
 
 enum BusinessType {

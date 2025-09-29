@@ -142,8 +142,9 @@ export class AuthService {
   }
 
   private async hash(data: string): Promise<string> {
-    const saltRounds = this.configService.get<number>('BCRYPT_SALT_ROUNDS') ?? DEFAULT_BCRYPT_SALT;
-    return bcrypt.hash(data, saltRounds);
+    const configured = this.configService.get<string>('BCRYPT_SALT_ROUNDS');
+    const saltRounds = configured ? Number.parseInt(configured, 10) : DEFAULT_BCRYPT_SALT;
+    return bcrypt.hash(data, Number.isNaN(saltRounds) ? DEFAULT_BCRYPT_SALT : saltRounds);
   }
 
   private getAccessTokenSecret(): string {
