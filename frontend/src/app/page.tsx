@@ -5,6 +5,7 @@ import { BenefitsSection } from '../components/BenefitsSection';
 import { HowItWorksSection } from '../components/HowItWorksSection';
 import { PricingSection } from '../components/PricingSection';
 import { TestimonialsSection } from '../components/TestimonialsSection';
+import { FAQSection } from '../components/FAQSection';
 import { ProblemSection } from '../components/ProblemSection';
 //import { SolutionSection } from '../components/SolutionSection';
 import { CTASection } from '../components/CTASection';
@@ -38,6 +39,10 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       <TestimonialsSection />
+
+      <SectionSeparatorHorizontal />
+
+      <FAQSection />
 
       <SectionSeparatorHorizontal />
 
