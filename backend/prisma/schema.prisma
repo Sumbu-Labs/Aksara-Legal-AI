@@ -15,4 +15,62 @@ model User {
   refreshTokenHash String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  businessProfile  BusinessProfile?
+}
+
+model BusinessProfile {
+  id             String              @id @default(uuid())
+  userId         String              @unique
+  businessName   String
+  businessType   BusinessType
+  businessScale  BusinessScale
+  province       String?
+  city           String?
+  address        String?
+  industryTags   String[] @default([])
+  completedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  permits        BusinessPermitProfile[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BusinessPermitProfile {
+  id                  String         @id @default(uuid())
+  businessProfileId   String
+  permitType          PermitType
+  formData            Json?
+  fieldChecklist      Json?
+  documents           Json?
+  isChecklistComplete Boolean        @default(false)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  businessProfile BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([businessProfileId, permitType])
+  @@index([permitType])
+}
+
+enum BusinessType {
+  FOOD_BEVERAGE
+  TECH_STARTUP
+  SERVICES
+  MANUFACTURING
+  RETAIL
+  OTHER
+}
+
+enum BusinessScale {
+  MICRO
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum PermitType {
+  HALAL
+  PIRT
+  BPOM
 }
