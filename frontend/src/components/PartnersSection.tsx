@@ -30,10 +30,12 @@ const partners = [
 export function PartnersSection() {
   return (
     <section className="bg-secondary/30 py-12">
-      <div className="max-w-6xl mx-auto px-4">
-        <p className="text-xs font-medium uppercase tracking-[0.4em] text-neutral-mid">
-          Dipercayai oleh
-        </p>
+      <div className="w-full">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-mid md:text-base">
+            Dipercayai oleh
+          </p>
+        </div>
         <div className="mt-8 overflow-hidden">
           <div className="partner-marquee">
             {[0, 1].map((index) => (
