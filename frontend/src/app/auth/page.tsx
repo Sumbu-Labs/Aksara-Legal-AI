@@ -104,12 +104,21 @@ export default function AuthPage(): JSX.Element {
         >
           <div className="relative h-full w-full overflow-hidden">
             <Image
-              src="/images/login2.png"
-              alt="Ilustrasi profesional yang menggunakan Aksara Legal AI"
+              src="/images/login.png"
+              alt="Profesional sedang meninjau dokumen kepatuhan"
               fill
-              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className={`object-cover transition-opacity duration-700 ease-in-out ${isLogin ? 'opacity-100' : 'opacity-0'}`}
               priority
-            />            
+            />
+            <Image
+              src="/images/login2.png"
+              alt="Tim bisnis berkolaborasi menggunakan Aksara Legal AI"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className={`object-cover transition-opacity duration-700 ease-in-out ${isLogin ? 'opacity-0' : 'opacity-100'}`}
+              priority
+            />
           </div>
         </aside>
       </div>
@@ -232,7 +241,7 @@ function RegisterForm({ onSwitchMode, onSubmit, isSubmitting }: RegisterFormProp
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          className="w-full cursor-pointer border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Memproses...' : 'Daftar'}
@@ -311,7 +320,7 @@ function LoginForm({ onSwitchMode, onSubmit, isSubmitting }: LoginFormProps): JS
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          className="w-full cursor-pointer border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Memproses...' : 'Masuk'}
