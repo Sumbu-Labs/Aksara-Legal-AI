@@ -8,11 +8,12 @@ export function Navbar() {
           Aksara
         </Link>
 
-        <nav className="hidden md:flex gap-8 items-center text-sm">
-          <Link href="#features" className="hover:underline">Features</Link>
-          <Link href="#how" className="hover:underline">How it works</Link>
-          <Link href="#pricing" className="hover:underline">Pricing</Link>
-          <Link href="#contact" className="hover:underline">Contact</Link>
+        <nav className="hidden md:flex gap-8 items-center text-base font-semibold">
+          <Link href="#services" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Services</Link>
+          <Link href="#how" className="text-neutral-mid transition-colors hover:text-primary hover:underline">How it works</Link>
+          <Link href="#testimonials" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Testimonials</Link>
+          <Link href="#pricing" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Pricing</Link>
+          <Link href="#faq" className="text-neutral-mid transition-colors hover:text-primary hover:underline">FAQ</Link>
         </nav>
 
         <div className="ml-4">
