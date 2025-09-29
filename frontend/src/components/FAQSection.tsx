@@ -37,9 +37,6 @@ export function FAQSection() {
     <section className="bg-background py-20 px-4">
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
-            FAQ
-          </p>
           <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
             Pertanyaan yang sering ditanyakan
           </h2>

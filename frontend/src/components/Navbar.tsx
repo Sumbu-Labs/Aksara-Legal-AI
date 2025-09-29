@@ -9,15 +9,15 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex gap-8 items-center text-base font-semibold">
-          <Link href="#services" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Services</Link>
-          <Link href="#how" className="text-neutral-mid transition-colors hover:text-primary hover:underline">How it works</Link>
-          <Link href="#testimonials" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Testimonials</Link>
-          <Link href="#pricing" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Pricing</Link>
+          <Link href="#services" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Layanan</Link>
+          <Link href="#how" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Cara Kerja</Link>
+          <Link href="#testimonials" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Testimonial</Link>
+          <Link href="#pricing" className="text-neutral-mid transition-colors hover:text-primary hover:underline">Harga</Link>
           <Link href="#faq" className="text-neutral-mid transition-colors hover:text-primary hover:underline">FAQ</Link>
         </nav>
 
         <div className="ml-4">
-          <Link href="#get-started" className="bg-primary text-[var(--background)] px-4 py-2 border-2 border-black font-medium">Get started</Link>
+          <Link href="#get-started" className="bg-primary text-[var(--background)] px-4 py-2 border-2 border-black font-medium">Mulai Sekarang</Link>
         </div>
       </div>
     </header>
