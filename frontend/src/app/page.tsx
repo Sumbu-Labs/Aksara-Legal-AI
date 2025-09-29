@@ -4,8 +4,9 @@ import { PartnersSection } from '../components/PartnersSection';
 import { BenefitsSection } from '../components/BenefitsSection';
 import { HowItWorksSection } from '../components/HowItWorksSection';
 import { PricingSection } from '../components/PricingSection';
+import { TestimonialsSection } from '../components/TestimonialsSection';
 import { ProblemSection } from '../components/ProblemSection';
-import { SolutionSection } from '../components/SolutionSection';
+//import { SolutionSection } from '../components/SolutionSection';
 import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 
@@ -17,6 +18,10 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       <PartnersSection />
+
+      <SectionSeparatorHorizontal />
+
+      <ProblemSection />
 
       <SectionSeparatorHorizontal />
 
@@ -32,13 +37,13 @@ export default function Home() {
 
       <SectionSeparatorHorizontal />
 
-      <ProblemSection />
+      <TestimonialsSection />
 
       <SectionSeparatorHorizontal />
 
-      <SolutionSection />
+      {/* <SolutionSection />
 
-      <SectionSeparatorHorizontal />
+      <SectionSeparatorHorizontal /> */}
 
       <CTASection />
 
