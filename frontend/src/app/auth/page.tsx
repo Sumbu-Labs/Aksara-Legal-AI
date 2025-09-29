@@ -13,26 +13,30 @@ export default function AuthPage(): JSX.Element {
     <div className="flex min-h-screen w-full bg-background">
       <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white lg:flex-row">
         <section
-          className={`${isLogin ? 'hidden lg:flex' : 'flex'} ${SECTION_BASE}`}
+          className={`${
+            isLogin ? 'hidden lg:flex lg:pointer-events-none' : 'flex lg:pointer-events-auto'
+          } ${SECTION_BASE}`}
           aria-hidden={isLogin}
         >
           <RegisterForm onSwitchMode={() => setMode('login')} />
         </section>
 
         <section
-          className={`${isLogin ? 'flex' : 'hidden lg:flex'} ${SECTION_BASE}`}
+          className={`${
+            isLogin ? 'flex lg:pointer-events-auto' : 'hidden lg:flex lg:pointer-events-none'
+          } ${SECTION_BASE}`}
           aria-hidden={!isLogin}
         >
           <LoginForm onSwitchMode={() => setMode('register')} />
         </section>
 
         <aside
-          className={`absolute inset-y-0 left-0 hidden w-full transform bg-secondary/40 transition-transform duration-500 ease-in-out lg:block lg:w-1/2 ${
+          className={`absolute inset-y-0 left-0 hidden w-full transform bg-secondary transition-transform duration-500 ease-in-out lg:block lg:w-1/2 lg:z-20 ${
             isLogin ? 'translate-x-0' : 'translate-x-full'
           }`}
           aria-hidden="true"
         >
-          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_rgba(0,0,0,0.05))] text-center text-neutral-mid">
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_rgba(0,0,0,0.15))] text-center text-neutral-mid">
             <span className="max-w-xs text-sm font-semibold uppercase tracking-[0.3em]">
               Area Visual
             </span>
@@ -43,7 +47,7 @@ export default function AuthPage(): JSX.Element {
   );
 }
 
-const SECTION_BASE = 'relative z-10 flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
+const SECTION_BASE = 'relative flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
 
 function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
