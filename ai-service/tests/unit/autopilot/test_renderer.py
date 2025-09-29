@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -20,6 +21,15 @@ class StubStorage:
         return f"{url}?signed=1"
 
 
+class StubHTML:
+    def __init__(self, string: str, base_url: str | None) -> None:
+        self.string = string
+        self.base_url = base_url
+
+    def write_pdf(self) -> bytes:
+        return b"%PDF-FAKE"
+
+
 def create_renderer(monkeypatch: pytest.MonkeyPatch, *, enable_pdf_export: bool = True) -> DocumentRenderer:
     storage = StubStorage()
     monkeypatch.setattr(
@@ -32,45 +42,49 @@ def create_renderer(monkeypatch: pytest.MonkeyPatch, *, enable_pdf_export: bool 
     return renderer
 
 
-@pytest.mark.asyncio
-async def test_render_html_inserts_disclaimer(monkeypatch):
+def test_render_html_inserts_disclaimer(monkeypatch):
     renderer = create_renderer(monkeypatch)
 
     async def fake_download(url: str) -> bytes:
         assert url == "https://example.com/template.html"
         return b"<html><body><h1>{{ name }}</h1></body></html>"
 
-    monkeypatch.setattr(renderer, "_download", fake_download)
+    async def runner() -> None:
+        monkeypatch.setattr(renderer, "_download", fake_download)
+        document = await renderer.render_html(
+            "https://example.com/template.html",
+            {"name": "Aksara"},
+        )
+        assert "Aksara" in document.html
+        assert "Draft created by Aksara Legal AI" in document.html
+        assert document.base_url == "https://example.com/"
 
-    document = await renderer.render_html(
-        "https://example.com/template.html",
-        {"name": "Aksara"},
-    )
-
-    assert "Aksara" in document.html
-    assert "Draft created by Aksara Legal AI" in document.html
-    assert document.base_url == "https://example.com/"
+    asyncio.run(runner())
 
 
-@pytest.mark.asyncio
-async def test_render_pdf_creates_output(monkeypatch):
+def test_render_pdf_creates_output(monkeypatch):
     renderer = create_renderer(monkeypatch, enable_pdf_export=True)
+
+    monkeypatch.setattr(
+        "app.services.autopilot.renderer.service.HTML",
+        StubHTML,
+        raising=False,
+    )
 
     async def fake_download(url: str) -> bytes:
         return b"<html><body><p>Content</p></body></html>"
 
-    monkeypatch.setattr(renderer, "_download", fake_download)
+    async def runner() -> None:
+        monkeypatch.setattr(renderer, "_download", fake_download)
+        document = await renderer.render_html("https://example.com/template.html", {})
+        pdf_bytes = await renderer.maybe_render_pdf(document)
+        assert isinstance(pdf_bytes, bytes)
+        assert pdf_bytes == b"%PDF-FAKE"
 
-    document = await renderer.render_html("https://example.com/template.html", {})
-    pdf_bytes = await renderer.maybe_render_pdf(document)
-
-    assert isinstance(pdf_bytes, bytes)
-    # WeasyPrint generates a PDF header starting with %PDF-
-    assert pdf_bytes.startswith(b"%PDF")
+    asyncio.run(runner())
 
 
-@pytest.mark.asyncio
-async def test_persist_outputs_uses_storage(monkeypatch):
+def test_persist_outputs_uses_storage(monkeypatch):
     renderer = create_renderer(monkeypatch)
     document = RenderedDocument(html="<html>Hi</html>", base_url=None)
 
@@ -92,12 +106,14 @@ async def test_persist_outputs_uses_storage(monkeypatch):
     storage = DummyStorage()
     renderer.storage = cast(Any, storage)
 
-    outputs = await renderer.persist_outputs("permit-user", document, b"fake-pdf")
+    async def runner() -> None:
+        outputs = await renderer.persist_outputs("permit-user", document, b"fake-pdf")
+        assert storage.html_payload is not None
+        assert storage.html_payload[0].endswith("permit-user.html")
+        assert storage.html_payload[2] == "text/html; charset=utf-8"
+        assert storage.pdf_payload is not None
+        assert storage.pdf_payload[0].endswith("permit-user.pdf")
+        assert outputs["doc_url"].endswith("permit-user.html?signed=1")
+        assert outputs["pdf_url"].endswith("permit-user.pdf?signed=1")
 
-    assert storage.html_payload is not None
-    assert storage.html_payload[0].endswith("permit-user.html")
-    assert storage.html_payload[2] == "text/html; charset=utf-8"
-    assert storage.pdf_payload is not None
-    assert storage.pdf_payload[0].endswith("permit-user.pdf")
-    assert outputs["doc_url"].endswith("permit-user.html?signed=1")
-    assert outputs["pdf_url"].endswith("permit-user.pdf?signed=1")
+    asyncio.run(runner())

@@ -104,6 +104,7 @@ Aksara Legal AI adalah platform web SaaS yang bertindak sebagai Asisten Kepatuha
 - **Backend** – NestJS.
 - **Database** – PostgreSQL + pgvector (hosted VM).
 - **Layanan AI** – Python, FastAPI, Google AI Platform (Gemini Pro, Text Embedding).
+- **Autopilot Document Rendering** – HTML templates rendered via Jinja2 with WeasyPrint for PDF export (no DOCX/LibreOffice dependency).
 - **Payment Gateway** – Midtrans (Sandbox).
 
 > Arsitektur disesuaikan untuk visi yang difokuskan ulang dan mendukung pipeline RAG serta generasi dokumen.

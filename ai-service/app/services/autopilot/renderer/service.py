@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urljoin, urlparse
 
 import httpx
 from jinja2 import BaseLoader, Environment, StrictUndefined, select_autoescape
-from weasyprint import HTML
+
+try:  # pragma: no cover - optional dependency guard
+    from weasyprint import HTML
+except Exception:  # pragma: no cover - allow running without binary deps
+    HTML = None  # type: ignore[assignment]
 
 from app.core.config import get_settings
 from app.core.errors import PdfExportError
@@ -76,14 +80,18 @@ class DocumentRenderer:
     async def maybe_render_pdf(self, document: RenderedDocument) -> bytes:
         if not self.settings.enable_pdf_export:
             raise PdfExportError("PDF export disabled")
+        if HTML is None:
+            raise PdfExportError("WeasyPrint is not available in this environment")
         try:
             return await asyncio.to_thread(self._render_pdf_sync, document)
         except Exception as exc:  # pragma: no cover - safety net
             raise PdfExportError("HTML to PDF conversion failed") from exc
 
     def _render_pdf_sync(self, document: RenderedDocument) -> bytes:
+        if HTML is None:  # pragma: no cover - defensive double-check
+            raise PdfExportError("WeasyPrint is not available")
         html = HTML(string=document.html, base_url=document.base_url)
-        return html.write_pdf()
+        return cast(bytes, html.write_pdf())
 
     async def persist_outputs(
         self, base_name: str, document: RenderedDocument, pdf_bytes: bytes | None
