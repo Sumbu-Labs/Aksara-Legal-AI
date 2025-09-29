@@ -1,6 +1,7 @@
 import { SectionSeparatorHorizontal } from '../components/SectionSeparator';
 import { HeroSection } from '../components/HeroSection';
 import { PartnersSection } from '../components/PartnersSection';
+import { BenefitsSection } from '../components/BenefitsSection';
 import { ProblemSection } from '../components/ProblemSection';
 import { SolutionSection } from '../components/SolutionSection';
 import { HowItWorksSection } from '../components/HowItWorksSection';
@@ -15,6 +16,10 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       <PartnersSection />
+
+      <SectionSeparatorHorizontal />
+
+      <BenefitsSection />
 
       <SectionSeparatorHorizontal />
 
