@@ -48,7 +48,7 @@ class Template(Base):
     permit_type: Mapped[str] = mapped_column(String(32), primary_key=True)
     region: Mapped[str] = mapped_column(String(32), primary_key=True)
     json_schema: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
-    docx_template_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    html_template_url: Mapped[str] = mapped_column(String(512), nullable=False)
     version_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 

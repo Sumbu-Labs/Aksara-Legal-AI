@@ -16,8 +16,6 @@ dependencies = [
     "alembic>=1.13.2",
     "psycopg[binary,pool]>=3.1.19",
     "pgvector>=0.2.4",
-    "python-docx>=1.1.0",
-    "docxtpl>=0.16.7",
     "tenacity>=8.3.0",
     "structlog>=24.1.0",
     "python-json-logger>=2.0.7",
@@ -37,7 +35,8 @@ dependencies = [
     "readability-lxml>=0.8.1",
     "pdfminer.six>=20231228",
     "python-slugify>=8.0.1",
-    "scalar-fastapi>=0.3.1"
+    "scalar-fastapi>=0.3.1",
+    "weasyprint>=62.0"
 ]
 
 [project.optional-dependencies]
@@ -89,5 +88,5 @@ packages = ["app"]
 where = ['.']
 include = ['app*', 'alembic*']
 [[tool.mypy.overrides]]
-module = ["pgvector.*", "docxtpl.*", "readability.*"]
+module = ["pgvector.*", "readability.*"]
 ignore_missing_imports = true

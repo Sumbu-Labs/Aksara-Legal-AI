@@ -75,7 +75,7 @@ Aksara Legal AI adalah platform web SaaS yang bertindak sebagai Asisten Kepatuha
 
 - **US-17** – Pengguna melihat tombol "Buatkan Draf Dokumen" sesuai paket.
 - **US-18** – AI membuat draf dokumen menggunakan data profil dan berkas terunggah.
-- **US-19** – Pengguna dapat meninjau dan mengunduh dokumen (.docx/.pdf).
+- **US-19** – Pengguna dapat meninjau dan mengunduh dokumen (.html/.pdf).
 
 ### Epic: Manajemen Dokumen
 
@@ -104,6 +104,7 @@ Aksara Legal AI adalah platform web SaaS yang bertindak sebagai Asisten Kepatuha
 - **Backend** – NestJS.
 - **Database** – PostgreSQL + pgvector (hosted VM).
 - **Layanan AI** – Python, FastAPI, Google AI Platform (Gemini Pro, Text Embedding).
+- **Autopilot Document Rendering** – HTML templates rendered via Jinja2 with WeasyPrint for PDF export (no DOCX/LibreOffice dependency).
 - **Payment Gateway** – Midtrans (Sandbox).
 
 > Arsitektur disesuaikan untuk visi yang difokuskan ulang dan mendukung pipeline RAG serta generasi dokumen.

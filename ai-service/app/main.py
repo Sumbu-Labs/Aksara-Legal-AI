@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any, cast
 
 from fastapi import FastAPI, Request, Response
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
 from structlog.contextvars import bind_contextvars, clear_contextvars
 
@@ -30,10 +31,44 @@ logger = get_logger(__name__)
 
 app = FastAPI(
     title="Aksara Legal AI Service",
+    description=(
+        "Grounded legal Q&A, Autopilot document generation, and ingestion APIs for UMKM permit workflows."
+        "\n\n"
+        "Use the Scalar reference at `/docs` to explore endpoints, authenticate with a JWT Bearer token,"
+        " and review request/response samples and error formats."
+    ),
     version="0.1.0",
+    terms_of_service="https://aksara.id/terms",
+    contact={
+        "name": "Aksara Platform Team",
+        "email": "platform@aksara.id",
+        "url": "https://aksara.id",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+    },
     default_response_class=ORJSONResponse,
     docs_url=None,
     redoc_url=None,
+    servers=[
+        {"url": "http://localhost:7700", "description": "Local development"},
+        {"url": "https://api-dev.aksara.id", "description": "Staging"},
+        {"url": "https://api.aksara.id", "description": "Production"},
+    ],
+    openapi_tags=[
+        {"name": "qa", "description": "Ask grounded legal questions with citations."},
+        {
+            "name": "autopilot",
+            "description": "Generate permit application drafts and audit trails using structured inputs.",
+        },
+        {"name": "templates", "description": "Fetch Autopilot template schemas and metadata."},
+        {
+            "name": "ingest",
+            "description": "Ingest or refresh regulatory sources for the retrieval pipeline.",
+        },
+        {"name": "health", "description": "Check service, database, RAG index, and LLM readiness."},
+    ],
 )
 app.include_router(router)
 
@@ -45,6 +80,44 @@ if scalar_reference_factory is not None:
     app.mount("/docs", scalar_app, name="scalar-docs")
 else:
     logger.info("scalar_docs_disabled")
+
+
+def custom_openapi() -> dict[str, Any]:
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+        tags=app.openapi_tags,
+        servers=app.servers,
+    )
+
+    components = openapi_schema.setdefault("components", {})
+    security_schemes = components.setdefault("securitySchemes", {})
+    security_schemes["JWTBearer"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Paste a JWT issued by the Aksara identity service.",
+    }
+
+    for path_item in openapi_schema.get("paths", {}).values():
+        for operation in path_item.values():
+            tags = set(operation.get("tags", []))
+            if "health" in tags:
+                continue
+            operation.setdefault("security", [])
+            if {"JWTBearer": []} not in operation["security"]:
+                operation["security"].append({"JWTBearer": []})
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi  # type: ignore[assignment]
 
 
 

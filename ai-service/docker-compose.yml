@@ -10,7 +10,7 @@ services:
       - APP_ENV=local
       - PORT=7700
       - LOG_LEVEL=DEBUG
-      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/aksara
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://postgres:postgres@backend-postgres:5432/aksara}
       - VECTOR_DIM=1536
       - GEMINI_API_KEY=${GEMINI_API_KEY:-changeme}
       - GEMINI_MODEL_QA=gemini-2.5-pro
@@ -23,29 +23,10 @@ services:
       - JWT_ISSUER=https://auth.aksara.id/
       - JWT_AUDIENCE=aksara-legal-ai
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
-      - LIBREOFFICE_BINARY=soffice
     ports:
       - "7700:7700"
-    depends_on:
-      - postgres
     networks:
       - aksara_network
-
-  postgres:
-    image: ankane/pgvector:pg16
-    environment:
-      POSTGRES_DB: aksara
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - aksara_network
-
-volumes:
-  pgdata:
 
 networks:
   aksara_network:

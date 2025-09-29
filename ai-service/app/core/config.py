@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Literal, cast, Optional, Any, Dict
+from typing import Callable, Literal, cast, Optional, Any, Dict
 
 from pydantic import AnyHttpUrl, Field, SecretStr
 
@@ -14,20 +14,19 @@ except ImportError:
 
 
 def build_model_config() -> Dict[str, Any]:
-    if callable(SettingsConfigDict):  # type: ignore[arg-type]
-        return cast(
-            Dict[str, Any],
-            SettingsConfigDict(
-                env_file=('.env',),
-                env_file_encoding='utf-8',
-                extra='ignore',
-            ),
-        )
-    return {
-        "env_file": ('.env',),
-        "env_file_encoding": 'utf-8',
-        "extra": 'ignore',
-    }
+    if SettingsConfigDict is None:
+        return {
+            "env_file": ('.env',),
+            "env_file_encoding": 'utf-8',
+            "extra": 'ignore',
+        }
+
+    settings_factory = cast(Callable[..., Dict[str, Any]], SettingsConfigDict)
+    return settings_factory(
+        env_file=('.env',),
+        env_file_encoding='utf-8',
+        extra='ignore',
+    )
 
 
 MODEL_CONFIG = build_model_config()
@@ -84,8 +83,6 @@ class AppSettings(BaseSettingsType):
     llm_max_retries: int = Field(default=3)
 
     storage_signed_url_ttl_seconds: int = Field(default=3600)
-
-    libreoffice_binary: Optional[str] = Field(default=None, alias='LIBREOFFICE_BINARY')
 
 
 @lru_cache(maxsize=1)

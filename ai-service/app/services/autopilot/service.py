@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.core.errors import MissingFieldError
+from app.core.errors import MissingFieldError, PdfExportError
 from app.core.logging import get_logger
 from app.models import AutopilotJob, AutopilotJobStatus
 from app.services.autopilot.mapping import FieldMapper
@@ -90,20 +90,38 @@ class AutopilotService:
                 "guidance": guidance,
             }
 
-        template_url = schema.get("metadata", {}).get("docx_template_url")
+        desired_format = str(options.get("format", "html")).lower()
+        if desired_format == "docx":
+            logger.info(
+                "docx_format_deprecated",
+                permit_type=permit_type,
+                region=region,
+                user_id=user_id,
+            )
+            desired_format = "html"
+
+        template_url = schema.get("metadata", {}).get("html_template_url")
         if not template_url:
             raise MissingFieldError("Template URL missing")
 
-        docx_bytes = await self.renderer.render_docx(template_url, mapped_fields)
+        rendered_document = await self.renderer.render_html(template_url, mapped_fields)
+
         pdf_bytes = None
-        if options.get("format") == "pdf" and self.settings.enable_pdf_export:
+        if desired_format == "pdf" and self.settings.enable_pdf_export:
             try:
-                pdf_bytes = await self.renderer.maybe_convert_pdf(docx_bytes)
-            except Exception as exc:
+                pdf_bytes = await self.renderer.maybe_render_pdf(rendered_document)
+            except PdfExportError as exc:
                 logger.warning("pdf_conversion_failed", error=str(exc))
+        elif desired_format == "pdf":
+            logger.info(
+                "pdf_export_disabled",
+                permit_type=permit_type,
+                region=region,
+                user_id=user_id,
+            )
 
         outputs = await self.renderer.persist_outputs(
-            f"{permit_type.lower()}-{user_id}", docx_bytes, pdf_bytes
+            f"{permit_type.lower()}-{user_id}", rendered_document, pdf_bytes
         )
 
         field_audit: dict[str, Any] = {}
