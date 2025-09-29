@@ -34,11 +34,11 @@ export default function Home() {
 
       <SectionSeparatorHorizontal />
 
-      <PricingSection />
+      <TestimonialsSection />
 
       <SectionSeparatorHorizontal />
 
-      <TestimonialsSection />
+      <PricingSection />
 
       <SectionSeparatorHorizontal />
 
