@@ -45,7 +45,7 @@ export function BenefitsSection() {
           {benefits.map((benefit) => (
             <div
               key={benefit.title}
-              className={`group relative overflow-hidden border border-neutral-light bg-secondary/60 p-8 shadow-card transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${benefit.layoutClass}`}
+              className={`group relative overflow-hidden border-2 border-neutral-light bg-secondary/60 p-8 shadow-card transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${benefit.layoutClass}`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative flex h-full flex-col gap-4">

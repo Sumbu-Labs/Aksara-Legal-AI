@@ -50,7 +50,7 @@ export function PartnersSection() {
                 {marqueePartners.map((partner, partnerIndex) => (
                   <li
                     key={`${partner.name}-${index}-${partnerIndex}`}
-                    className="flex h-24 w-48 shrink-0 items-center justify-center rounded-2xl border border-neutral-light bg-white/90 p-4 shadow-card backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg"
+                    className="flex h-24 w-48 shrink-0 items-center justify-center rounded-2xl border-2 border-neutral-light bg-white/90 p-4 shadow-card backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg"
                   >
                     <Image
                       src={partner.logoSrc}

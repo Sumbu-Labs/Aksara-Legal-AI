@@ -30,7 +30,7 @@ export function HowItWorksSection() {
           {steps.map((step, index) => (
             <div
               key={step.title}
-              className="flex flex-col gap-6 border border-neutral-light bg-white/90 p-8 text-left shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg"
+              className="flex flex-col gap-6 border-2 border-neutral-light bg-white/90 p-8 text-left shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg"
             >
               <div className="flex items-center gap-4">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-semibold text-white">

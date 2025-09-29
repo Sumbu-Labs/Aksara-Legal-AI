@@ -63,7 +63,7 @@ export function PricingSection() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`flex h-full flex-col gap-6 border border-neutral-light bg-white/95 p-8 shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg ${
+              className={`flex h-full flex-col gap-6 border-2 border-neutral-light bg-white/95 p-8 shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg ${
                 plan.highlight ? 'ring-4 ring-primary/60 ring-offset-2 ring-offset-background' : ''
               }`}
             >
