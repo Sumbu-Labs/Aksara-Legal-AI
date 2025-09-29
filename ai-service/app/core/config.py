@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Literal, cast, Optional, Any, Dict
+from typing import Callable, Literal, cast, Optional, Any, Dict
 
 from pydantic import AnyHttpUrl, Field, SecretStr
 
@@ -14,20 +14,19 @@ except ImportError:
 
 
 def build_model_config() -> Dict[str, Any]:
-    if callable(SettingsConfigDict):  # type: ignore[arg-type]
-        return cast(
-            Dict[str, Any],
-            SettingsConfigDict(
-                env_file=('.env',),
-                env_file_encoding='utf-8',
-                extra='ignore',
-            ),
-        )
-    return {
-        "env_file": ('.env',),
-        "env_file_encoding": 'utf-8',
-        "extra": 'ignore',
-    }
+    if SettingsConfigDict is None:
+        return {
+            "env_file": ('.env',),
+            "env_file_encoding": 'utf-8',
+            "extra": 'ignore',
+        }
+
+    settings_factory = cast(Callable[..., Dict[str, Any]], SettingsConfigDict)
+    return settings_factory(
+        env_file=('.env',),
+        env_file_encoding='utf-8',
+        extra='ignore',
+    )
 
 
 MODEL_CONFIG = build_model_config()

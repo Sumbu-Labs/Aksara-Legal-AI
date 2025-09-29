@@ -81,6 +81,7 @@ def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
         _ensure_engine()
+    assert _engine is not None
     return _engine
 
 
@@ -88,6 +89,7 @@ def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
     global _SessionLocal
     if _SessionLocal is None:
         _ensure_engine()
+    assert _SessionLocal is not None
     return _SessionLocal
 
 

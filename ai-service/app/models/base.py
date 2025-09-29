@@ -1,4 +1,6 @@
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import DateTime, MetaData, func
 from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column
 
@@ -16,10 +18,13 @@ def _naming_convention() -> dict[str, str]:
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=_naming_convention())
 
-    @classmethod
-    @declared_attr.directive
-    def __tablename__(cls) -> str:
-        return cls.__name__.lower()
+    if TYPE_CHECKING:
+        __tablename__: str
+    else:
+        @classmethod
+        @declared_attr.directive
+        def __tablename__(cls) -> str:
+            return cls.__name__.lower()
 
     created_at = mapped_column(
         DateTime(timezone=True),

@@ -1,0 +1,13 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/ai-service/.venv/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/ai-service",
+        "${workspaceFolder}/ai-service/.venv/Lib/site-packages"
+    ],
+    "python.analysis.stubPath": "${workspaceFolder}/ai-service/.venv/Lib/site-packages",
+    "python.analysis.autoSearchPaths": true,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "ai-service/tests"
+    ]
+}

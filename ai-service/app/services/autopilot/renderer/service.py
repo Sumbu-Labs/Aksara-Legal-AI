@@ -47,7 +47,7 @@ class DocumentRenderer:
         template_bytes = await self._download(template_url)
         template_source = template_bytes.decode("utf-8")
         base_url = self._derive_base_url(template_url)
-        html_content = await asyncio.to_thread(self._render_html_sync, template_source, context)
+        html_content = await asyncio.to_thread(lambda: self._render_html_sync(template_source, context))
         return RenderedDocument(html=html_content, base_url=base_url)
 
     async def _download(self, url: str) -> bytes:
@@ -83,7 +83,7 @@ class DocumentRenderer:
         if HTML is None:
             raise PdfExportError("WeasyPrint is not available in this environment")
         try:
-            return await asyncio.to_thread(self._render_pdf_sync, document)
+            return await asyncio.to_thread(lambda: self._render_pdf_sync(document))
         except Exception as exc:  # pragma: no cover - safety net
             raise PdfExportError("HTML to PDF conversion failed") from exc
 
