@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:pg16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: aksara
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/aksara
+      GEMINI_API_KEY: dummy
+      GEMINI_MODEL_QA: gemini-2.5-pro
+      GEMINI_MODEL_EMBED: text-embedding-004
+      STORAGE_BUCKET_URL: http://storage.local/aksara
+      STORAGE_SIGNING_KEY: ci-key
+      ENABLE_PDF_EXPORT: false
+      VECTOR_DIM: 1536
+      RETRIEVAL_TOPK: 24
+      RERANK_TOPK: 8
+      JWT_ISSUER: https://auth.aksara.id/
+      JWT_AUDIENCE: aksara-legal-ai
+      JWT_PUBLIC_KEY: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -e .[dev]
+      - name: Lint
+        run: |
+          .venv/bin/ruff check app tests
+          .venv/bin/mypy app
+      - name: Tests
+        env:
+          PYTHONPATH: .
+        run: .venv/bin/pytest
+      - name: Alembic upgrade
+        run: .venv/bin/alembic upgrade head
