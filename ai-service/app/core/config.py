@@ -1,14 +1,45 @@
 from functools import lru_cache
-from typing import Literal, cast
+from typing import Literal, cast, Optional, Any, Dict
 
 from pydantic import AnyHttpUrl, Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
+except ImportError:
+    from pydantic import BaseSettings  # type: ignore
+    try:
+        from pydantic import SettingsConfigDict  # type: ignore
+    except ImportError:
+        SettingsConfigDict = None  # type: ignore
 
 
-class AppSettings(BaseSettings):
+def build_model_config() -> Dict[str, Any]:
+    if callable(SettingsConfigDict):  # type: ignore[arg-type]
+        return cast(
+            Dict[str, Any],
+            SettingsConfigDict(
+                env_file=('.env',),
+                env_file_encoding='utf-8',
+                extra='ignore',
+            ),
+        )
+    return {
+        "env_file": ('.env',),
+        "env_file_encoding": 'utf-8',
+        "extra": 'ignore',
+    }
+
+
+MODEL_CONFIG = build_model_config()
+
+BaseSettingsType = cast(type, BaseSettings)
+
+
+class AppSettings(BaseSettingsType):
     """Application configuration loaded from environment."""
 
-    model_config = SettingsConfigDict(env_file=('.env',), env_file_encoding='utf-8', extra='ignore')
+    # Use a module-level MODEL_CONFIG so assignment is safe across Pydantic versions
+    model_config = MODEL_CONFIG
 
     app_env: Literal['local', 'dev', 'staging', 'prod'] = Field(default='local', alias='APP_ENV')
     port: int = Field(default=7700, alias='PORT')
@@ -54,7 +85,7 @@ class AppSettings(BaseSettings):
 
     storage_signed_url_ttl_seconds: int = Field(default=3600)
 
-    libreoffice_binary: str | None = Field(default=None, alias='LIBREOFFICE_BINARY')
+    libreoffice_binary: Optional[str] = Field(default=None, alias='LIBREOFFICE_BINARY')
 
 
 @lru_cache(maxsize=1)
