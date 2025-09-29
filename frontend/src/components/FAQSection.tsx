@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 const faqs = [
   {
     question: 'Apa yang termasuk dalam paket Gratis?',
@@ -27,6 +31,8 @@ const faqs = [
 ];
 
 export function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
   return (
     <section className="bg-background py-20 px-4">
       <div className="mx-auto max-w-4xl">
@@ -39,20 +45,36 @@ export function FAQSection() {
           </h2>
         </div>
 
-        <div className="mt-12 space-y-6">
-          {faqs.map((faq) => (
-            <div
-              key={faq.question}
-              className="rounded-3xl border border-neutral-light bg-secondary/40 p-6 shadow-card"
-            >
-              <h3 className="font-heading text-xl font-semibold text-neutral-dark">
-                {faq.question}
-              </h3>
-              <p className="mt-3 text-base leading-relaxed text-neutral-mid">
-                {faq.answer}
-              </p>
-            </div>
-          ))}
+        <div className="mt-12 border border-neutral-light bg-secondary/40 shadow-card">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+
+            return (
+              <div
+                key={faq.question}
+                className={index < faqs.length - 1 ? 'border-b border-neutral-light' : ''}
+              >
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                >
+                  <span className="font-heading text-xl font-semibold text-neutral-dark">
+                    {faq.question}
+                  </span>
+                  <span className="text-2xl font-semibold text-primary" aria-hidden="true">
+                    {isOpen ? '-' : '+'}
+                  </span>
+                </button>
+                {isOpen ? (
+                  <div className="px-6 pb-6 text-base leading-relaxed text-neutral-mid">
+                    {faq.answer}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
