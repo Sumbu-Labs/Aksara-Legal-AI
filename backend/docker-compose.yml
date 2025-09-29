@@ -46,12 +46,12 @@ services:
   minio:
     image: minio/minio
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: server --address ":7900" /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/ready || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:7900/minio/health/ready || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -59,7 +59,7 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
+      - "7900:7900"
       - "9001:9001"
 
   minio-init:
@@ -69,7 +69,7 @@ services:
         condition: service_started
     entrypoint: >-
       /bin/sh -c "
-      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do sleep 2; done && \
+      until mc alias set local http://minio:7900 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do sleep 2; done && \
       mc mb --ignore-existing local/${MINIO_BUCKET_DOCUMENTS} && \
       mc anonymous set private local/${MINIO_BUCKET_DOCUMENTS}
       "

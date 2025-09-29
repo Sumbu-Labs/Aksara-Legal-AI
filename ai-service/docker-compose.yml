@@ -7,23 +7,29 @@ services:
     volumes:
       - .:/app
     environment:
-      - APP_ENV=local
-      - PORT=7700
-      - LOG_LEVEL=DEBUG
-      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/aksara
-      - VECTOR_DIM=1536
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-changeme}
-      - GEMINI_MODEL_QA=gemini-2.5-pro
-      - GEMINI_MODEL_EMBED=text-embedding-004
-      - STORAGE_BUCKET_URL=http://storage:9000/aksara
-      - STORAGE_SIGNING_KEY=local-signing
-      - ENABLE_PDF_EXPORT=false
-      - RETRIEVAL_TOPK=24
-      - RERANK_TOPK=8
-      - JWT_ISSUER=https://auth.aksara.id/
-      - JWT_AUDIENCE=aksara-legal-ai
-      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
-      - LIBREOFFICE_BINARY=soffice
+      APP_ENV: local
+      PORT: 7700
+      LOG_LEVEL: DEBUG
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/aksara
+      VECTOR_DIM: 1536
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-changeme}
+      GEMINI_MODEL_QA: gemini-2.5-pro
+      GEMINI_MODEL_EMBED: text-embedding-004
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:7900}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_DOCUMENTS: ${MINIO_BUCKET_DOCUMENTS:-documents}
+      MINIO_PRESIGNED_TTL: ${MINIO_PRESIGNED_TTL:-3600}
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://localhost:7900}
+      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      MINIO_REGION: ${MINIO_REGION:-}
+      ENABLE_PDF_EXPORT: 'false'
+      RETRIEVAL_TOPK: 24
+      RERANK_TOPK: 8
+      JWT_ISSUER: https://auth.aksara.id/
+      JWT_AUDIENCE: aksara-legal-ai
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      LIBREOFFICE_BINARY: soffice
     ports:
       - "7700:7700"
     depends_on:

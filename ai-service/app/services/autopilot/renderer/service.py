@@ -71,18 +71,18 @@ class DocumentRenderer:
     async def persist_outputs(
         self, base_name: str, docx_bytes: bytes, pdf_bytes: bytes | None
     ) -> dict[str, Any]:
-        doc_url = await self.storage.upload_bytes(
+        doc_key = await self.storage.upload_bytes(
             f"{base_name}.docx",
             docx_bytes,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
-        signed_doc_url = self.storage.sign_url(doc_url)
+        signed_doc_url = self.storage.sign_url(doc_key)
         result = {"doc_url": signed_doc_url}
         if pdf_bytes:
-            pdf_url = await self.storage.upload_bytes(
+            pdf_key = await self.storage.upload_bytes(
                 f"{base_name}.pdf",
                 pdf_bytes,
                 "application/pdf",
             )
-            result["pdf_url"] = self.storage.sign_url(pdf_url)
+            result["pdf_url"] = self.storage.sign_url(pdf_key)
         return result

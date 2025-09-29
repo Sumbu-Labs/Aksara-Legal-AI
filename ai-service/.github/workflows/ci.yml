@@ -23,17 +23,30 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      minio:
+        image: bitnami/minio:2024.9.16-debian-12-r0
+        ports:
+          - 7900:9000
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
     env:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/aksara
       GEMINI_API_KEY: dummy
       GEMINI_MODEL_QA: gemini-2.5-pro
       GEMINI_MODEL_EMBED: text-embedding-004
-      STORAGE_BUCKET_URL: http://storage.local/aksara
-      STORAGE_SIGNING_KEY: ci-key
-      ENABLE_PDF_EXPORT: false
-      VECTOR_DIM: 1536
-      RETRIEVAL_TOPK: 24
-      RERANK_TOPK: 8
+      MINIO_ENDPOINT: http://localhost:7900
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_BUCKET_DOCUMENTS: documents
+      MINIO_PRESIGNED_TTL: '3600'
+      MINIO_PUBLIC_ENDPOINT: http://localhost:7900
+      MINIO_USE_SSL: 'false'
+      MINIO_REGION: ''
+      ENABLE_PDF_EXPORT: 'false'
+      VECTOR_DIM: '1536'
+      RETRIEVAL_TOPK: '24'
+      RERANK_TOPK: '8'
       JWT_ISSUER: https://auth.aksara.id/
       JWT_AUDIENCE: aksara-legal-ai
       JWT_PUBLIC_KEY: test
@@ -43,6 +56,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Wait for MinIO
+        run: |
+          for attempt in {1..20}; do
+            if curl -sSf http://localhost:7900/minio/health/live >/dev/null; then
+              exit 0
+            fi
+            echo "Waiting for MinIO (attempt ${attempt})..."
+            sleep 3
+          done
+          echo "MinIO did not become ready in time" >&2
+          exit 1
       - name: Install dependencies
         run: |
           python -m venv .venv

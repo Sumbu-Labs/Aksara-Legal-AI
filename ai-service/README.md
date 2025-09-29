@@ -11,7 +11,7 @@ FastAPI microservice providing grounded legal Q&A with citations and Autopilot d
 
 ## Quick Start
 
-1. Copy `.env.example` to `.env` and fill secrets (Gemini API key, JWT public key, storage URL, etc.).
+1. Copy `.env.example` to `.env` and fill secrets (Gemini API key, JWT public key, MinIO endpoint & credentials, etc.).
 2. Create virtualenv & install dependencies:
 
    ```sh
@@ -49,7 +49,7 @@ The compose stack attaches to the shared `aksara_network` bridge so it can talk 
 ./scripts/run-docker.sh
 ```
 
-This helper script builds the image defined in `Dockerfile`, then launches the container while mounting `generated/` back to the host. Customize behavior with flags such as `--port 9000`, `--env-file path/to/.env`, `--image my-registry/aksara`, or `--build-only` to skip the run step. Pass extra `docker run` options after `--`, for example `./scripts/run-docker.sh -- -e DEBUG=true`.
+This helper script builds the image defined in `Dockerfile`, then launches the container with your `.env` credentials injected. Customize behavior with flags such as `--port 9000`, `--env-file path/to/.env`, `--image my-registry/aksara`, or `--build-only` to skip the run step. Pass extra `docker run` options after `--`, for example `./scripts/run-docker.sh -- -e DEBUG=true`.
 
 ## Key Environment Variables
 
@@ -57,7 +57,12 @@ This helper script builds the image defined in `Dockerfile`, then launches the c
 | --- | --- |
 | `DATABASE_URL` | Async SQLAlchemy DSN (`postgresql+psycopg://...`). |
 | `GEMINI_API_KEY` | Google Gemini API key. |
-| `STORAGE_BUCKET_URL` | Base URL for generated documents. |
+| `MINIO_ENDPOINT` | URL (including scheme) for the shared MinIO server, e.g. `http://minio:7900`. |
+| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | Access key/secret used to authenticate against MinIO (shared with the backend). |
+| `MINIO_BUCKET_DOCUMENTS` | Bucket that stores generated documents for both services. |
+| `MINIO_PUBLIC_ENDPOINT` | Optional override used to rewrite signed URLs to a public hostname. |
+| `MINIO_USE_SSL` | Set to `true` when connecting to MinIO over HTTPS without an explicit scheme in `MINIO_ENDPOINT`. |
+| `MINIO_PRESIGNED_TTL` | Expiration (seconds) for generated download URLs. |
 | `ENABLE_PDF_EXPORT` | `true` to enable LibreOffice PDF conversion. |
 | `JWT_PUBLIC_KEY` | PEM-encoded RSA public key for token validation. |
 

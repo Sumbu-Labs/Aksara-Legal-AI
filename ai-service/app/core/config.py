@@ -1,41 +1,17 @@
 from functools import lru_cache
-from typing import Literal, cast, Optional, Any, Dict
+from typing import Literal
 
-from pydantic import AnyHttpUrl, Field, SecretStr
+from pydantic import AliasChoices, AnyHttpUrl, Field, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-try:
-    from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
-except ImportError:
-    from pydantic import BaseSettings  # type: ignore
-    try:
-        from pydantic import SettingsConfigDict  # type: ignore
-    except ImportError:
-        SettingsConfigDict = None  # type: ignore
+MODEL_CONFIG: SettingsConfigDict = {
+    "env_file": ('.env',),
+    "env_file_encoding": 'utf-8',
+    "extra": 'ignore',
+}
 
 
-def build_model_config() -> Dict[str, Any]:
-    if callable(SettingsConfigDict):  # type: ignore[arg-type]
-        return cast(
-            Dict[str, Any],
-            SettingsConfigDict(
-                env_file=('.env',),
-                env_file_encoding='utf-8',
-                extra='ignore',
-            ),
-        )
-    return {
-        "env_file": ('.env',),
-        "env_file_encoding": 'utf-8',
-        "extra": 'ignore',
-    }
-
-
-MODEL_CONFIG = build_model_config()
-
-BaseSettingsType = cast(type, BaseSettings)
-
-
-class AppSettings(BaseSettingsType):
+class AppSettings(BaseSettings):
     """Application configuration loaded from environment."""
 
     # Use a module-level MODEL_CONFIG so assignment is safe across Pydantic versions
@@ -61,13 +37,24 @@ class AppSettings(BaseSettingsType):
     gemini_model_qa: str = Field(default='gemini-2.5-pro', alias='GEMINI_MODEL_QA')
     gemini_model_embed: str = Field(default='text-embedding-004', alias='GEMINI_MODEL_EMBED')
 
-    storage_bucket_url: AnyHttpUrl = Field(
-        default=cast(AnyHttpUrl, 'http://localhost:9000/aksara'),
-        alias='STORAGE_BUCKET_URL',
+    minio_endpoint: str = Field(default='http://minio:7900', alias='MINIO_ENDPOINT')
+    minio_use_ssl: bool = Field(default=False, alias='MINIO_USE_SSL')
+    minio_access_key: SecretStr = Field(
+        default=SecretStr('minioadmin'),
+        alias='MINIO_ROOT_USER',
     )
-    storage_signing_key: SecretStr = Field(
-        default=SecretStr("local-signing-key"),
-        alias='STORAGE_SIGNING_KEY',
+    minio_secret_key: SecretStr = Field(
+        default=SecretStr('minioadmin'),
+        alias='MINIO_ROOT_PASSWORD',
+    )
+    minio_bucket_documents: str = Field(
+        default='documents',
+        alias='MINIO_BUCKET_DOCUMENTS',
+    )
+    minio_region: str | None = Field(default=None, alias='MINIO_REGION')
+    minio_public_endpoint: AnyHttpUrl | None = Field(
+        default=None,
+        alias='MINIO_PUBLIC_ENDPOINT',
     )
 
     enable_pdf_export: bool = Field(default=False, alias='ENABLE_PDF_EXPORT')
@@ -83,9 +70,13 @@ class AppSettings(BaseSettingsType):
     llm_timeout_seconds: float = Field(default=20.0)
     llm_max_retries: int = Field(default=3)
 
-    storage_signed_url_ttl_seconds: int = Field(default=3600)
+    storage_signed_url_ttl_seconds: int = Field(
+        default=3600,
+        alias='MINIO_PRESIGNED_TTL',
+        validation_alias=AliasChoices('MINIO_PRESIGNED_TTL', 'STORAGE_SIGNED_URL_TTL_SECONDS'),
+    )
 
-    libreoffice_binary: Optional[str] = Field(default=None, alias='LIBREOFFICE_BINARY')
+    libreoffice_binary: str | None = Field(default=None, alias='LIBREOFFICE_BINARY')
 
 
 @lru_cache(maxsize=1)
