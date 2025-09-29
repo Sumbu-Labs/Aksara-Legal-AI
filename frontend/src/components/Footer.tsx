@@ -13,16 +13,16 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="font-semibold text-neutral-dark mb-4">Produk</h4>
-            <ul className="space-y-2 text-neutral-mid">
+            <h4 className="font-semibold text-neutral-dark text-2xl mb-4">Produk</h4>
+            <ul className="space-y-3 text-neutral-mid text-lg font-medium">
               <li><a href="/dashboard" className="hover:text-primary transition-colors">Dashboard</a></li>
               <li><a href="/documents" className="hover:text-primary transition-colors">Dokumen</a></li>
               <li><a href="/pricing" className="hover:text-primary transition-colors">Harga</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-neutral-dark mb-4">Dukungan</h4>
-            <ul className="space-y-2 text-neutral-mid">
+            <h4 className="font-semibold text-neutral-dark text-2xl mb-4">Dukungan</h4>
+            <ul className="space-y-3 text-neutral-mid text-lg font-medium">
               <li><a href="/help" className="hover:text-primary transition-colors">Bantuan</a></li>
               <li><a href="/contact" className="hover:text-primary transition-colors">Kontak</a></li>
               <li><a href="/privacy" className="hover:text-primary transition-colors">Privasi</a></li>
