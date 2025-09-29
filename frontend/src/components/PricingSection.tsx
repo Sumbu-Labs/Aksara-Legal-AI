@@ -51,9 +51,7 @@ export function PricingSection() {
     <section className="bg-background py-20 px-4">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
-            Pricing
-          </p>
+          
           <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
             Pilih paket yang sesuai dengan kebutuhan izin Anda
           </h2>
