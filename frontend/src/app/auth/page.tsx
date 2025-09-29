@@ -1,13 +1,108 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import type { FormEvent, JSX } from 'react';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 type AuthMode = 'register' | 'login';
 
 export default function AuthPage(): JSX.Element {
   const [mode, setMode] = useState<AuthMode>('register');
   const isLogin = mode === 'login';
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  const backendBaseUrl = useMemo(
+    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
+    [],
+  );
+
+  const persistTokens = useCallback((tokens: TokensResponse) => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('accessToken', tokens.accessToken);
+        window.localStorage.setItem('refreshToken', tokens.refreshToken);
+      }
+    } catch (error) {
+      console.error('Failed to persist tokens', error);
+    }
+  }, []);
+
+  const handleRegister = useCallback(
+    async (payload: RegisterPayload) => {
+      setIsSubmitting(true);
+      setErrorMessage(null);
+      try {
+        const response = await fetch(`${backendBaseUrl}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const message = await extractErrorMessage(response);
+          throw new Error(message || 'Pendaftaran gagal.');
+        }
+
+        const tokens = (await response.json()) as TokensResponse;
+        persistTokens(tokens);
+        router.push('/dashboard/documents');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Terjadi kesalahan.';
+        setErrorMessage(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [backendBaseUrl, persistTokens, router],
+  );
+
+  const handleLogin = useCallback(
+    async (payload: LoginPayload) => {
+      setIsSubmitting(true);
+      setErrorMessage(null);
+      try {
+        const response = await fetch(`${backendBaseUrl}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const message = await extractErrorMessage(response);
+          throw new Error(message || 'Masuk gagal.');
+        }
+
+        const tokens = (await response.json()) as TokensResponse;
+        persistTokens(tokens);
+        router.push('/dashboard/documents');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Terjadi kesalahan.';
+        setErrorMessage(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [backendBaseUrl, persistTokens, router],
+  );
+
+  const switchToRegister = useCallback(() => {
+    setMode('register');
+    setErrorMessage(null);
+  }, []);
+
+  const switchToLogin = useCallback(() => {
+    setMode('login');
+    setErrorMessage(null);
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -18,7 +113,12 @@ export default function AuthPage(): JSX.Element {
           } ${SECTION_BASE}`}
           aria-hidden={isLogin}
         >
-          <RegisterForm onSwitchMode={() => setMode('login')} />
+          <RegisterForm
+            onSwitchMode={switchToLogin}
+            onSubmit={handleRegister}
+            isSubmitting={isSubmitting}
+            errorMessage={!isLogin ? errorMessage : null}
+          />
         </section>
 
         <section
@@ -27,7 +127,12 @@ export default function AuthPage(): JSX.Element {
           } ${SECTION_BASE}`}
           aria-hidden={!isLogin}
         >
-          <LoginForm onSwitchMode={() => setMode('register')} />
+          <LoginForm
+            onSwitchMode={switchToRegister}
+            onSubmit={handleLogin}
+            isSubmitting={isSubmitting}
+            errorMessage={isLogin ? errorMessage : null}
+          />
         </section>
 
         <aside
@@ -49,10 +154,73 @@ export default function AuthPage(): JSX.Element {
 
 const SECTION_BASE = 'relative flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
 
-function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Element {
+type TokensResponse = {
+  accessToken: string;
+  refreshToken: string;
+};
+
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+async function extractErrorMessage(response: Response): Promise<string | null> {
+  try {
+    const data = await response.json();
+    if (data && typeof data === 'object') {
+      if (typeof data.message === 'string') {
+        return data.message;
+      }
+      if (Array.isArray(data.message) && data.message.length > 0) {
+        return String(data.message[0]);
+      }
+      if (typeof data.error === 'string') {
+        return data.error;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.warn('Failed to parse error response', error);
+    return null;
+  }
+}
+
+function getEnv(name: string, fallback: string): string {
+  if (typeof process !== 'undefined' && process.env?.[name]) {
+    return process.env[name] as string;
+  }
+  if (typeof window !== 'undefined') {
+    const fromWindow = (window as unknown as Record<string, string | undefined>)[name];
+    if (fromWindow) {
+      return fromWindow;
+    }
+  }
+  return fallback;
+}
+
+type RegisterFormProps = {
+  onSwitchMode: () => void;
+  onSubmit: (payload: RegisterPayload) => Promise<void> | void;
+  isSubmitting: boolean;
+  errorMessage: string | null;
+};
+
+function RegisterForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: RegisterFormProps): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO: Integrate with register API.
+    const formData = new FormData(event.currentTarget);
+    const payload: RegisterPayload = {
+      name: String(formData.get('name') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
+      password: String(formData.get('password') ?? ''),
+    };
+    onSubmit(payload);
   };
 
   return (
@@ -114,11 +282,16 @@ function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Eleme
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark"
+          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          disabled={isSubmitting}
         >
-          Daftar
+          {isSubmitting ? 'Memproses...' : 'Daftar'}
         </button>
       </form>
+
+      {errorMessage ? (
+        <p className="text-sm text-[var(--color-danger)]">{errorMessage}</p>
+      ) : null}
 
       <p className="text-sm text-neutral-mid">
         Sudah punya akun?{' '}
@@ -134,10 +307,22 @@ function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Eleme
   );
 }
 
-function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Element {
+type LoginFormProps = {
+  onSwitchMode: () => void;
+  onSubmit: (payload: LoginPayload) => Promise<void> | void;
+  isSubmitting: boolean;
+  errorMessage: string | null;
+};
+
+function LoginForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: LoginFormProps): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // TODO: Integrate with login API.
+    const formData = new FormData(event.currentTarget);
+    const payload: LoginPayload = {
+      email: String(formData.get('email') ?? '').trim(),
+      password: String(formData.get('password') ?? ''),
+    };
+    onSubmit(payload);
   };
 
   return (
@@ -181,11 +366,16 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Element 
 
         <button
           type="submit"
-          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark"
+          className="w-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+          disabled={isSubmitting}
         >
-          Masuk
+          {isSubmitting ? 'Memproses...' : 'Masuk'}
         </button>
       </form>
+
+      {errorMessage ? (
+        <p className="text-sm text-[var(--color-danger)]">{errorMessage}</p>
+      ) : null}
 
       <p className="text-sm text-neutral-mid">
         Belum punya akun?{' '}
