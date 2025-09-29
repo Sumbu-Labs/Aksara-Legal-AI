@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -34,6 +26,8 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Register a new account' })
   @ApiResponse({ status: 201, type: AuthTokensResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid payload' })
+  @ApiResponse({ status: 409, description: 'Email already registered' })
   async register(@Body() dto: RegisterRequestDto): Promise<AuthTokensResponseDto> {
     const tokens = await this.authService.register(dto);
     return new AuthTokensResponseDto(tokens);
@@ -42,6 +36,8 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Authenticate using email and password' })
   @ApiResponse({ status: 200, type: AuthTokensResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid payload' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() dto: LoginRequestDto): Promise<AuthTokensResponseDto> {
     const tokens = await this.authService.login(dto);
     return new AuthTokensResponseDto(tokens);
@@ -52,10 +48,11 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Exchange a refresh token for new tokens' })
   @ApiResponse({ status: 200, type: AuthTokensResponseDto })
+  @ApiResponse({ status: 401, description: 'Refresh token invalid or missing' })
   async refresh(@Req() req: RequestWithUser): Promise<AuthTokensResponseDto> {
     const user = req.user;
     if (!user?.refreshToken) {
-      throw new InternalServerErrorException('Refresh token not provided by guard');
+      throw new UnauthorizedException('Refresh token missing');
     }
 
     const tokens = await this.authService.refreshTokens(user.id, user.refreshToken);
@@ -67,6 +64,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Validate the current access token' })
   @ApiResponse({ status: 200, description: 'Authenticated user payload' })
+  @ApiResponse({ status: 401, description: 'Invalid or missing access token' })
   check(@Req() req: RequestWithUser) {
     return req.user;
   }

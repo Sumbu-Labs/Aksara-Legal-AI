@@ -54,6 +54,8 @@ export class DocumentsController {
   })
   @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({ status: 201, type: DocumentResponseDto })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async uploadDocument(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: UploadDocumentRequestDto,
@@ -99,6 +101,8 @@ export class DocumentsController {
   })
   @UseInterceptors(FilesInterceptor('files'))
   @ApiResponse({ status: 201, type: [DocumentResponseDto] })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async uploadDocumentsBatch(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: BatchUploadDocumentRequestDto,
@@ -153,6 +157,9 @@ export class DocumentsController {
   })
   @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({ status: 200, type: DocumentResponseDto })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
   async replaceDocument(
     @Param('id') documentId: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -182,6 +189,8 @@ export class DocumentsController {
   @HttpCode(204)
   @ApiOperation({ summary: 'Menghapus dokumen beserta semua versinya' })
   @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
   async deleteDocument(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<void> {
     await this.documentsService.deleteDocument(user.id, documentId);
   }
@@ -189,6 +198,8 @@ export class DocumentsController {
   @Get(':id')
   @ApiOperation({ summary: 'Mendapatkan detail dokumen' })
   @ApiResponse({ status: 200, type: DocumentResponseDto })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
   async getDocument(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<DocumentResponseDto> {
     const { document, downloadUrl } = await this.documentsService.getDocument(user.id, documentId);
     return DocumentResponseDto.fromDomain(document, downloadUrl);
@@ -197,6 +208,7 @@ export class DocumentsController {
   @Get()
   @ApiOperation({ summary: 'Daftar dokumen milik pengguna' })
   @ApiResponse({ status: 200, type: [DocumentResponseDto] })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async listDocuments(
     @CurrentUser() user: AuthenticatedUser,
     @Query('includeDownloadUrl', new ParseBoolPipe({ optional: true })) includeDownloadUrl?: boolean,
@@ -218,6 +230,8 @@ export class DocumentsController {
   @Get(':id/versions')
   @ApiOperation({ summary: 'Mendapatkan daftar versi dokumen' })
   @ApiResponse({ status: 200, type: [DocumentVersionResponseDto] })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
   async listVersions(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<DocumentVersionResponseDto[]> {
     const document = await this.documentsService.ensureOwnership(user.id, documentId);
     return document.versions.map((version) => DocumentVersionResponseDto.fromDomain(version));
