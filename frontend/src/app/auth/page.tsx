@@ -10,6 +10,7 @@ import {
   register as registerRequest,
 } from '@/services/auth';
 import type { LoginPayload, RegisterPayload } from '@/services/auth';
+import { useToast } from '@/components/ToastProvider';
 
 type AuthMode = 'register' | 'login';
 
@@ -17,54 +18,52 @@ export default function AuthPage(): JSX.Element {
   const [mode, setMode] = useState<AuthMode>('register');
   const isLogin = mode === 'login';
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const router = useRouter();
+  const toast = useToast();
 
   const handleRegister = useCallback(
     async (payload: RegisterPayload) => {
       setIsSubmitting(true);
-      setErrorMessage(null);
       try {
         const tokens = await registerRequest(payload);
         persistTokens(tokens);
+        toast.success('Pendaftaran berhasil! Selamat datang di Aksara Legal AI.');
         router.push('/dashboard/documents');
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Terjadi kesalahan.';
-        setErrorMessage(message);
+        const message = error instanceof Error ? error.message : null;
+        toast.error(localizeErrorMessage(message, 'register'));
       } finally {
         setIsSubmitting(false);
       }
     },
-    [router],
+    [router, toast],
   );
 
   const handleLogin = useCallback(
     async (payload: LoginPayload) => {
       setIsSubmitting(true);
-      setErrorMessage(null);
       try {
         const tokens = await loginRequest(payload);
         persistTokens(tokens);
+        toast.success('Berhasil masuk. Senang bertemu lagi!');
         router.push('/dashboard/documents');
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Terjadi kesalahan.';
-        setErrorMessage(message);
+        const message = error instanceof Error ? error.message : null;
+        toast.error(localizeErrorMessage(message, 'login'));
       } finally {
         setIsSubmitting(false);
       }
     },
-    [router],
+    [router, toast],
   );
 
   const switchToRegister = useCallback(() => {
     setMode('register');
-    setErrorMessage(null);
   }, []);
 
   const switchToLogin = useCallback(() => {
     setMode('login');
-    setErrorMessage(null);
   }, []);
 
   return (
@@ -80,7 +79,6 @@ export default function AuthPage(): JSX.Element {
             onSwitchMode={switchToLogin}
             onSubmit={handleRegister}
             isSubmitting={isSubmitting}
-            errorMessage={!isLogin ? errorMessage : null}
           />
         </section>
 
@@ -94,7 +92,6 @@ export default function AuthPage(): JSX.Element {
             onSwitchMode={switchToRegister}
             onSubmit={handleLogin}
             isSubmitting={isSubmitting}
-            errorMessage={isLogin ? errorMessage : null}
           />
         </section>
 
@@ -117,14 +114,49 @@ export default function AuthPage(): JSX.Element {
 
 const SECTION_BASE = 'relative flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
 
+function localizeErrorMessage(rawMessage: string | null | undefined, context: AuthMode): string {
+  const fallback = context === 'register'
+    ? 'Pendaftaran gagal. Silakan coba lagi.'
+    : 'Gagal masuk. Silakan coba lagi.';
+
+  if (!rawMessage) {
+    return fallback;
+  }
+
+  const message = rawMessage.trim();
+  if (message.length === 0) {
+    return fallback;
+  }
+
+  const normalized = message.toLowerCase();
+  const indonesianHints = ['gagal', 'tidak', 'silakan', 'akun', 'masuk', 'sandi', 'berhasil', 'sudah'];
+  if (indonesianHints.some((hint) => normalized.includes(hint))) {
+    return message;
+  }
+
+  if (normalized.includes('already') && normalized.includes('register')) {
+    return 'Email sudah terdaftar.';
+  }
+  if (normalized.includes('invalid credentials') || normalized.includes('wrong credentials')) {
+    return 'Email atau kata sandi tidak valid.';
+  }
+  if (normalized.includes('not found')) {
+    return 'Akun tidak ditemukan.';
+  }
+  if (normalized.includes('password')) {
+    return 'Kata sandi tidak valid.';
+  }
+
+  return fallback;
+}
+
 type RegisterFormProps = {
   onSwitchMode: () => void;
   onSubmit: (payload: RegisterPayload) => Promise<void> | void;
   isSubmitting: boolean;
-  errorMessage: string | null;
 };
 
-function RegisterForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: RegisterFormProps): JSX.Element {
+function RegisterForm({ onSwitchMode, onSubmit, isSubmitting }: RegisterFormProps): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -202,10 +234,6 @@ function RegisterForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: Re
         </button>
       </form>
 
-      {errorMessage ? (
-        <p className="text-sm text-[var(--color-danger)]">{errorMessage}</p>
-      ) : null}
-
       <p className="text-sm text-neutral-mid">
         Sudah punya akun?{' '}
         <button
@@ -224,10 +252,9 @@ type LoginFormProps = {
   onSwitchMode: () => void;
   onSubmit: (payload: LoginPayload) => Promise<void> | void;
   isSubmitting: boolean;
-  errorMessage: string | null;
 };
 
-function LoginForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: LoginFormProps): JSX.Element {
+function LoginForm({ onSwitchMode, onSubmit, isSubmitting }: LoginFormProps): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -285,10 +312,6 @@ function LoginForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: Login
           {isSubmitting ? 'Memproses...' : 'Masuk'}
         </button>
       </form>
-
-      {errorMessage ? (
-        <p className="text-sm text-[var(--color-danger)]">{errorMessage}</p>
-      ) : null}
 
       <p className="text-sm text-neutral-mid">
         Belum punya akun?{' '}
