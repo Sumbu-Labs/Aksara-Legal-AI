@@ -35,6 +35,7 @@ export class BusinessProfileController {
   @Get('me')
   @ApiOperation({ summary: 'Mendapatkan profil bisnis milik pengguna saat ini' })
   @ApiResponse({ status: 200, type: BusinessProfileResponseDto, description: 'Profil bisnis atau null bila belum dibuat' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async getMyProfile(@CurrentUser() user: AuthenticatedUser | undefined): Promise<BusinessProfileResponseDto | null> {
     const profile = await this.businessProfileService.getProfileByUser(this.ensureUser(user));
     if (!profile) {
@@ -46,6 +47,10 @@ export class BusinessProfileController {
   @Post()
   @ApiOperation({ summary: 'Membuat profil bisnis baru' })
   @ApiResponse({ status: 201, type: BusinessProfileResponseDto })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'User tidak ditemukan' })
+  @ApiResponse({ status: 409, description: 'Profil bisnis sudah ada' })
   async createProfile(
     @Body() dto: CreateBusinessProfileDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
@@ -67,6 +72,9 @@ export class BusinessProfileController {
   @Patch()
   @ApiOperation({ summary: 'Memperbarui informasi profil bisnis' })
   @ApiResponse({ status: 200, type: BusinessProfileResponseDto })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Profil tidak ditemukan' })
   async updateProfile(
     @Body() dto: UpdateBusinessProfileDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
@@ -88,6 +96,9 @@ export class BusinessProfileController {
   @Patch('permits/:permitType')
   @ApiOperation({ summary: 'Memperbarui data perizinan bisnis tertentu' })
   @ApiResponse({ status: 200, type: BusinessProfileResponseDto })
+  @ApiResponse({ status: 400, description: 'Payload tidak valid' })
+  @ApiResponse({ status: 401, description: 'Token tidak valid' })
+  @ApiResponse({ status: 404, description: 'Profil tidak ditemukan' })
   async updatePermit(
     @Param('permitType', new ParseEnumPipe(PermitType)) permitType: PermitType,
     @Body() dto: UpdatePermitProfileDto,

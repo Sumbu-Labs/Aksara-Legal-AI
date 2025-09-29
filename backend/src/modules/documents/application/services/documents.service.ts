@@ -1,4 +1,11 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { randomUUID, createHash } from 'crypto';
 import { ObjectStorageService } from '../../../../infrastructure/storage/object-storage.service';
 import { DOCUMENT_REPOSITORY, DOCUMENT_VERSION_REPOSITORY } from '../../common/document.constants';
@@ -11,6 +18,8 @@ import { DocumentQuotaService } from './document-quota.service';
 
 @Injectable()
 export class DocumentsService {
+  private readonly logger = new Logger(DocumentsService.name);
+
   constructor(
     @Inject(DOCUMENT_REPOSITORY)
     private readonly documentRepository: DocumentRepository,
@@ -20,8 +29,13 @@ export class DocumentsService {
     private readonly quotaService: DocumentQuotaService,
   ) {}
 
-  async uploadDocument(command: UploadDocumentCommand): Promise<Document> {
-    await this.quotaService.ensureCanUpload(command.userId, [command.file]);
+  async uploadDocument(
+    command: UploadDocumentCommand,
+    options: { skipQuota?: boolean } = {},
+  ): Promise<Document> {
+    if (!options.skipQuota) {
+      await this.quotaService.ensureCanUpload(command.userId, [command.file], { additionalDocuments: 1 });
+    }
     const documentId = randomUUID();
     const versionId = randomUUID();
     const storageKey = this.buildStorageKey(command.userId, documentId, versionId, command.file.originalname);
@@ -73,11 +87,14 @@ export class DocumentsService {
   }
 
   async uploadBatch(command: BatchUploadDocumentCommand): Promise<Document[]> {
-    await this.quotaService.ensureCanUpload(command.userId, command.documents.map((item) => item.file));
+    const files = command.documents.map((item) => item.file);
+    await this.quotaService.ensureCanUpload(command.userId, files, {
+      additionalDocuments: files.length,
+    });
 
     const results: Document[] = [];
     for (const doc of command.documents) {
-      const document = await this.uploadDocument({ ...doc, userId: command.userId });
+      const document = await this.uploadDocument({ ...doc, userId: command.userId }, { skipQuota: true });
       results.push(document);
     }
     return results;
@@ -89,7 +106,7 @@ export class DocumentsService {
       throw new NotFoundException('Document not found');
     }
 
-    await this.quotaService.ensureCanUpload(command.userId, [command.file]);
+    await this.quotaService.ensureCanUpload(command.userId, [command.file], { additionalDocuments: 0 });
 
     const latest = await this.documentVersionRepository.findLatestVersion(command.documentId);
     const nextVersion = (latest?.version ?? 0) + 1;
@@ -149,14 +166,18 @@ export class DocumentsService {
       throw new NotFoundException('Document not found');
     }
 
+    const versions = await this.documentVersionRepository.findVersions(documentId);
+    try {
+      for (const version of versions) {
+        await this.objectStorage.deleteObject(version.storageKey);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to delete storage objects for document ${documentId}`, error as Error);
+      throw new InternalServerErrorException('Failed to delete document files');
+    }
+
     document.markDeleted();
     await this.documentRepository.softDelete(document);
-
-    // delete objects from storage (best-effort)
-    const versions = await this.documentVersionRepository.findVersions(documentId);
-    await Promise.all(
-      versions.map((version) => this.objectStorage.deleteObject(version.storageKey).catch(() => undefined)),
-    );
   }
 
   async getDocument(userId: string, documentId: string): Promise<{ document: Document; downloadUrl: string | undefined }> {

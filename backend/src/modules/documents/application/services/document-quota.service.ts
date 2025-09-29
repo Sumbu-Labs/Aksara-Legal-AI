@@ -18,18 +18,14 @@ export class DocumentQuotaService {
     this.maxStorageBytes = BigInt(sizeMb) * BigInt(1024 * 1024);
   }
 
-  async ensureCanUpload(userId: string, files: { size: number }[]): Promise<void> {
-    const usage = await this.readUsage(userId);
-    const additionalDocs = files.length;
+  async ensureCanUpload(
+    userId: string,
+    files: { size: number }[],
+    options?: { additionalDocuments?: number },
+  ): Promise<void> {
+    const additionalDocuments = options?.additionalDocuments ?? files.length;
     const additionalBytes = files.reduce((acc, file) => acc + BigInt(file.size), BigInt(0));
-
-    if (usage.documentCount + additionalDocs > this.maxDocuments) {
-      throw new BadRequestException('Document limit exceeded for your plan');
-    }
-
-    if (usage.storageBytes + additionalBytes > this.maxStorageBytes) {
-      throw new BadRequestException('Storage limit exceeded for your plan');
-    }
+    await this.ensureCapacity(userId, additionalDocuments, additionalBytes);
   }
 
   private async readUsage(userId: string): Promise<UsageSummary> {
@@ -57,5 +53,16 @@ export class DocumentQuotaService {
       documentCount,
       storageBytes: storageBytes !== null ? storageBytes : BigInt(0),
     };
+  }
+
+  private async ensureCapacity(userId: string, additionalDocuments: number, additionalBytes: bigint): Promise<void> {
+    const usage = await this.readUsage(userId);
+    if (usage.documentCount + additionalDocuments > this.maxDocuments) {
+      throw new BadRequestException('Document limit exceeded for your plan');
+    }
+
+    if (usage.storageBytes + additionalBytes > this.maxStorageBytes) {
+      throw new BadRequestException('Storage limit exceeded for your plan');
+    }
   }
 }
