@@ -34,7 +34,7 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="bg-background py-20 px-4">
+    <section id="faq" className="bg-background py-20 px-4 scroll-mt-24">
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
           <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">

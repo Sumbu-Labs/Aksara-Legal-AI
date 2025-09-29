@@ -1,6 +1,6 @@
 export function CTASection() {
   return (
-    <section className="py-16 px-4 bg-primary text-center">
+    <section id="get-started" className="py-16 px-4 bg-primary text-center scroll-mt-24">
       <div className="max-w-4xl mx-auto">
         <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-6">
           Siap Menghemat Waktu Administrasi Anda?
