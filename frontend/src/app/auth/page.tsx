@@ -2,7 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import type { FormEvent, JSX } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
+
+import {
+  login as loginRequest,
+  persistTokens,
+  register as registerRequest,
+} from '@/services/auth';
+import type { LoginPayload, RegisterPayload } from '@/services/auth';
 
 type AuthMode = 'register' | 'login';
 
@@ -14,42 +21,12 @@ export default function AuthPage(): JSX.Element {
 
   const router = useRouter();
 
-  const backendBaseUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
-    [],
-  );
-
-  const persistTokens = useCallback((tokens: TokensResponse) => {
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('accessToken', tokens.accessToken);
-        window.localStorage.setItem('refreshToken', tokens.refreshToken);
-      }
-    } catch (error) {
-      console.error('Failed to persist tokens', error);
-    }
-  }, []);
-
   const handleRegister = useCallback(
     async (payload: RegisterPayload) => {
       setIsSubmitting(true);
       setErrorMessage(null);
       try {
-        const response = await fetch(`${backendBaseUrl}/auth/register`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          const message = await extractErrorMessage(response);
-          throw new Error(message || 'Pendaftaran gagal.');
-        }
-
-        const tokens = (await response.json()) as TokensResponse;
+        const tokens = await registerRequest(payload);
         persistTokens(tokens);
         router.push('/dashboard/documents');
       } catch (error) {
@@ -59,7 +36,7 @@ export default function AuthPage(): JSX.Element {
         setIsSubmitting(false);
       }
     },
-    [backendBaseUrl, persistTokens, router],
+    [router],
   );
 
   const handleLogin = useCallback(
@@ -67,21 +44,7 @@ export default function AuthPage(): JSX.Element {
       setIsSubmitting(true);
       setErrorMessage(null);
       try {
-        const response = await fetch(`${backendBaseUrl}/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          const message = await extractErrorMessage(response);
-          throw new Error(message || 'Masuk gagal.');
-        }
-
-        const tokens = (await response.json()) as TokensResponse;
+        const tokens = await loginRequest(payload);
         persistTokens(tokens);
         router.push('/dashboard/documents');
       } catch (error) {
@@ -91,7 +54,7 @@ export default function AuthPage(): JSX.Element {
         setIsSubmitting(false);
       }
     },
-    [backendBaseUrl, persistTokens, router],
+    [router],
   );
 
   const switchToRegister = useCallback(() => {
@@ -154,56 +117,6 @@ export default function AuthPage(): JSX.Element {
 
 const SECTION_BASE = 'relative flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
 
-type TokensResponse = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-type RegisterPayload = {
-  name: string;
-  email: string;
-  password: string;
-};
-
-type LoginPayload = {
-  email: string;
-  password: string;
-};
-
-async function extractErrorMessage(response: Response): Promise<string | null> {
-  try {
-    const data = await response.json();
-    if (data && typeof data === 'object') {
-      if (typeof data.message === 'string') {
-        return data.message;
-      }
-      if (Array.isArray(data.message) && data.message.length > 0) {
-        return String(data.message[0]);
-      }
-      if (typeof data.error === 'string') {
-        return data.error;
-      }
-    }
-    return null;
-  } catch (error) {
-    console.warn('Failed to parse error response', error);
-    return null;
-  }
-}
-
-function getEnv(name: string, fallback: string): string {
-  if (typeof process !== 'undefined' && process.env?.[name]) {
-    return process.env[name] as string;
-  }
-  if (typeof window !== 'undefined') {
-    const fromWindow = (window as unknown as Record<string, string | undefined>)[name];
-    if (fromWindow) {
-      return fromWindow;
-    }
-  }
-  return fallback;
-}
-
 type RegisterFormProps = {
   onSwitchMode: () => void;
   onSubmit: (payload: RegisterPayload) => Promise<void> | void;
@@ -245,7 +158,7 @@ function RegisterForm({ onSwitchMode, onSubmit, isSubmitting, errorMessage }: Re
             name="name"
             type="text"
             required
-            placeholder="Contoh: Fulan bin Fulan"
+            placeholder="Contoh: Dzikran Maulana"
             className="w-full border-2 border-neutral-light bg-secondary/20 px-4 py-3 text-sm text-neutral-dark transition-colors focus:border-primary focus:outline-none"
           />
         </div>
