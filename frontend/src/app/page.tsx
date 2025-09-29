@@ -2,9 +2,10 @@ import { SectionSeparatorHorizontal } from '../components/SectionSeparator';
 import { HeroSection } from '../components/HeroSection';
 import { PartnersSection } from '../components/PartnersSection';
 import { BenefitsSection } from '../components/BenefitsSection';
+import { HowItWorksSection } from '../components/HowItWorksSection';
+import { PricingSection } from '../components/PricingSection';
 import { ProblemSection } from '../components/ProblemSection';
 import { SolutionSection } from '../components/SolutionSection';
-import { HowItWorksSection } from '../components/HowItWorksSection';
 import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 
@@ -24,6 +25,10 @@ export default function Home() {
       <SectionSeparatorHorizontal />
 
       <HowItWorksSection />
+
+      <SectionSeparatorHorizontal />
+
+      <PricingSection />
 
       <SectionSeparatorHorizontal />
 
