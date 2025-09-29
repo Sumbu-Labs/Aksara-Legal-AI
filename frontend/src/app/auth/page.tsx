@@ -11,31 +11,39 @@ export default function AuthPage(): JSX.Element {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className="flex min-h-screen w-full flex-col overflow-hidden bg-white lg:flex-row">
-        <div
-          className={`flex w-full flex-col justify-center gap-10 px-8 py-12 transition-transform duration-500 ease-in-out sm:px-12 lg:w-1/2 lg:px-16 ${
-            isLogin ? 'lg:translate-x-full' : 'lg:translate-x-0'
-          }`}
+      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white lg:flex-row">
+        <section
+          className={`${isLogin ? 'hidden lg:flex' : 'flex'} ${SECTION_BASE}`}
+          aria-hidden={isLogin}
         >
-          {isLogin ? (
-            <LoginForm onSwitchMode={() => setMode('register')} />
-          ) : (
-            <RegisterForm onSwitchMode={() => setMode('login')} />
-          )}
-        </div>
+          <RegisterForm onSwitchMode={() => setMode('login')} />
+        </section>
+
+        <section
+          className={`${isLogin ? 'flex' : 'hidden lg:flex'} ${SECTION_BASE}`}
+          aria-hidden={!isLogin}
+        >
+          <LoginForm onSwitchMode={() => setMode('register')} />
+        </section>
 
         <aside
-          className={`flex h-72 w-full items-center justify-center bg-secondary/30 text-neutral-mid transition-transform duration-500 ease-in-out lg:h-auto lg:w-1/2 lg:bg-secondary/40 ${
-            isLogin ? 'lg:-translate-x-full' : 'lg:translate-x-0'
+          className={`absolute inset-y-0 left-0 hidden w-full transform bg-secondary/40 transition-transform duration-500 ease-in-out lg:block lg:w-1/2 ${
+            isLogin ? 'translate-x-0' : 'translate-x-full'
           }`}
           aria-hidden="true"
         >
-          <span className="text-sm font-semibold uppercase tracking-[0.3em]">Area Visual</span>
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_rgba(0,0,0,0.05))] text-center text-neutral-mid">
+            <span className="max-w-xs text-sm font-semibold uppercase tracking-[0.3em]">
+              Area Visual
+            </span>
+          </div>
         </aside>
       </div>
     </div>
   );
 }
+
+const SECTION_BASE = 'relative z-10 flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
 
 function RegisterForm({ onSwitchMode }: { onSwitchMode: () => void }): JSX.Element {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
