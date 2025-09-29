@@ -17,7 +17,7 @@ export function Navbar() {
         </nav>
 
         <div className="ml-4">
-          <Link href="#get-started" className="bg-primary text-[var(--background)] px-4 py-2 rounded-sm border-2 border-black font-medium">Get started</Link>
+          <Link href="#get-started" className="bg-primary text-[var(--background)] px-4 py-2 border-2 border-black font-medium">Get started</Link>
         </div>
       </div>
     </header>
