@@ -9,6 +9,12 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthenticatedUser } from '../../../auth/domain/interfaces/authenticated-user.interface';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../auth/presentation/decorators/current-user.decorator';
@@ -20,11 +26,15 @@ import { UpdateBusinessProfileDto } from '../dto/update-business-profile.dto';
 import { UpdatePermitProfileDto } from '../dto/update-permit-profile.dto';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('Business Profile')
+@ApiBearerAuth()
 @Controller('business-profile')
 export class BusinessProfileController {
   constructor(private readonly businessProfileService: BusinessProfileService) {}
 
   @Get('me')
+  @ApiOperation({ summary: 'Mendapatkan profil bisnis milik pengguna saat ini' })
+  @ApiResponse({ status: 200, type: BusinessProfileResponseDto, description: 'Profil bisnis atau null bila belum dibuat' })
   async getMyProfile(@CurrentUser() user: AuthenticatedUser | undefined): Promise<BusinessProfileResponseDto | null> {
     const profile = await this.businessProfileService.getProfileByUser(this.ensureUser(user));
     if (!profile) {
@@ -34,6 +44,8 @@ export class BusinessProfileController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Membuat profil bisnis baru' })
+  @ApiResponse({ status: 201, type: BusinessProfileResponseDto })
   async createProfile(
     @Body() dto: CreateBusinessProfileDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
@@ -53,6 +65,8 @@ export class BusinessProfileController {
   }
 
   @Patch()
+  @ApiOperation({ summary: 'Memperbarui informasi profil bisnis' })
+  @ApiResponse({ status: 200, type: BusinessProfileResponseDto })
   async updateProfile(
     @Body() dto: UpdateBusinessProfileDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
@@ -72,6 +86,8 @@ export class BusinessProfileController {
   }
 
   @Patch('permits/:permitType')
+  @ApiOperation({ summary: 'Memperbarui data perizinan bisnis tertentu' })
+  @ApiResponse({ status: 200, type: BusinessProfileResponseDto })
   async updatePermit(
     @Param('permitType', new ParseEnumPipe(PermitType)) permitType: PermitType,
     @Body() dto: UpdatePermitProfileDto,
