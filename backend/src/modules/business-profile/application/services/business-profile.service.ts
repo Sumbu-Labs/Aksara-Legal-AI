@@ -12,6 +12,8 @@ import { BusinessPermitProfileRepository } from '../../domain/repositories/busin
 import { CreateBusinessProfileCommand } from '../dto/create-business-profile.command';
 import { UpdateBusinessProfileCommand } from '../dto/update-business-profile.command';
 import { UpdatePermitProfileCommand } from '../dto/update-permit-profile.command';
+import { NotificationsService } from '../../../notifications/application/services/notifications.service';
+import { NotificationType } from '../../../notifications/domain/enums/notification-type.enum';
 
 @Injectable()
 export class BusinessProfileService {
@@ -21,6 +23,7 @@ export class BusinessProfileService {
     @Inject(BUSINESS_PERMIT_PROFILE_REPOSITORY)
     private readonly businessPermitProfileRepository: BusinessPermitProfileRepository,
     @Inject(USER_REPOSITORY) private readonly userRepository: UserRepository,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async getProfileByUser(userId: string): Promise<BusinessProfile | null> {
@@ -51,7 +54,8 @@ export class BusinessProfileService {
 
     const permits = await this.ensureDefaultPermitProfiles(profile.id);
     profile.updatePermits(permits);
-    await this.updateCompletionStatus(profile);
+    const completion = await this.updateCompletionStatus(profile);
+    await this.safeNotifyProfileCompleted(profile.userId, completion.justCompleted);
 
     return profile;
   }
@@ -76,7 +80,8 @@ export class BusinessProfileService {
 
     const permits = await this.businessPermitProfileRepository.findManyByProfileId(profile.id);
     profile.updatePermits(permits);
-    await this.updateCompletionStatus(profile);
+    const completion = await this.updateCompletionStatus(profile);
+    await this.safeNotifyProfileCompleted(profile.userId, completion.justCompleted);
 
     return profile;
   }
@@ -109,7 +114,16 @@ export class BusinessProfileService {
 
     const permits = await this.businessPermitProfileRepository.findManyByProfileId(profile.id);
     profile.updatePermits(permits);
-    await this.updateCompletionStatus(profile);
+    const completion = await this.updateCompletionStatus(profile);
+    if (completion.justCompleted) {
+      await this.notificationsService.createNotification({
+        userId: profile.userId,
+        type: NotificationType.BUSINESS_PROFILE_COMPLETED,
+        title: 'Profil bisnis lengkap',
+        message: 'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
+        sendEmail: true,
+      });
+    }
 
     return profile;
   }
@@ -142,7 +156,10 @@ export class BusinessProfileService {
     return [...permits, ...creations];
   }
 
-  private async updateCompletionStatus(profile: BusinessProfile): Promise<void> {
+  private async updateCompletionStatus(
+    profile: BusinessProfile,
+  ): Promise<{ completed: boolean; justCompleted: boolean }> {
+    const wasCompleted = profile.completedAt !== null;
     const isBasicInfoComplete = this.isBasicInfoComplete(profile);
     const allPermitCompleted = profile.permits.length > 0 && profile.permits.every((permit) => permit.isChecklistComplete);
 
@@ -153,6 +170,8 @@ export class BusinessProfileService {
     }
 
     await this.businessProfileRepository.save(profile);
+    const completed = profile.completedAt !== null;
+    return { completed, justCompleted: !wasCompleted && completed };
   }
 
   private isBasicInfoComplete(profile: BusinessProfile): boolean {
@@ -169,5 +188,22 @@ export class BusinessProfileService {
 
   private isValidEnumValue<T extends Record<string, string>>(value: string, enumObj: T): boolean {
     return Object.values(enumObj).includes(value);
+  }
+
+  private async safeNotifyProfileCompleted(userId: string, shouldNotify: boolean): Promise<void> {
+    if (!shouldNotify) {
+      return;
+    }
+    try {
+      await this.notificationsService.createNotification({
+        userId,
+        type: NotificationType.BUSINESS_PROFILE_COMPLETED,
+        title: 'Profil bisnis lengkap',
+        message: 'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
+        sendEmail: true,
+      });
+    } catch (error) {
+      // swallow notification errors to keep core flow resilient
+    }
   }
 }
