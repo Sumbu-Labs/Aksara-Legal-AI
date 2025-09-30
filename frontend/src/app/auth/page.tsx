@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { FormEvent, JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 
 import {
   login as loginRequest,
@@ -15,7 +15,15 @@ import { useToast } from '@/components/ToastProvider';
 
 type AuthMode = 'register' | 'login';
 
-export default function AuthPage(): JSX.Element {
+export default function AuthPage(): ReactElement {
+  return (
+    <Suspense fallback={<AuthPageFallback />}>
+      <AuthPageContent />
+    </Suspense>
+  );
+}
+
+function AuthPageContent(): ReactElement {
   const [mode, setMode] = useState<AuthMode>('register');
   const isLogin = mode === 'login';
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +90,7 @@ export default function AuthPage(): JSX.Element {
           className={`${
             isLogin ? 'hidden lg:flex lg:pointer-events-none' : 'flex lg:pointer-events-auto'
           } ${SECTION_BASE}`}
-          aria-hidden={isLogin}
+          aria-hidden={isLogin ? 'true' : 'false'}
         >
           <RegisterForm
             onSwitchMode={switchToLogin}
@@ -95,7 +103,7 @@ export default function AuthPage(): JSX.Element {
           className={`${
             isLogin ? 'flex lg:pointer-events-auto' : 'hidden lg:flex lg:pointer-events-none'
           } ${SECTION_BASE}`}
-          aria-hidden={!isLogin}
+          aria-hidden={!isLogin ? 'true' : 'false'}
         >
           <LoginForm
             onSwitchMode={switchToRegister}
@@ -121,6 +129,16 @@ export default function AuthPage(): JSX.Element {
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+function AuthPageFallback(): ReactElement {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <p className="text-sm text-neutral-mid" role="status" aria-live="polite">
+        Memuat halaman autentikasi...
+      </p>
     </div>
   );
 }
@@ -169,7 +187,7 @@ type RegisterFormProps = {
   isSubmitting: boolean;
 };
 
-function RegisterForm({ onSwitchMode, onSubmit, isSubmitting }: RegisterFormProps): JSX.Element {
+function RegisterForm({ onSwitchMode, onSubmit, isSubmitting }: RegisterFormProps): ReactElement {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -267,7 +285,7 @@ type LoginFormProps = {
   isSubmitting: boolean;
 };
 
-function LoginForm({ onSwitchMode, onSubmit, isSubmitting }: LoginFormProps): JSX.Element {
+function LoginForm({ onSwitchMode, onSubmit, isSubmitting }: LoginFormProps): ReactElement {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
