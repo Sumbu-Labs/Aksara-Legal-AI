@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { BusinessProfileModule } from './modules/business-profile/business-profile.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { AssistantModule } from './modules/assistant/assistant.module';
 import { DocsModule } from './docs/docs.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { DocsModule } from './docs/docs.module';
     AuthModule,
     BusinessProfileModule,
     DocumentsModule,
+    AssistantModule,
     DocsModule,
   ],
   controllers: [AppController],

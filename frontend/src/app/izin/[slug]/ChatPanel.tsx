@@ -99,12 +99,14 @@ export default function ChatPanel({ permit }: ChatPanelProps) {
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const aiServiceUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:8000'),
+  const backendBaseUrl = useMemo(
+    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
     [],
   );
-  const userId = useMemo(() => getEnv('NEXT_PUBLIC_MOCK_USER_ID', 'demo-user'), []);
-  const bearerToken = useMemo(() => getEnv('NEXT_PUBLIC_AI_SERVICE_TOKEN', ''), []);
+  const assistantEndpoint = useMemo(() => {
+    const base = backendBaseUrl.replace(/\/+$/, '');
+    return `${base}/api/ask`;
+  }, [backendBaseUrl]);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -158,22 +160,21 @@ export default function ChatPanel({ permit }: ChatPanelProps) {
     setIsSending(true);
 
     try {
-      const response = await fetch(`${aiServiceUrl}/v1/qa/query`, {
+      const response = await fetch(assistantEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
         },
+        credentials: 'include',
         body: JSON.stringify({
           question: trimmed,
-          permit_type: permit.permitType,
+          permitType: permit.permitType,
           region: permit.region,
-          user_id: userId,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`AI service responded with ${response.status}`);
+        throw new Error(`Assistant endpoint responded with ${response.status}`);
       }
 
       const data: QaResponse = await response.json();
@@ -194,7 +195,7 @@ export default function ChatPanel({ permit }: ChatPanelProps) {
     } catch (error) {
       console.error('chat_send_failed', error);
       setBannerMessage(
-        'Tidak dapat menghubungi layanan AI. Pastikan layanan AI berjalan dan coba lagi.',
+        'Tidak dapat menghubungi backend Asisten AI. Pastikan backend tersedia dan coba lagi.',
       );
       setMessages((prev) =>
         prev.map((message) =>
@@ -212,7 +213,7 @@ export default function ChatPanel({ permit }: ChatPanelProps) {
     } finally {
       setIsSending(false);
     }
-  }, [aiServiceUrl, bearerToken, inputValue, isSending, permit.permitType, permit.region, userId]);
+  }, [assistantEndpoint, inputValue, isSending, permit.permitType, permit.region]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
