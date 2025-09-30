@@ -1,7 +1,7 @@
 'use client';
 
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 
 type BusinessSize = 'micro' | 'small' | 'medium' | 'enterprise';
@@ -90,6 +90,11 @@ export function BusinessProfileForm({
 
   const [values, setValues] = useState<BusinessProfileFormValues>(mergedDefaults);
   const [errors, setErrors] = useState<ValidationErrors>({});
+
+  useEffect(() => {
+    setValues(mergedDefaults);
+    setErrors({});
+  }, [mergedDefaults]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

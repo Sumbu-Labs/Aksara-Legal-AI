@@ -13,6 +13,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Ringkasan' },
   { href: '/dashboard/documents', label: 'Dokumen' },
+  { href: '/dashboard/settings', label: 'Pengaturan' },
 ];
 
 export function DashboardShell({ children }: { children: ReactNode }): JSX.Element {
@@ -37,8 +38,8 @@ export function DashboardShell({ children }: { children: ReactNode }): JSX.Eleme
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex w-full items-center justify-between border-2 border-black px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition-colors ${
-                      isActive ? 'bg-primary text-white' : 'bg-white text-neutral-dark hover:bg-secondary/30'
+                    className={`flex w-full items-center justify-between border-2 border-black px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition-colors hover:bg-secondary/30 ${
+                      isActive ? 'bg-primary text-white' : 'bg-white text-neutral-dark'
                     }`}
                   >
                     <span>{item.label}</span>
