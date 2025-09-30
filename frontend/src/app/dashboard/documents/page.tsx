@@ -218,7 +218,7 @@ function createInitialMetadata(fields: SchemaField[]): Record<string, string> {
   return initial;
 }
 
-export default function DocumentUploadPage(): JSX.Element {
+export default function DocumentUploadPage() {
   const backendBaseUrl = useMemo(
     () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
     [],
@@ -543,6 +543,8 @@ export default function DocumentUploadPage(): JSX.Element {
                     accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     multiple
                     onChange={onBrowseFiles}
+                    title="Pilih file untuk diunggah"
+                    aria-label="Pilih file untuk diunggah"
                   />
                 </div>
               </div>
