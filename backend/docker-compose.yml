@@ -30,6 +30,9 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL}
+      AI_SERVICE_BASE_URL: ${AI_SERVICE_BASE_URL}
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN}
+      AI_SERVICE_TIMEOUT_MS: ${AI_SERVICE_TIMEOUT_MS:-15000}
     ports:
       - "7600:3000"
     healthcheck:

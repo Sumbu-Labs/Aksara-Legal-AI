@@ -47,9 +47,10 @@ class GeminiClient:
 
     async def embed_text(self, text: str) -> list[float]:
         payload = {
+            "model": f"models/{self._embed_model}",
             "content": {
                 "parts": [{"text": text}],
-            }
+            },
         }
         endpoint = f"models/{self._embed_model}:embedContent"
         data = await self._post(endpoint, payload)

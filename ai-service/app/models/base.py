@@ -2,7 +2,14 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, MetaData, func
+from sqlalchemy.dialects.sqlite import JSON as SQLiteJSON
 from sqlalchemy.orm import DeclarativeBase, declared_attr, mapped_column
+
+
+try:
+    from sqlalchemy.dialects.postgresql import JSONB as PostgresJSONB
+except ImportError:  # pragma: no cover - optional pg extras
+    PostgresJSONB = SQLiteJSON
 
 
 def _naming_convention() -> dict[str, str]:
@@ -17,6 +24,7 @@ def _naming_convention() -> dict[str, str]:
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=_naming_convention())
+    JSONType = PostgresJSONB
 
     if TYPE_CHECKING:
         __tablename__: str
