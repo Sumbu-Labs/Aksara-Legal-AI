@@ -13,10 +13,13 @@ import {
 
 type ToastVariant = 'success' | 'error' | 'info';
 
+type ToastState = 'entering' | 'visible' | 'exiting';
+
 type ToastDefinition = {
   id: string;
   message: string;
   variant: ToastVariant;
+  state: ToastState;
 };
 
 type ToastMethods = {
@@ -28,19 +31,39 @@ type ToastMethods = {
 const ToastContext = createContext<ToastMethods | undefined>(undefined);
 
 const TOAST_DURATION = 4500;
+const EXIT_ANIMATION_DURATION = 220;
 
 export function ToastProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [toasts, setToasts] = useState<ToastDefinition[]>([]);
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const exitTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const removeToast = useCallback((id: string) => {
-    setToasts((previous) => previous.filter((toast) => toast.id !== id));
-    const timerId = timers.current.get(id);
-    if (timerId) {
-      clearTimeout(timerId);
+  const beginDismiss = useCallback((id: string) => {
+    const activeTimer = timers.current.get(id);
+    if (activeTimer) {
+      clearTimeout(activeTimer);
       timers.current.delete(id);
     }
+
+    if (exitTimers.current.has(id)) {
+      return;
+    }
+
+    setToasts((previous) =>
+      previous.map((toast) => (toast.id === id ? { ...toast, state: 'exiting' } : toast)),
+    );
+
+    const exitTimer = setTimeout(() => {
+      setToasts((previous) => previous.filter((toast) => toast.id !== id));
+      exitTimers.current.delete(id);
+    }, EXIT_ANIMATION_DURATION);
+
+    exitTimers.current.set(id, exitTimer);
   }, []);
+
+  const removeToast = useCallback((id: string) => {
+    beginDismiss(id);
+  }, [beginDismiss]);
 
   const pushToast = useCallback(
     (variant: ToastVariant, message: string) => {
@@ -48,22 +71,37 @@ export function ToastProvider({ children }: { children: React.ReactNode }): JSX.
         ? crypto.randomUUID()
         : Math.random().toString(36).slice(2);
 
-      setToasts((previous) => [...previous, { id, message, variant }]);
+      setToasts((previous) => [...previous, { id, message, variant, state: 'entering' }]);
+
+      requestAnimationFrame(() => {
+        setToasts((previous) =>
+          previous.map((toast) =>
+            toast.id === id && toast.state === 'entering'
+              ? { ...toast, state: 'visible' }
+              : toast,
+          ),
+        );
+      });
 
       const timeoutId = setTimeout(() => {
-        removeToast(id);
+        beginDismiss(id);
       }, TOAST_DURATION);
       timers.current.set(id, timeoutId);
     },
-    [removeToast],
+    [beginDismiss],
   );
 
   useEffect(() => {
     const timersMap = timers.current;
+    const exitTimersMap = exitTimers.current;
     return () => {
       const activeTimers = Array.from(timersMap.values());
       timersMap.clear();
       activeTimers.forEach((timerId) => clearTimeout(timerId));
+
+      const activeExitTimers = Array.from(exitTimersMap.values());
+      exitTimersMap.clear();
+      activeExitTimers.forEach((timerId) => clearTimeout(timerId));
     };
   }, []);
 
@@ -104,7 +142,7 @@ function ToastStack({
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border-2 border-black px-4 py-3 text-sm font-semibold shadow-lg transition-all ${getVariantClasses(toast.variant)}`}
+          className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border-2 border-black px-4 py-3 text-sm font-semibold shadow-lg transition-all duration-200 ease-out ${getVariantClasses(toast.variant)} ${getStateClasses(toast.state)}`}
         >
           <span className="flex-1 leading-snug">{toast.message}</span>
           <button
@@ -128,4 +166,14 @@ function getVariantClasses(variant: ToastVariant): string {
     return 'bg-[var(--color-danger,#dc2626)] text-white';
   }
   return 'bg-[var(--color-primary-dark,#0d2a36)] text-white';
+}
+
+function getStateClasses(state: ToastState): string {
+  if (state === 'entering') {
+    return 'translate-y-2 opacity-0';
+  }
+  if (state === 'exiting') {
+    return 'translate-y-2 opacity-0 scale-[0.97]';
+  }
+  return 'translate-y-0 opacity-100';
 }
