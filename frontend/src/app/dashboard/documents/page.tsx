@@ -1,6 +1,5 @@
 'use client';
 
-import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type SchemaFieldType = 'text' | 'textarea' | 'select' | 'date';
