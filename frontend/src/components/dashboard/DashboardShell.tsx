@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
+import type { JSX } from 'react';
 
 type NavItem = {
   href: string;
@@ -18,8 +19,8 @@ export function DashboardShell({ children }: { children: ReactNode }): JSX.Eleme
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen w-full bg-background text-neutral-dark">
-      <aside className="flex w-[260px] min-w-[240px] flex-col border-r-2 border-black bg-white">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-neutral-dark">
+      <aside className="sticky top-0 flex h-full w-[260px] min-w-[240px] flex-col border-r-2 border-black bg-white">
         <div className="border-b-2 border-black px-6 py-6">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Aksara Legal AI</p>
           <h1 className="mt-3 font-heading text-3xl text-neutral-dark">Control Center</h1>
@@ -64,7 +65,7 @@ export function DashboardShell({ children }: { children: ReactNode }): JSX.Eleme
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex items-center justify-between border-b-2 border-black bg-white px-8 py-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-dark">Dashboard Internal</p>
@@ -94,4 +95,3 @@ function isRouteActive(currentPath: string, targetPath: string): boolean {
   }
   return currentPath.startsWith(`${targetPath}/`);
 }
-

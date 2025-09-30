@@ -158,7 +158,7 @@ export default function DashboardPage(): JSX.Element {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             <div className="border-2 border-black bg-secondary/40 px-6 py-6">
               <h3 className="font-heading text-2xl text-neutral-dark">Status Checklist</h3>
               <p className="mt-2 text-sm text-neutral-mid">
