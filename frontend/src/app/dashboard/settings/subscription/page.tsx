@@ -15,7 +15,7 @@ const CURRENT_PLAN = {
   ],
   upgradeCta: {
     label: 'Upgrade ke Scale',
-    href: '/upgrade',
+    href: '/dashboard/settings/subscription',
   },
   renewalDate: '28 Maret 2024',
   status: 'Aktif',

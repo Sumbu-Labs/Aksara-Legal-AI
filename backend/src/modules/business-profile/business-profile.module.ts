@@ -25,5 +25,8 @@ import { PrismaBusinessPermitProfileRepository } from './infrastructure/reposito
       useClass: PrismaBusinessPermitProfileRepository,
     },
   ],
+  exports: [BusinessProfileService],
 })
 export class BusinessProfileModule {}
+
+

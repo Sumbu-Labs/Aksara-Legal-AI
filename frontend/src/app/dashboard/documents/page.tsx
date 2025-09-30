@@ -220,11 +220,11 @@ function createInitialMetadata(fields: SchemaField[]): Record<string, string> {
 
 export default function DocumentUploadPage() {
   const backendBaseUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
+    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:7600'),
     [],
   );
   const aiServiceBaseUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:8000'),
+    () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:7700'),
     [],
   );
 
