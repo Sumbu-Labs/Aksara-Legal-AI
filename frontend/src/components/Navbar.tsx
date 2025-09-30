@@ -18,19 +18,19 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 text-base font-semibold md:flex">
-          <Link href="#services" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
+          <Link href="/#services" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
             Layanan
           </Link>
-          <Link href="#how" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
+          <Link href="/#how" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
             Cara Kerja
           </Link>
-          <Link href="#testimonials" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
+          <Link href="/#testimonials" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
             Testimonial
           </Link>
-          <Link href="#pricing" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
+          <Link href="/#pricing" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
             Harga
           </Link>
-          <Link href="#faq" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
+          <Link href="/#faq" className="text-neutral-mid transition-colors hover:text-primary hover:underline">
             FAQ
           </Link>
         </nav>
