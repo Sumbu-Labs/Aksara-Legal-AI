@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Anton, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '../components/Navbar';
 import { ToastProvider } from '../components/ToastProvider';
 
 const anton = Anton({
@@ -29,10 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${anton.variable} ${ibmPlexSans.variable} antialiased`}>
-        <ToastProvider>
-          <Navbar />
-          {children}
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

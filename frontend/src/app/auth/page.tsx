@@ -30,7 +30,7 @@ export default function AuthPage(): JSX.Element {
         const tokens = await registerRequest(payload);
         persistTokens(tokens);
         toast.success('Pendaftaran berhasil! Selamat datang di Aksara Legal AI.');
-        router.push('/dashboard/documents');
+        router.push('/onboarding');
       } catch (error) {
         const message = error instanceof Error ? error.message : null;
         toast.error(localizeErrorMessage(message, 'register'));
@@ -48,7 +48,7 @@ export default function AuthPage(): JSX.Element {
         const tokens = await loginRequest(payload);
         persistTokens(tokens);
         toast.success('Berhasil masuk. Senang bertemu lagi!');
-        router.push('/dashboard/documents');
+        router.push('/onboarding');
       } catch (error) {
         const message = error instanceof Error ? error.message : null;
         toast.error(localizeErrorMessage(message, 'login'));
