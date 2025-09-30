@@ -127,5 +127,5 @@ function getVariantClasses(variant: ToastVariant): string {
   if (variant === 'error') {
     return 'bg-[var(--color-danger,#dc2626)] text-white';
   }
-  return 'bg-neutral-dark text-white';
+  return 'bg-[var(--color-primary-dark,#0d2a36)] text-white';
 }
