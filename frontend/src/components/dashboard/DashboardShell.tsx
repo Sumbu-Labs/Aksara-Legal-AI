@@ -12,6 +12,8 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Ringkasan' },
+  { href: '/dashboard/ai-services', label: 'AI Services' },
+  { href: '/dashboard/autopilot', label: 'Autopilot Izin' },
   { href: '/dashboard/documents', label: 'Dokumen' },
   { href: '/dashboard/settings', label: 'Pengaturan' },
 ];

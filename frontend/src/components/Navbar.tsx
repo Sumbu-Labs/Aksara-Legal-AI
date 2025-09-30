@@ -37,7 +37,7 @@ export function Navbar() {
 
         <div className="ml-4">
           <Link
-            href="/auth"
+            href="/auth?mode=register"
             className="border-2 border-black bg-primary px-4 py-2 font-medium text-[var(--background)]"
           >
             Mulai Sekarang

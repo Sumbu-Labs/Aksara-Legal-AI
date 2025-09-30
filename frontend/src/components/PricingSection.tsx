@@ -12,7 +12,7 @@ const plans = [
       'Checklist perizinan dasar',
     ],
     ctaLabel: 'Mulai Gratis',
-    ctaHref: '/register',
+    ctaHref: '/auth?mode=register&plan=gratis',
     highlight: false,
   },
   {
@@ -26,7 +26,7 @@ const plans = [
       '1x Autopilot untuk setiap izin',
     ],
     ctaLabel: 'Upgrade ke Satuan',
-    ctaHref: '/pricing#satuan',
+    ctaHref: '/harga#satuan',
     highlight: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
       'Prioritas dukungan',
     ],
     ctaLabel: 'Langganan Pro',
-    ctaHref: '/pricing#pro',
+    ctaHref: '/harga#pro',
     highlight: true,
   },
 ];
