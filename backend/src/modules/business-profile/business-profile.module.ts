@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../../database/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { BusinessProfileService } from './application/services/business-profile.service';
 import {
   BUSINESS_PERMIT_PROFILE_REPOSITORY,
@@ -11,7 +12,7 @@ import { PrismaBusinessProfileRepository } from './infrastructure/repositories/p
 import { PrismaBusinessPermitProfileRepository } from './infrastructure/repositories/prisma-business-permit-profile.repository';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, NotificationsModule],
   controllers: [BusinessProfileController],
   providers: [
     BusinessProfileService,

@@ -5,7 +5,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { BusinessProfileModule } from './modules/business-profile/business-profile.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { DocsModule } from './docs/docs.module';
+import { MailModule } from './infrastructure/mail/mail.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { DocsModule } from './docs/docs.module';
     AuthModule,
     BusinessProfileModule,
     DocumentsModule,
+    MailModule,
+    NotificationsModule,
     DocsModule,
   ],
   controllers: [AppController],

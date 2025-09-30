@@ -15,6 +15,8 @@ import { DocumentRepository } from '../../domain/repositories/document.repositor
 import { DocumentVersionRepository } from '../../domain/repositories/document-version.repository';
 import { BatchUploadDocumentCommand, ReplaceDocumentCommand, UploadDocumentCommand } from '../dto/upload-document.command';
 import { DocumentQuotaService } from './document-quota.service';
+import { NotificationsService } from '../../../notifications/application/services/notifications.service';
+import { NotificationType } from '../../../notifications/domain/enums/notification-type.enum';
 
 @Injectable()
 export class DocumentsService {
@@ -27,6 +29,7 @@ export class DocumentsService {
     private readonly documentVersionRepository: DocumentVersionRepository,
     private readonly objectStorage: ObjectStorageService,
     private readonly quotaService: DocumentQuotaService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async uploadDocument(
@@ -83,6 +86,18 @@ export class DocumentsService {
     if (!created) {
       throw new NotFoundException('Document not found after creation');
     }
+
+    await this.safeNotify(command.userId, {
+      type: NotificationType.DOCUMENT_UPLOADED,
+      title: 'Dokumen berhasil diunggah',
+      message: `Dokumen "${command.label ?? command.file.originalname}" berhasil ditambahkan.`,
+      payload: {
+        documentId: created.id,
+        filename: command.file.originalname,
+      },
+      sendEmail: true,
+    });
+
     return created;
   }
 
@@ -157,6 +172,18 @@ export class DocumentsService {
     if (!refreshed) {
       throw new NotFoundException('Document not found after update');
     }
+
+    await this.safeNotify(command.userId, {
+      type: NotificationType.DOCUMENT_REPLACED,
+      title: 'Dokumen diperbarui',
+      message: `Dokumen "${command.label ?? command.file.originalname}" telah diperbarui ke versi terbaru.`,
+      payload: {
+        documentId: refreshed.id,
+        version: refreshed.currentVersion?.version,
+      },
+      sendEmail: false,
+    });
+
     return refreshed;
   }
 
@@ -215,5 +242,31 @@ export class DocumentsService {
 
   private computeChecksum(buffer: Buffer): string {
     return createHash('sha256').update(buffer).digest('hex');
+  }
+
+  private async safeNotify(
+    userId: string,
+    options: {
+      type: NotificationType;
+      title: string;
+      message: string;
+      payload?: Record<string, unknown> | null;
+      sendEmail?: boolean;
+      emailActionUrl?: string;
+    },
+  ): Promise<void> {
+    try {
+      await this.notificationsService.createNotification({
+        userId,
+        type: options.type,
+        title: options.title,
+        message: options.message,
+        payload: options.payload,
+        sendEmail: options.sendEmail,
+        emailActionUrl: options.emailActionUrl,
+      });
+    } catch (error) {
+      this.logger.warn(`Failed to enqueue notification for user ${userId}: ${(error as Error).message}`);
+    }
   }
 }
