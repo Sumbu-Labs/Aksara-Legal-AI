@@ -17,6 +17,8 @@ export type LoginPayload = {
 };
 
 const DEFAULT_BACKEND_URL = 'http://localhost:3000';
+const ACCESS_TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
 export async function register(payload: RegisterPayload): Promise<TokensResponse> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/register`, {
@@ -33,7 +35,9 @@ export async function register(payload: RegisterPayload): Promise<TokensResponse
     throw new Error(message || 'Pendaftaran gagal.');
   }
 
-  return (await response.json()) as TokensResponse;
+  const tokens = (await response.json()) as TokensResponse;
+  persistTokens(tokens);
+  return tokens;
 }
 
 export async function login(payload: LoginPayload): Promise<TokensResponse> {
@@ -51,17 +55,79 @@ export async function login(payload: LoginPayload): Promise<TokensResponse> {
     throw new Error(message || 'Masuk gagal.');
   }
 
-  return (await response.json()) as TokensResponse;
+  const tokens = (await response.json()) as TokensResponse;
+  persistTokens(tokens);
+  return tokens;
+}
+
+export async function refreshTokens(): Promise<TokensResponse | null> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    return null;
+  }
+
+  const response = await fetch(`${getBackendBaseUrl()}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const tokens = (await response.json()) as TokensResponse;
+  persistTokens(tokens);
+  return tokens;
 }
 
 export function persistTokens(tokens: TokensResponse): void {
   try {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('accessToken', tokens.accessToken);
-      window.localStorage.setItem('refreshToken', tokens.refreshToken);
+      window.localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
+      window.localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     }
   } catch (error) {
     console.error('Failed to persist tokens', error);
+  }
+}
+
+export function getAccessToken(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function getRefreshToken(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function getStoredTokens(): TokensResponse | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const accessToken = window.localStorage.getItem(ACCESS_TOKEN_KEY);
+  const refreshToken = window.localStorage.getItem(REFRESH_TOKEN_KEY);
+  if (!accessToken || !refreshToken) {
+    return null;
+  }
+  return { accessToken, refreshToken };
+}
+
+export function clearTokens(): void {
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+      window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+  } catch (error) {
+    console.error('Failed to clear tokens', error);
   }
 }
 
