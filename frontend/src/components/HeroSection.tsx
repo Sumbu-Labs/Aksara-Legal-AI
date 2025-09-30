@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function HeroSection() {
   return (
     <section className="min-h-screen px-4 py-16 bg-background">
@@ -9,12 +11,12 @@ export function HeroSection() {
           <p className="text-lg md:text-xl text-neutral-mid">
             Aksara Legal AI membantu UMKM dan startup memetakan kewajiban regulasi, menyusun checklist, dan menghasilkan draf dokumen dalam hitungan menit.
           </p>
-          <a
-            href="/register"
+          <Link
+            href="/auth?mode=register"
             className="inline-flex w-fit items-center justify-center bg-primary text-white px-8 py-4 rounded-full font-medium text-lg hover:bg-primary-dark transition-colors shadow-card"
           >
             Mulai Sekarang
-          </a>
+          </Link>
         </div>
 
         <div className="aspect-square border-2 border-neutral-light bg-white shadow-card" aria-hidden="true" />

@@ -8,9 +8,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 build-essential openssl \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 COPY prisma ./prisma
-RUN npm ci
+RUN npm install
 RUN npx prisma generate
 
 # Build application
