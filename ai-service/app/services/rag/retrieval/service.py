@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -31,12 +32,13 @@ class RetrievalService:
         self, query: str, filters: dict[str, str | None]
     ) -> list[RetrievedChunk]:
         embedding = await self.gemini.embed_text(query)
-        vector_stmt = self._build_vector_stmt(embedding, filters).limit(
-            self.settings.retrieval_topk
-        )
-
-        vector_rows = (await self.session.execute(vector_stmt)).all()
-        vector_results = [self._row_to_chunk(row, base=0.5) for row in vector_rows]
+        vector_results: list[RetrievedChunk] = []
+        if self._supports_vector_search():
+            vector_stmt = self._build_vector_stmt(embedding, filters).limit(
+                self.settings.retrieval_topk
+            )
+            vector_rows = (await self.session.execute(vector_stmt)).all()
+            vector_results = [self._row_to_chunk(row, base=0.5) for row in vector_rows]
 
         text_stmt = self._build_text_stmt(query, filters).limit(
             self.settings.retrieval_topk
@@ -57,10 +59,7 @@ class RetrievalService:
         self, embedding: list[float], filters: dict[str, str | None]
     ) -> Select[Any]:
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
-        if filters.get("permit_type"):
-            stmt = stmt.where(Chunk.chunk_metadata["permit_type"].astext == filters["permit_type"])
-        if filters.get("region"):
-            stmt = stmt.where(Chunk.chunk_metadata["region"].astext == filters["region"])
+        stmt = self._apply_metadata_filters(stmt, filters)
         stmt = stmt.order_by(Chunk.embedding.cosine_distance(embedding))
         return stmt
 
@@ -70,16 +69,41 @@ class RetrievalService:
         like_term = f"%{query.lower()}%"
         stmt = select(Chunk, Document).join(Document, Chunk.document_id == Document.id)
         stmt = stmt.where(func.lower(Chunk.text).like(like_term))
-        if filters.get("permit_type"):
-            stmt = stmt.where(Chunk.chunk_metadata["permit_type"].astext == filters["permit_type"])
-        if filters.get("region"):
-            stmt = stmt.where(Chunk.chunk_metadata["region"].astext == filters["region"])
+        stmt = self._apply_metadata_filters(stmt, filters)
         stmt = stmt.order_by(func.length(Chunk.text))
         return stmt
 
-    @staticmethod
+    def _apply_metadata_filters(
+        self, stmt: Select[Any], filters: dict[str, str | None]
+    ) -> Select[Any]:
+        for key in ("permit_type", "region"):
+            value = filters.get(key)
+            if not value:
+                continue
+            stmt = stmt.where(self._metadata_field(key) == value)
+        return stmt
+
+    def _metadata_field(self, key: str) -> Any:
+        if self._using_sqlite():
+            return func.json_extract(Chunk.chunk_metadata, f'$.{key}')
+        return Chunk.chunk_metadata[key].astext
+
+    def _supports_vector_search(self) -> bool:
+        return not self._using_sqlite()
+
+    def _using_sqlite(self) -> bool:
+        bind = getattr(self.session, "bind", None)
+        if bind is None:
+            return False
+        sync_engine = getattr(bind, "sync_engine", None)
+        if sync_engine is not None:
+            dialect_name = sync_engine.dialect.name
+        else:
+            dialect_name = bind.dialect.name
+        return dialect_name.lower() == "sqlite"
+
     def _merge_results(
-        vector_results: list[RetrievedChunk], text_results: list[RetrievedChunk]
+        self, vector_results: list[RetrievedChunk], text_results: list[RetrievedChunk]
     ) -> list[RetrievedChunk]:
         merged: dict[str, RetrievedChunk] = {}
         for item in vector_results + text_results:
@@ -96,11 +120,17 @@ class RetrievalService:
                 merged[key] = item
         return sorted(merged.values(), key=lambda x: x.score, reverse=True)
 
-    @staticmethod
-    def _row_to_chunk(row: Any, base: float) -> RetrievedChunk:
+    def _row_to_chunk(self, row: Any, base: float) -> RetrievedChunk:
         chunk: Chunk = row[0]
         document: Document = row[1]
-        metadata = dict(chunk.chunk_metadata)
+        metadata_raw = chunk.chunk_metadata
+        if isinstance(metadata_raw, str):
+            try:
+                metadata = json.loads(metadata_raw)
+            except json.JSONDecodeError:  # pragma: no cover - defensive
+                metadata = {}
+        else:
+            metadata = dict(metadata_raw)
         metadata.setdefault("source_title", metadata.get("source_title") or document.url)
         metadata.setdefault("version_date", metadata.get("version_date"))
         return RetrievedChunk(text=chunk.text, metadata=metadata, score=base)

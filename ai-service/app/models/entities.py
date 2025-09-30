@@ -5,7 +5,6 @@ from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -36,7 +35,9 @@ class Chunk(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    chunk_metadata: Mapped[dict[str, object]] = mapped_column("metadata", JSONB, nullable=False)
+    chunk_metadata: Mapped[dict[str, object]] = mapped_column(
+        "metadata", Base.JSONType, nullable=False
+    )
     embedding: Mapped[list[float]] = mapped_column(Vector, nullable=False)
 
     document: Mapped[Document] = relationship(back_populates="chunks")
@@ -47,7 +48,7 @@ class Template(Base):
 
     permit_type: Mapped[str] = mapped_column(String(32), primary_key=True)
     region: Mapped[str] = mapped_column(String(32), primary_key=True)
-    json_schema: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
+    json_schema: Mapped[dict[str, object]] = mapped_column(Base.JSONType, nullable=False)
     html_template_url: Mapped[str] = mapped_column(String(512), nullable=False)
     version_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
@@ -66,8 +67,8 @@ class AutopilotJob(Base):
     user_id: Mapped[str] = mapped_column(String(128), nullable=False)
     permit_type: Mapped[str] = mapped_column(String(32), nullable=False)
     region: Mapped[str] = mapped_column(String(32), nullable=False)
-    input_json: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
-    field_audit: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
+    input_json: Mapped[dict[str, object]] = mapped_column(Base.JSONType, nullable=False)
+    field_audit: Mapped[dict[str, object] | None] = mapped_column(Base.JSONType, nullable=True)
     status: Mapped[AutopilotJobStatus] = mapped_column(
         Enum(AutopilotJobStatus, name="autopilot_status"),
         nullable=False,

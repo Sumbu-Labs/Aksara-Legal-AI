@@ -13,10 +13,12 @@ from sqlalchemy.ext.asyncio import (  # type: ignore[import]
 )
 
 from app.core.config import get_settings
+from app.models.base import Base
 
 _engine: AsyncEngine | None = None
 _SessionLocal: async_sessionmaker[AsyncSession] | None = None
 _connection_verified = False
+_sqlite_initialized = False
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +54,7 @@ def _ensure_engine(database_url: str | None = None) -> AsyncEngine:
     return _engine
 
 
-def _activate_sqlite_fallback(error: Exception) -> None:
+async def _activate_sqlite_fallback(error: Exception) -> None:
     """Switch the connection to a local SQLite database when Postgres is unavailable."""
 
     global _connection_verified
@@ -74,7 +76,19 @@ def _activate_sqlite_fallback(error: Exception) -> None:
         logger.debug("settings_update_failed", exc_info=True)
 
     _connection_verified = False
-    _ensure_engine(fallback_url)
+    engine = _ensure_engine(fallback_url)
+    await _ensure_sqlite_schema(engine)
+
+
+async def _ensure_sqlite_schema(engine: AsyncEngine) -> None:
+    global _sqlite_initialized
+    if _sqlite_initialized:
+        return
+    if engine.sync_engine.dialect.name != "sqlite":
+        return
+    async with engine.begin() as connection:  # type: ignore[call-arg]
+        await connection.run_sync(Base.metadata.create_all)
+    _sqlite_initialized = True
 
 
 def get_engine() -> AsyncEngine:
@@ -102,7 +116,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             await session.execute(text("SELECT 1"))
         except OperationalError as exc:
             await session.close()
-            _activate_sqlite_fallback(exc)
+            await _activate_sqlite_fallback(exc)
             sessionmaker = get_sessionmaker()
             session = sessionmaker()
             await session.execute(text("SELECT 1"))
