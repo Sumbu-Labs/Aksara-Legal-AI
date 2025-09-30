@@ -11,11 +11,13 @@ import { JwtAuthGuard } from './infrastructure/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './infrastructure/guards/jwt-refresh.guard';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { PrismaModule } from '../../database/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     ConfigModule,
     PrismaModule,
+    NotificationsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

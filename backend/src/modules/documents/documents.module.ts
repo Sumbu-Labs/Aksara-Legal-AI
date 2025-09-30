@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { StorageModule } from '../../infrastructure/storage/storage.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { DOCUMENT_REPOSITORY, DOCUMENT_VERSION_REPOSITORY } from './common/document.constants';
 import { DocumentQuotaService } from './application/services/document-quota.service';
 import { DocumentsService } from './application/services/documents.service';
@@ -14,6 +15,7 @@ import { DocumentsController } from './presentation/controllers/documents.contro
   imports: [
     ConfigModule,
     StorageModule,
+    NotificationsModule,
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {

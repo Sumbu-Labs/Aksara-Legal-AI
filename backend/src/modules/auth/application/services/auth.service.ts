@@ -13,6 +13,8 @@ import { AuthenticatedUser } from '../../domain/interfaces/authenticated-user.in
 import { AccessTokenPayload, BaseJwtPayload } from '../../domain/interfaces/jwt-payload.interface';
 import { Tokens } from '../../domain/interfaces/tokens.interface';
 import { UserRepository } from '../../domain/repositories/user.repository';
+import { NotificationsService } from '../../../notifications/application/services/notifications.service';
+import { NotificationType } from '../../../notifications/domain/enums/notification-type.enum';
 
 export interface RegisterCommand {
   name: string;
@@ -31,6 +33,7 @@ export class AuthService {
     @Inject(USER_REPOSITORY) private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async register(command: RegisterCommand): Promise<Tokens> {
@@ -51,6 +54,8 @@ export class AuthService {
     user.updateRefreshTokenHash(refreshTokenHash);
 
     await this.userRepository.save(user);
+
+    await this.safeNotifyAccountRegistered(user.id, user.name);
 
     return tokens;
   }
@@ -177,5 +182,19 @@ export class AuthService {
       this.configService.get<string>('JWT_REFRESH_EXPIRATION_TIME') ??
       DEFAULT_REFRESH_TOKEN_EXPIRES_IN
     );
+  }
+
+  private async safeNotifyAccountRegistered(userId: string, name: string): Promise<void> {
+    try {
+      await this.notificationsService.createNotification({
+        userId,
+        type: NotificationType.ACCOUNT_REGISTERED,
+        title: 'Selamat datang di Aksara Legal AI!',
+        message: `Halo ${name}, akun Anda berhasil dibuat. Lengkapi profil bisnis untuk memulai checklist izin.`,
+        sendEmail: true,
+      });
+    } catch (error) {
+      // swallow notification errors so registration still succeeds
+    }
   }
 }
