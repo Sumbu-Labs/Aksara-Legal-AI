@@ -22,7 +22,12 @@ export class NotificationResponseDto {
   @ApiProperty()
   message: string;
 
-  @ApiProperty({ required: false, nullable: true, type: Object, additionalProperties: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: Object,
+    additionalProperties: true,
+  })
   payload: Nullable<Record<string, unknown>>;
 
   @ApiProperty({ enum: NotificationStatus })

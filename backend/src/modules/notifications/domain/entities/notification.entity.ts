@@ -127,7 +127,10 @@ export class Notification {
     this.touch();
   }
 
-  updateEmailStatus(status: NotificationEmailStatus, details?: { sentAt?: Date; error?: string | null }): void {
+  updateEmailStatus(
+    status: NotificationEmailStatus,
+    details?: { sentAt?: Date; error?: string | null },
+  ): void {
     this.props.emailStatus = status;
     if (status === NotificationEmailStatus.SENT) {
       this.props.emailSentAt = details?.sentAt ?? new Date();

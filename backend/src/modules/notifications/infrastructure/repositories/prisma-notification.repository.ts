@@ -18,14 +18,14 @@ export class PrismaNotificationRepository implements NotificationRepository {
       data: {
         id: data.id,
         userId: data.userId,
-        type: data.type as NotificationType,
+        type: data.type,
         title: data.title,
         message: data.message,
         payload: this.toJsonValue(data.payload),
-        status: data.status as DomainNotificationStatus,
+        status: data.status,
         readAt: data.readAt,
         sentAt: data.sentAt,
-        emailStatus: data.emailStatus as NotificationEmailStatus,
+        emailStatus: data.emailStatus,
         emailSentAt: data.emailSentAt,
         emailError: data.emailError,
         createdAt: data.createdAt,
@@ -39,9 +39,9 @@ export class PrismaNotificationRepository implements NotificationRepository {
     await this.prisma.notification.update({
       where: { id: data.id },
       data: {
-        status: data.status as DomainNotificationStatus,
+        status: data.status,
         readAt: data.readAt,
-        emailStatus: data.emailStatus as NotificationEmailStatus,
+        emailStatus: data.emailStatus,
         emailSentAt: data.emailSentAt,
         emailError: data.emailError,
         updatedAt: data.updatedAt,
@@ -50,7 +50,10 @@ export class PrismaNotificationRepository implements NotificationRepository {
     });
   }
 
-  async findByIdForUser(id: string, userId: string): Promise<Notification | null> {
+  async findByIdForUser(
+    id: string,
+    userId: string,
+  ): Promise<Notification | null> {
     const record = await this.prisma.notification.findFirst({
       where: { id, userId },
     });
@@ -59,7 +62,11 @@ export class PrismaNotificationRepository implements NotificationRepository {
 
   async listByUser(
     userId: string,
-    options: { status?: DomainNotificationStatus; skip?: number; take?: number },
+    options: {
+      status?: DomainNotificationStatus;
+      skip?: number;
+      take?: number;
+    },
   ): Promise<Notification[]> {
     const records = await this.prisma.notification.findMany({
       where: {
@@ -76,7 +83,11 @@ export class PrismaNotificationRepository implements NotificationRepository {
   async markAllAsRead(userId: string): Promise<number> {
     const result = await this.prisma.notification.updateMany({
       where: { userId, status: NotificationStatus.UNREAD },
-      data: { status: NotificationStatus.READ, readAt: new Date(), updatedAt: new Date() },
+      data: {
+        status: NotificationStatus.READ,
+        readAt: new Date(),
+        updatedAt: new Date(),
+      },
     });
     return result.count;
   }
@@ -87,7 +98,9 @@ export class PrismaNotificationRepository implements NotificationRepository {
     });
   }
 
-  private toJsonValue(payload: Record<string, unknown> | null | undefined): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
+  private toJsonValue(
+    payload: Record<string, unknown> | null | undefined,
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
     if (payload === null) {
       return Prisma.JsonNull;
     }

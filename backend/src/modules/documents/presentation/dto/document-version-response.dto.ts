@@ -25,7 +25,12 @@ export class DocumentVersionResponseDto {
   @ApiProperty({ required: false, nullable: true })
   notes: Nullable<string>;
 
-  @ApiProperty({ required: false, nullable: true, type: Object, additionalProperties: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: Object,
+    additionalProperties: true,
+  })
   metadata: Nullable<Record<string, unknown>>;
 
   @ApiProperty({ required: false, nullable: true })
@@ -34,10 +39,17 @@ export class DocumentVersionResponseDto {
   @ApiProperty({ description: 'Timestamp when the version was stored' })
   createdAt: Date;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Short-lived download URL' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Short-lived download URL',
+  })
   downloadUrl?: string;
 
-  static fromDomain(version: DocumentVersion, downloadUrl?: string): DocumentVersionResponseDto {
+  static fromDomain(
+    version: DocumentVersion,
+    downloadUrl?: string,
+  ): DocumentVersionResponseDto {
     return {
       id: version.id,
       version: version.version,

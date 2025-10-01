@@ -21,7 +21,9 @@ export class DocumentMapper {
     if (record.currentVersion) {
       currentVersion = this.mapVersion(record.currentVersion);
     } else if (record.currentVersionId) {
-      currentVersion = versions.find((version) => version.id === record.currentVersionId) ?? null;
+      currentVersion =
+        versions.find((version) => version.id === record.currentVersionId) ??
+        null;
     }
 
     return Document.create({
@@ -55,7 +57,9 @@ export class DocumentMapper {
     });
   }
 
-  private static parseMetadata(metadata: Prisma.JsonValue | null | undefined): Record<string, unknown> | null {
+  private static parseMetadata(
+    metadata: Prisma.JsonValue | null | undefined,
+  ): Record<string, unknown> | null {
     if (metadata === null || metadata === undefined) {
       return null;
     }

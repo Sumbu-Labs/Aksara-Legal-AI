@@ -6,9 +6,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BusinessProfileModule } from './modules/business-profile/business-profile.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { AssistantModule } from './modules/assistant/assistant.module';
+import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { DocsModule } from './docs/docs.module';
 import { MailModule } from './infrastructure/mail/mail.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { MailModule } from './infrastructure/mail/mail.module';
     AssistantModule,
     MailModule,
     NotificationsModule,
+    SubscriptionsModule,
     DocsModule,
+    WorkspaceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

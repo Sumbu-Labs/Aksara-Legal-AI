@@ -49,7 +49,8 @@ export async function setupDocs(app: INestApplication): Promise<void> {
 
   const logger = new Logger('Docs');
   const port = configService?.get<string>('PORT') ?? '3000';
-  const baseUrl = configService?.get<string>('URL') ?? `http://localhost:${port}`;
+  const baseUrl =
+    configService?.get<string>('URL') ?? `http://localhost:${port}`;
   logger.log(`Scalar API Reference available at ${baseUrl}/docs`);
   logger.log(`Scalar HTML documentation available at ${baseUrl}/docs/html`);
   logger.log(`OpenAPI schema available at ${baseUrl}/docs/openapi.json`);

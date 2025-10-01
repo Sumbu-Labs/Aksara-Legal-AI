@@ -1,5 +1,7 @@
 'use client';
 
+import { extractErrorMessage, getBackendBaseUrl } from './api-client';
+
 export type TokensResponse = {
   accessToken: string;
   refreshToken: string;
@@ -19,6 +21,7 @@ export type LoginPayload = {
 const DEFAULT_BACKEND_URL = 'http://localhost:3000';
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
+
 
 export async function register(payload: RegisterPayload): Promise<TokensResponse> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/register`, {

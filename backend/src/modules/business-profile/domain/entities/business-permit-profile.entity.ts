@@ -3,7 +3,13 @@ import { PermitType } from '../enums/permit-type.enum';
 
 type Nullable<T> = T | null | undefined;
 
-export type JsonValue = Record<string, unknown> | unknown[] | string | number | boolean | null;
+export type JsonValue =
+  | Record<string, unknown>
+  | unknown[]
+  | string
+  | number
+  | boolean
+  | null;
 
 export interface BusinessPermitProfileProps {
   id: string;
@@ -32,7 +38,9 @@ export interface CreateBusinessPermitProfileParams {
 export class BusinessPermitProfile {
   private constructor(private props: BusinessPermitProfileProps) {}
 
-  static create(params: CreateBusinessPermitProfileParams): BusinessPermitProfile {
+  static create(
+    params: CreateBusinessPermitProfileParams,
+  ): BusinessPermitProfile {
     const now = new Date();
     return new BusinessPermitProfile({
       id: params.id ?? randomUUID(),

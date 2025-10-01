@@ -6,12 +6,22 @@ type JsonRecord = Record<string, unknown>;
 type Nullable<T> = T | null | undefined;
 
 export class UpdatePermitProfileDto {
-  @ApiPropertyOptional({ description: 'Data form dinamis', type: Object, nullable: true, additionalProperties: true })
+  @ApiPropertyOptional({
+    description: 'Data form dinamis',
+    type: Object,
+    nullable: true,
+    additionalProperties: true,
+  })
   @IsOptional()
   @IsObject()
   formData?: Nullable<JsonRecord>;
 
-  @ApiPropertyOptional({ description: 'Status checklist per field', type: Object, nullable: true, additionalProperties: true })
+  @ApiPropertyOptional({
+    description: 'Status checklist per field',
+    type: Object,
+    nullable: true,
+    additionalProperties: true,
+  })
   @IsOptional()
   @IsObject()
   fieldChecklist?: Nullable<JsonRecord>;

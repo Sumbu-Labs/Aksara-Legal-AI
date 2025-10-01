@@ -246,6 +246,7 @@ function createInitialMetadata(fields: SchemaField[]): Record<string, string> {
   return initial;
 }
 
+
 function isPermitType(value: string | null | undefined): value is PermitType {
   if (!value) {
     return false;
@@ -317,7 +318,7 @@ function parseMetadataInput(rawValue: string): Record<string, unknown> | null {
 
 export default function DocumentUploadPage(): JSX.Element {
   const aiServiceBaseUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:8000'),
+    () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:7700'),
     [],
   );
 
