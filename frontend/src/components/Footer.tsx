@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function Footer() {
   return (
     <footer className="py-12 px-4 bg-secondary border-t-2 border-black">
@@ -15,17 +17,41 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-neutral-dark text-2xl mb-4">Produk</h4>
             <ul className="space-y-3 text-neutral-mid text-lg font-medium">
-              <li><a href="/dashboard" className="hover:text-primary transition-colors">Dashboard</a></li>
-              <li><a href="/documents" className="hover:text-primary transition-colors">Dokumen</a></li>
-              <li><a href="/harga" className="hover:text-primary transition-colors">Harga</a></li>
+              <li>
+                <Link href="/dashboard" className="hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/documents" className="hover:text-primary transition-colors">
+                  Dokumen
+                </Link>
+              </li>
+              <li>
+                <Link href="/harga" className="hover:text-primary transition-colors">
+                  Harga
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold text-neutral-dark text-2xl mb-4">Dukungan</h4>
             <ul className="space-y-3 text-neutral-mid text-lg font-medium">
-              <li><a href="/help" className="hover:text-primary transition-colors">Bantuan</a></li>
-              <li><a href="/contact" className="hover:text-primary transition-colors">Kontak</a></li>
-              <li><a href="/privacy" className="hover:text-primary transition-colors">Privasi</a></li>
+              <li>
+                <Link href="/#faq" className="hover:text-primary transition-colors">
+                  Bantuan
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:support@aksaralegal.ai" className="hover:text-primary transition-colors">
+                  Kontak
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-primary transition-colors">
+                  Privasi
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
