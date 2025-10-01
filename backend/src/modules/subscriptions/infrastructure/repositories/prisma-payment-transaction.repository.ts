@@ -1,11 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentStatus as PrismaPaymentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import {
   PaymentStatus,
   PaymentTransactionEntity,
   PaymentTransactionRepository,
 } from '../../domain/repositories/payment-transaction.repository';
+
+type PaymentTransactionRecord = {
+  id: string;
+  subscriptionId: string;
+  status: string;
+  amount: number;
+  currency: string;
+  paymentType: string | null;
+  midtransOrderId: string;
+  midtransTransactionId: string | null;
+  snapToken: string | null;
+  snapRedirectUrl: string | null;
+  rawResponse: unknown;
+  metadata: unknown;
+  paidAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 @Injectable()
 export class PrismaPaymentTransactionRepository
@@ -22,15 +39,15 @@ export class PrismaPaymentTransactionRepository
     const record = await this.prisma.paymentTransaction.create({
       data: {
         subscriptionId: transaction.subscriptionId,
-        status: transaction.status as PrismaPaymentStatus,
+        status: transaction.status,
         amount: transaction.amount,
         currency: transaction.currency,
         midtransOrderId: transaction.midtransOrderId,
-        metadata: transaction.metadata as Prisma.InputJsonValue | undefined,
+        metadata: transaction.metadata ?? undefined,
       },
     });
 
-    return this.toEntity(record);
+    return this.toEntity(record as PaymentTransactionRecord);
   }
 
   async update(
@@ -52,18 +69,18 @@ export class PrismaPaymentTransactionRepository
     const record = await this.prisma.paymentTransaction.update({
       where: { id },
       data: {
-        status: data.status ? (data.status as PrismaPaymentStatus) : undefined,
+        status: data.status ?? undefined,
         paymentType: data.paymentType ?? undefined,
         midtransTransactionId: data.midtransTransactionId ?? undefined,
         snapToken: data.snapToken ?? undefined,
         snapRedirectUrl: data.snapRedirectUrl ?? undefined,
-        rawResponse: data.rawResponse as Prisma.InputJsonValue | undefined,
-        metadata: data.metadata as Prisma.InputJsonValue | undefined,
+        rawResponse: data.rawResponse ?? undefined,
+        metadata: data.metadata ?? undefined,
         paidAt: data.paidAt ?? undefined,
       },
     });
 
-    return this.toEntity(record);
+    return this.toEntity(record as PaymentTransactionRecord);
   }
 
   async findByMidtransOrderId(
@@ -73,11 +90,11 @@ export class PrismaPaymentTransactionRepository
       where: { midtransOrderId: orderId },
     });
 
-    return record ? this.toEntity(record) : null;
+  return record ? this.toEntity(record as PaymentTransactionRecord) : null;
   }
 
   private toEntity(
-    record: Prisma.PaymentTransaction,
+    record: PaymentTransactionRecord,
   ): PaymentTransactionEntity {
     return {
       id: record.id,
@@ -98,9 +115,7 @@ export class PrismaPaymentTransactionRepository
     };
   }
 
-  private asRecord(
-    value: Prisma.JsonValue | null,
-  ): Record<string, unknown> | null {
+  private asRecord(value: unknown): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
