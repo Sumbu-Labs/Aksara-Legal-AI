@@ -7,17 +7,13 @@ import {
 import { PermitType } from '../../domain/enums/permit-type.enum';
 import { BusinessPermitProfileRepository } from '../../domain/repositories/business-permit-profile.repository';
 
-type PrismaBusinessPermitProfileRecord = {
-  id: string;
-  businessProfileId: string;
-  permitType: PermitType;
-  formData: JsonValue | null;
-  fieldChecklist: JsonValue | null;
-  documents: JsonValue | null;
-  isChecklistComplete: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
+type PrismaBusinessPermitProfileRecord = NonNullable<
+  Awaited<
+    ReturnType<PrismaService['businessPermitProfile']['findUnique']>
+  >
+>;
+
+type PrismaJsonInput = JsonValue | null | undefined;
 
 @Injectable()
 export class PrismaBusinessPermitProfileRepository
@@ -81,10 +77,10 @@ export class PrismaBusinessPermitProfileRepository
     return BusinessPermitProfile.create({
       id: permit.id,
       businessProfileId: permit.businessProfileId,
-      permitType: permit.permitType,
-      formData: permit.formData,
-      fieldChecklist: permit.fieldChecklist,
-      documents: permit.documents,
+      permitType: this.toDomainPermitType(permit.permitType),
+      formData: this.fromJsonValue(permit.formData),
+      fieldChecklist: this.fromJsonValue(permit.fieldChecklist),
+      documents: this.fromJsonValue(permit.documents),
       isChecklistComplete: permit.isChecklistComplete,
       createdAt: permit.createdAt,
       updatedAt: permit.updatedAt,
@@ -93,10 +89,35 @@ export class PrismaBusinessPermitProfileRepository
 
   private toJsonInput(
     value: JsonValue | null | undefined,
-  ): JsonValue | null | undefined {
+  ): PrismaJsonInput {
     if (value === undefined) {
-      return undefined;
+      return undefined as PrismaJsonInput;
     }
-    return value ?? null;
+
+    if (value === null) {
+      return null as PrismaJsonInput;
+    }
+
+    return value as unknown as PrismaJsonInput;
+  }
+
+  private fromJsonValue(value: unknown): JsonValue | null {
+    if (value === null) {
+      return null;
+    }
+
+    return value as JsonValue;
+  }
+
+  private toDomainPermitType(permitType: string): PermitType {
+    if (!this.isPermitType(permitType)) {
+      throw new Error(`Unexpected permit type received from database: ${permitType}`);
+    }
+
+    return permitType as PermitType;
+  }
+
+  private isPermitType(value: string): value is PermitType {
+    return Object.values(PermitType).includes(value as PermitType);
   }
 }

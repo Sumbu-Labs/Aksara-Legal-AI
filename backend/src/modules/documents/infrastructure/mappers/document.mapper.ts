@@ -6,7 +6,7 @@ type DocumentRecord = {
   id: string;
   userId: string;
   businessProfileId: string | null;
-  permitType: PermitType | null;
+  permitType: string | null;
   label: string | null;
   currentVersionId: string | null;
   createdAt: Date;
@@ -52,7 +52,7 @@ export class DocumentMapper {
       id: record.id,
       userId: record.userId,
       businessProfileId: record.businessProfileId,
-      permitType: record.permitType,
+      permitType: this.mapPermitType(record.permitType),
       label: record.label,
       currentVersion,
       versions,
@@ -92,5 +92,19 @@ export class DocumentMapper {
       return metadata as Record<string, unknown>;
     }
     return { value: metadata as unknown };
+  }
+
+  private static mapPermitType(
+    permitType: string | null,
+  ): PermitType | null {
+    if (permitType === null) {
+      return null;
+    }
+
+    if (!Object.values(PermitType).includes(permitType as PermitType)) {
+      throw new Error(`Unexpected permit type received from database: ${permitType}`);
+    }
+
+    return permitType as PermitType;
   }
 }
