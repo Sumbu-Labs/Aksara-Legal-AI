@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Document } from '../../domain/entities/document.entity';
@@ -138,15 +139,15 @@ export class PrismaDocumentRepository implements DocumentRepository {
 
   private toJsonInput(
     value: Record<string, unknown> | null | undefined,
-  ) {
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
     if (value === undefined) {
       return undefined;
     }
 
     if (value === null) {
-      return null;
+      return Prisma.JsonNull;
     }
 
-    return value;
+    return value as Prisma.InputJsonValue;
   }
 }

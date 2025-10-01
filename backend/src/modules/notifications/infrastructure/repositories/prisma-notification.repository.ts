@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Notification } from '../../domain/entities/notification.entity';
 import { NotificationEmailStatus } from '../../domain/enums/notification-email-status.enum';
@@ -104,16 +105,16 @@ export class PrismaNotificationRepository implements NotificationRepository {
 
   private toJsonValue(
     payload: Record<string, unknown> | null | undefined,
-  ) {
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
     if (payload === undefined) {
       return undefined;
     }
 
     if (payload === null) {
-      return null;
+      return Prisma.JsonNull;
     }
 
-    return payload;
+    return payload as Prisma.InputJsonValue;
   }
 
   private toPrismaNotificationStatus(
