@@ -178,6 +178,39 @@ export function clearStoredTokens(): void {
 
 export const persistTokens = storeTokens;
 
+export type TokensResponse = AuthSession;
+
+export function getAccessToken(): string | null {
+  const tokens = loadTokens();
+  return tokens?.accessToken ?? null;
+}
+
+export function getRefreshToken(): string | null {
+  const tokens = loadTokens();
+  return tokens?.refreshToken ?? null;
+}
+
+export function clearTokens(): void {
+  clearStoredTokens();
+}
+
+export async function refreshTokens(): Promise<TokensResponse | null> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    const session = await refresh(refreshToken);
+    storeTokens({ accessToken: session.accessToken, refreshToken: session.refreshToken });
+    return session;
+  } catch (error) {
+    clearStoredTokens();
+    console.warn('Failed to refresh session', error);
+    return null;
+  }
+}
+
 function getBackendBaseUrl(): string {
   return getEnv('NEXT_PUBLIC_BACKEND_URL', DEFAULT_BACKEND_URL);
 }
