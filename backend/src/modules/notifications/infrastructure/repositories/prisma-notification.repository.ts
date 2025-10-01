@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Notification } from '../../domain/entities/notification.entity';
 import { NotificationEmailStatus } from '../../domain/enums/notification-email-status.enum';
@@ -71,7 +70,7 @@ export class PrismaNotificationRepository implements NotificationRepository {
     const records = await this.prisma.notification.findMany({
       where: {
         userId,
-        status: options.status as NotificationStatus | undefined,
+        status: options.status,
       },
       orderBy: { createdAt: 'desc' },
       skip: options.skip,
@@ -82,9 +81,9 @@ export class PrismaNotificationRepository implements NotificationRepository {
 
   async markAllAsRead(userId: string): Promise<number> {
     const result = await this.prisma.notification.updateMany({
-      where: { userId, status: NotificationStatus.UNREAD },
+      where: { userId, status: DomainNotificationStatus.UNREAD },
       data: {
-        status: NotificationStatus.READ,
+        status: DomainNotificationStatus.READ,
         readAt: new Date(),
         updatedAt: new Date(),
       },
@@ -100,13 +99,10 @@ export class PrismaNotificationRepository implements NotificationRepository {
 
   private toJsonValue(
     payload: Record<string, unknown> | null | undefined,
-  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
-    if (payload === null) {
-      return Prisma.JsonNull;
-    }
+  ): Record<string, unknown> | null | undefined {
     if (payload === undefined) {
       return undefined;
     }
-    return payload as Prisma.InputJsonValue;
+    return payload ?? null;
   }
 }

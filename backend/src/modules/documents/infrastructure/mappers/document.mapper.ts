@@ -1,15 +1,37 @@
-import {
-  Document as PrismaDocument,
-  DocumentVersion as PrismaDocumentVersion,
-  Prisma,
-} from '@prisma/client';
 import { PermitType } from '../../../business-profile/domain/enums/permit-type.enum';
 import { Document } from '../../domain/entities/document.entity';
 import { DocumentVersion } from '../../domain/entities/document-version.entity';
 
-type DocumentWithRelations = PrismaDocument & {
-  currentVersion?: PrismaDocumentVersion | null;
-  versions?: PrismaDocumentVersion[];
+type DocumentRecord = {
+  id: string;
+  userId: string;
+  businessProfileId: string | null;
+  permitType: PermitType | null;
+  label: string | null;
+  currentVersionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+};
+
+type DocumentVersionRecord = {
+  id: string;
+  documentId: string;
+  version: number;
+  storageKey: string;
+  originalFilename: string;
+  mimeType: string;
+  size: bigint | number;
+  checksum: string | null;
+  notes: string | null;
+  metadata: unknown;
+  uploadedBy: string | null;
+  createdAt: Date;
+};
+
+type DocumentWithRelations = DocumentRecord & {
+  currentVersion?: DocumentVersionRecord | null;
+  versions?: DocumentVersionRecord[];
 };
 
 export class DocumentMapper {
@@ -30,7 +52,7 @@ export class DocumentMapper {
       id: record.id,
       userId: record.userId,
       businessProfileId: record.businessProfileId,
-      permitType: record.permitType ? (record.permitType as PermitType) : null,
+      permitType: record.permitType,
       label: record.label,
       currentVersion,
       versions,
@@ -40,7 +62,7 @@ export class DocumentMapper {
     });
   }
 
-  static mapVersion(version: PrismaDocumentVersion): DocumentVersion {
+  static mapVersion(version: DocumentVersionRecord): DocumentVersion {
     return DocumentVersion.create({
       id: version.id,
       documentId: version.documentId,
@@ -58,7 +80,7 @@ export class DocumentMapper {
   }
 
   private static parseMetadata(
-    metadata: Prisma.JsonValue | null | undefined,
+    metadata: unknown,
   ): Record<string, unknown> | null {
     if (metadata === null || metadata === undefined) {
       return null;

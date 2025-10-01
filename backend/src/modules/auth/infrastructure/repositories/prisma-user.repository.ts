@@ -1,8 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { User } from '../../domain/entities/user.entity';
 import { UserRepository } from '../../domain/repositories/user.repository';
+
+type PrismaUserRecord = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  refreshTokenHash: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -40,7 +49,7 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
-  private toDomain(user: PrismaUser): User {
+  private toDomain(user: PrismaUserRecord): User {
     return User.create({
       id: user.id,
       name: user.name,
