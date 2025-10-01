@@ -7,7 +7,10 @@ import { AuthService } from '../../application/services/auth.service';
 import { RefreshTokenPayload } from '../../domain/interfaces/jwt-payload.interface';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     private readonly configService: ConfigService,
     private readonly authService: AuthService,

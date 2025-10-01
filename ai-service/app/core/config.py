@@ -83,6 +83,10 @@ class AppSettings(BaseSettingsType):
     llm_max_retries: int = Field(default=3)
 
     storage_signed_url_ttl_seconds: int = Field(default=3600)
+    cors_allowed_origins: str = Field(
+        default='http://localhost:7500',
+        alias='CORS_ALLOWED_ORIGINS',
+    )
 
 
 @lru_cache(maxsize=1)

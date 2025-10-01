@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, PermitType } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Document } from '../../domain/entities/document.entity';
 import { DocumentRepository } from '../../domain/repositories/document.repository';
@@ -7,6 +8,8 @@ import { DocumentMapper } from '../mappers/document.mapper';
 
 @Injectable()
 export class PrismaDocumentRepository implements DocumentRepository {
+  private readonly logger = new Logger(PrismaDocumentRepository.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<Document | null> {
@@ -28,13 +31,23 @@ export class PrismaDocumentRepository implements DocumentRepository {
   }
 
   async listByUser(userId: string): Promise<Document[]> {
-    const records = await this.prisma.document.findMany({
-      where: { userId, deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-      include: this.withRelations(),
-    });
+    try {
+      const records = await this.prisma.document.findMany({
+        where: { userId, deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        include: this.withRelations(),
+      });
 
-    return records.map((record) => DocumentMapper.toDomain(record));
+      return records.map((record) => DocumentMapper.toDomain(record));
+    } catch (error) {
+      if (this.isMissingTableError(error)) {
+        this.logger.warn(
+          'Document table is missing. Returning empty list for workspace summary.',
+        );
+        return [];
+      }
+      throw error;
+    }
   }
 
   async save(document: Document): Promise<void> {
@@ -115,5 +128,11 @@ export class PrismaDocumentRepository implements DocumentRepository {
         orderBy: { version: 'asc' },
       },
     };
+  }
+
+  private isMissingTableError(error: unknown): boolean {
+    return (
+      error instanceof PrismaClientKnownRequestError && error.code === 'P2021'
+    );
   }
 }

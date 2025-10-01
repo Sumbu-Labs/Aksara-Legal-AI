@@ -40,7 +40,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     if (status >= 500) {
-      this.logger.error(`Unhandled exception for ${request.method} ${request.url}`, exception as Error);
+      this.logger.error(
+        `Unhandled exception for ${request.method} ${request.url}`,
+        exception as Error,
+      );
     }
 
     response.status(status).json({

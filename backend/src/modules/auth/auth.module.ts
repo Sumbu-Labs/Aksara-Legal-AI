@@ -4,7 +4,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { AuthService } from './application/services/auth.service';
-import { USER_REPOSITORY, DEFAULT_ACCESS_TOKEN_EXPIRES_IN } from './common/auth.constants';
+import {
+  USER_REPOSITORY,
+  DEFAULT_ACCESS_TOKEN_EXPIRES_IN,
+} from './common/auth.constants';
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './infrastructure/strategies/jwt-refresh.strategy';
 import { JwtAuthGuard } from './infrastructure/guards/jwt-auth.guard';

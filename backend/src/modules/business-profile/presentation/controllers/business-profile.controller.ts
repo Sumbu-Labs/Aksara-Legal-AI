@@ -30,14 +30,26 @@ import { UpdatePermitProfileDto } from '../dto/update-permit-profile.dto';
 @ApiBearerAuth()
 @Controller('business-profile')
 export class BusinessProfileController {
-  constructor(private readonly businessProfileService: BusinessProfileService) {}
+  constructor(
+    private readonly businessProfileService: BusinessProfileService,
+  ) {}
 
   @Get('me')
-  @ApiOperation({ summary: 'Mendapatkan profil bisnis milik pengguna saat ini' })
-  @ApiResponse({ status: 200, type: BusinessProfileResponseDto, description: 'Profil bisnis atau null bila belum dibuat' })
+  @ApiOperation({
+    summary: 'Mendapatkan profil bisnis milik pengguna saat ini',
+  })
+  @ApiResponse({
+    status: 200,
+    type: BusinessProfileResponseDto,
+    description: 'Profil bisnis atau null bila belum dibuat',
+  })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
-  async getMyProfile(@CurrentUser() user: AuthenticatedUser | undefined): Promise<BusinessProfileResponseDto | null> {
-    const profile = await this.businessProfileService.getProfileByUser(this.ensureUser(user));
+  async getMyProfile(
+    @CurrentUser() user: AuthenticatedUser | undefined,
+  ): Promise<BusinessProfileResponseDto | null> {
+    const profile = await this.businessProfileService.getProfileByUser(
+      this.ensureUser(user),
+    );
     if (!profile) {
       return null;
     }

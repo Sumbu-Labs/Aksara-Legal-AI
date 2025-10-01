@@ -4,7 +4,10 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { StorageModule } from '../../infrastructure/storage/storage.module';
 import { NotificationsModule } from '../notifications/notifications.module';
-import { DOCUMENT_REPOSITORY, DOCUMENT_VERSION_REPOSITORY } from './common/document.constants';
+import {
+  DOCUMENT_REPOSITORY,
+  DOCUMENT_VERSION_REPOSITORY,
+} from './common/document.constants';
 import { DocumentQuotaService } from './application/services/document-quota.service';
 import { DocumentsService } from './application/services/documents.service';
 import { PrismaDocumentRepository } from './infrastructure/repositories/prisma-document.repository';
@@ -19,7 +22,9 @@ import { DocumentsController } from './presentation/controllers/documents.contro
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const maxSizeMb = Number(configService.get('DOCUMENT_UPLOAD_MAX_SIZE_MB') ?? 25);
+        const maxSizeMb = Number(
+          configService.get('DOCUMENT_UPLOAD_MAX_SIZE_MB') ?? 25,
+        );
         return {
           storage: memoryStorage(),
           limits: {
@@ -35,7 +40,10 @@ import { DocumentsController } from './presentation/controllers/documents.contro
     DocumentsService,
     DocumentQuotaService,
     { provide: DOCUMENT_REPOSITORY, useClass: PrismaDocumentRepository },
-    { provide: DOCUMENT_VERSION_REPOSITORY, useClass: PrismaDocumentVersionRepository },
+    {
+      provide: DOCUMENT_VERSION_REPOSITORY,
+      useClass: PrismaDocumentVersionRepository,
+    },
   ],
   exports: [DocumentsService],
 })

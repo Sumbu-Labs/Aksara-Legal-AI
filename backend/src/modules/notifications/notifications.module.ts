@@ -12,7 +12,10 @@ import { NotificationsController } from './presentation/controllers/notification
   controllers: [NotificationsController],
   providers: [
     NotificationsService,
-    { provide: NOTIFICATION_REPOSITORY, useClass: PrismaNotificationRepository },
+    {
+      provide: NOTIFICATION_REPOSITORY,
+      useClass: PrismaNotificationRepository,
+    },
   ],
   exports: [NotificationsService],
 })

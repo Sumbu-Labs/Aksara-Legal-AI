@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
@@ -24,16 +28,25 @@ export class ObjectStorageService {
   private readonly presignedTtl: number;
   private readonly publicEndpoint?: URL;
 
-  constructor(private readonly s3: S3Client, configService: ConfigService) {
-    this.bucket = configService.get<string>('MINIO_BUCKET_DOCUMENTS') ?? 'documents';
-    this.presignedTtl = Number(configService.get<string>('MINIO_PRESIGNED_TTL') ?? 900);
+  constructor(
+    private readonly s3: S3Client,
+    configService: ConfigService,
+  ) {
+    this.bucket =
+      configService.get<string>('MINIO_BUCKET_DOCUMENTS') ?? 'documents';
+    this.presignedTtl = Number(
+      configService.get<string>('MINIO_PRESIGNED_TTL') ?? 900,
+    );
     const publicEndpoint = configService.get<string>('MINIO_PUBLIC_ENDPOINT');
     this.publicEndpoint = publicEndpoint ? new URL(publicEndpoint) : undefined;
   }
 
   async uploadObject(params: UploadObjectParams): Promise<void> {
     try {
-      const body = params.body instanceof Readable ? params.body : Readable.from(params.body);
+      const body =
+        params.body instanceof Readable
+          ? params.body
+          : Readable.from(params.body);
       const upload = new Upload({
         client: this.s3,
         params: {
@@ -46,7 +59,10 @@ export class ObjectStorageService {
       });
       await upload.done();
     } catch (error) {
-      this.logger.error(`Failed to upload object ${params.key}`, error as Error);
+      this.logger.error(
+        `Failed to upload object ${params.key}`,
+        error as Error,
+      );
       throw new InternalServerErrorException('Failed to upload document');
     }
   }
@@ -65,7 +81,10 @@ export class ObjectStorageService {
     }
   }
 
-  async generateDownloadUrl(key: string, expiresInSeconds?: number): Promise<string> {
+  async generateDownloadUrl(
+    key: string,
+    expiresInSeconds?: number,
+  ): Promise<string> {
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
     const ttl = expiresInSeconds ?? this.presignedTtl;
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: ttl });

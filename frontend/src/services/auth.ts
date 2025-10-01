@@ -18,6 +18,8 @@ export type LoginPayload = {
   password: string;
 };
 
+const DEFAULT_BACKEND_URL = 'http://localhost:7600';
+
 export async function register(payload: RegisterPayload): Promise<TokensResponse> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/register`, {
     method: 'POST',
