@@ -1,5 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import type { ReactElement } from 'react';
+import { motion } from 'framer-motion';
+
+import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
 
 const PRICING_PLANS = [
   {
@@ -113,18 +118,27 @@ const VALUE_POINTS = [
 export default function PricingPage(): ReactElement {
   return (
     <main className="bg-background text-neutral-dark">
-      <section className="border-b-2 border-black bg-secondary/30">
+      <motion.section
+        className="border-b-2 border-black bg-secondary/30"
+        initial="hidden"
+        whileInView="visible"
+        variants={staggerContainer}
+        viewport={viewportConfig}
+      >
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-          <div className="max-w-3xl space-y-4">
+          <motion.div className="max-w-3xl space-y-4" variants={fadeInUp}>
             <h1 className="font-heading text-4xl leading-tight md:text-5xl">
               Paket fleksibel untuk setiap fase pertumbuhan bisnis Anda
             </h1>
-            <p className="text-base text-neutral-mid md:text-lg">
+            <motion.p className="text-base text-neutral-mid md:text-lg" variants={fadeInUp}>
               Pilih paket Gratis untuk eksplorasi, Satuan untuk fokus pada satu izin, atau Pro untuk automasi kepatuhan skala penuh.
               Setiap paket didesain agar Anda tahu persis apa yang didapat tanpa biaya tersembunyi.
-            </p>
-          </div>
-          <div className="space-y-4 rounded-2xl border-2 border-black bg-white px-6 py-6 text-sm text-neutral-mid lg:max-w-sm">
+            </motion.p>
+          </motion.div>
+          <motion.div
+            className="space-y-4 rounded-2xl border-2 border-black bg-white px-6 py-6 text-sm text-neutral-mid lg:max-w-sm"
+            variants={fadeInUp}
+          >
             <h2 className="font-heading text-2xl text-neutral-dark">Butuh rekomendasi paket?</h2>
             <p>
               Jawab beberapa pertanyaan di onboarding dashboard, dan Aksara akan merekomendasikan paket serta izin prioritas yang paling relevan.
@@ -136,19 +150,25 @@ export default function PricingPage(): ReactElement {
               Mulai Onboarding
               <span aria-hidden="true">→</span>
             </Link>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <header className="max-w-3xl space-y-3">
+      <motion.section
+        className="mx-auto max-w-7xl px-6 py-16 lg:px-10"
+        initial="hidden"
+        whileInView="visible"
+        variants={staggerContainer}
+        viewport={viewportConfig}
+      >
+        <motion.header className="max-w-3xl space-y-3" variants={fadeInUp}>
           <h2 className="font-heading text-3xl md:text-4xl">Bandingkan paket secara ringkas</h2>
-          <p className="text-base text-neutral-mid">
+          <motion.p className="text-base text-neutral-mid" variants={fadeInUp}>
             Setiap paket dirancang untuk konteks operasional yang berbeda. Gunakan tabel berikut untuk melihat perbedaan nilai yang Anda dapatkan.
-          </p>
-        </header>
+          </motion.p>
+        </motion.header>
 
-        <div className="mt-10 overflow-hidden border-2 border-black bg-white">
+        <motion.div className="mt-10 overflow-hidden border-2 border-black bg-white" variants={fadeInUp}>
           <table className="w-full min-w-[640px] table-fixed text-left text-sm text-neutral-dark">
             <thead className="bg-secondary/40 text-xs uppercase tracking-[0.2em] text-neutral-mid">
               <tr>
@@ -160,55 +180,72 @@ export default function PricingPage(): ReactElement {
             </thead>
             <tbody>
               {COMPARISON_FEATURES.map((feature) => (
-                <tr key={feature.label} className="border-t border-black/10">
+                <motion.tr key={feature.label} className="border-t border-black/10" variants={fadeInUp}>
                   <th scope="row" className="px-6 py-5 text-sm font-semibold text-neutral-dark">
                     {feature.label}
                   </th>
                   <td className="px-6 py-5 text-sm text-neutral-mid">{feature.gratis}</td>
                   <td className="px-6 py-5 text-sm text-neutral-mid">{feature.satuan}</td>
                   <td className="px-6 py-5 text-sm text-neutral-mid">{feature.pro}</td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
-      <section className="border-y-2 border-black bg-white/90">
+      <motion.section
+        className="border-y-2 border-black bg-white/90"
+        initial="hidden"
+        whileInView="visible"
+        variants={staggerContainer}
+        viewport={viewportConfig}
+      >
         <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-          <header className="max-w-3xl">
+          <motion.header className="max-w-3xl" variants={fadeInUp}>
             <h2 className="font-heading text-3xl md:text-4xl">Rasionalisasi harga & nilai</h2>
-            <p className="mt-3 text-base text-neutral-mid">
+            <motion.p className="mt-3 text-base text-neutral-mid" variants={fadeInUp}>
               Kami membangun paket berdasarkan data biaya yang sering dikeluarkan founder saat mengurus izin sendiri atau lewat konsultan. Berikut perbandingan investasi vs. nilai yang kami berikan.
-            </p>
-          </header>
+            </motion.p>
+          </motion.header>
 
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             {VALUE_POINTS.map((point) => (
-              <div key={point.title} className="flex flex-col gap-4 border-2 border-black bg-background px-6 py-6">
+              <motion.div
+                key={point.title}
+                className="flex flex-col gap-4 border-2 border-black bg-background px-6 py-6"
+                variants={fadeInUp}
+              >
                 <h3 className="font-heading text-2xl text-neutral-dark">{point.title}</h3>
                 <p className="text-sm text-neutral-mid">{point.description}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <header className="max-w-2xl space-y-3 text-center mx-auto">
+      <motion.section
+        className="mx-auto max-w-7xl px-6 py-16 lg:px-10"
+        initial="hidden"
+        whileInView="visible"
+        variants={staggerContainer}
+        viewport={viewportConfig}
+      >
+        <motion.header className="mx-auto max-w-2xl space-y-3 text-center" variants={fadeInUp}>
           <h2 className="font-heading text-3xl md:text-4xl">Pilih paket dan mulai hari ini</h2>
-          <p className="text-base text-neutral-mid">
+          <motion.p className="text-base text-neutral-mid" variants={fadeInUp}>
             Semua paket dapat ditingkatkan atau diturunkan kapan saja dari dashboard. Tidak ada biaya setup ataupun penalti.
-          </p>
-        </header>
+          </motion.p>
+        </motion.header>
 
         <div className="mt-12 grid gap-8 md:grid-cols-3">
           {PRICING_PLANS.map((plan) => (
-            <div
+            <motion.div
               key={plan.id}
               className={`flex h-full flex-col gap-5 border-2 border-black bg-white px-6 py-8 transition-transform hover:-translate-y-2 ${
                 plan.highlighted ? 'ring-4 ring-primary/60 ring-offset-2 ring-offset-background' : ''
               }`}
+              variants={fadeInUp}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -251,10 +288,10 @@ export default function PricingPage(): ReactElement {
                 {plan.ctaLabel}
                 <span aria-hidden="true">→</span>
               </Link>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 }

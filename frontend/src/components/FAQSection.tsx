@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
 
 const faqs = [
   {
@@ -34,22 +37,30 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="bg-background py-20 px-4 scroll-mt-16">
+    <motion.section
+      id="faq"
+      className="bg-background px-4 py-20 scroll-mt-16"
+      initial="hidden"
+      whileInView="visible"
+      variants={staggerContainer}
+      viewport={viewportConfig}
+    >
       <div className="mx-auto max-w-4xl">
-        <div className="text-center">
-          <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
+        <motion.div className="text-center" variants={fadeInUp}>
+          <h2 className="mt-4 font-heading text-3xl font-bold text-neutral-dark md:text-4xl">
             Pertanyaan yang sering ditanyakan
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-12 border border-neutral-light bg-secondary/40 shadow-card">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
 
             return (
-              <div
+              <motion.div
                 key={faq.question}
                 className={index < faqs.length - 1 ? 'border-b border-neutral-light' : ''}
+                variants={fadeInUp}
               >
                 <button
                   type="button"
@@ -69,11 +80,11 @@ export function FAQSection() {
                     {faq.answer}
                   </div>
                 ) : null}
-              </div>
+              </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

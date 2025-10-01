@@ -1,3 +1,9 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
+
 const testimonials = [
   {
     name: 'Sari Dewi',
@@ -57,21 +63,29 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section id="testimonials" className="bg-secondary/30 py-20 px-4 scroll-mt-16">
+    <motion.section
+      id="testimonials"
+      className="bg-secondary/30 px-4 py-20 scroll-mt-16"
+      initial="hidden"
+      whileInView="visible"
+      variants={staggerContainer}
+      viewport={viewportConfig}
+    >
       <div className="mx-auto max-w-6xl">
-        <div className="text-center">
-          <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
+        <motion.div className="text-center" variants={fadeInUp}>
+          <h2 className="mt-4 font-heading text-3xl font-bold text-neutral-dark md:text-4xl">
             Apa kata pengguna Aksara Legal AI
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-16 columns-1 gap-6 md:columns-2 lg:columns-3 [column-fill:_balance]">
           {testimonials.map((testimonial) => (
-            <article
+            <motion.article
               key={testimonial.name}
               className="mb-6 break-inside-avoid border-2 border-neutral-light bg-secondary p-6 shadow-card"
+              variants={fadeInUp}
             >
-              <p className="text-neutral-dark text-base leading-relaxed">
+              <p className="text-base leading-relaxed text-neutral-dark">
                 “{testimonial.quote}”
               </p>
               <div className="mt-6">
@@ -80,10 +94,10 @@ export function TestimonialsSection() {
                 </p>
                 <p className="text-sm text-neutral-mid">{testimonial.role}</p>
               </div>
-            </article>
+            </motion.article>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
