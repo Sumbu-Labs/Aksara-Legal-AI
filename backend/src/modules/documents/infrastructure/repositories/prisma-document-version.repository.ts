@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { DocumentVersion } from '../../domain/entities/document-version.entity';
 import { DocumentVersionRepository } from '../../domain/repositories/document-version.repository';
@@ -46,7 +47,7 @@ export class PrismaDocumentVersionRepository
         size: BigInt(data.size),
         checksum: data.checksum,
         notes: data.notes,
-        metadata: data.metadata ?? undefined,
+        metadata: this.toJsonInput(data.metadata),
         uploadedBy: data.uploadedBy,
         createdAt: data.createdAt,
       },
@@ -55,5 +56,19 @@ export class PrismaDocumentVersionRepository
 
   async delete(version: DocumentVersion): Promise<void> {
     await this.prisma.documentVersion.delete({ where: { id: version.id } });
+  }
+
+  private toJsonInput(
+    value: Record<string, unknown> | null | undefined,
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return Prisma.JsonNull;
+    }
+
+    return value as Prisma.InputJsonValue;
   }
 }

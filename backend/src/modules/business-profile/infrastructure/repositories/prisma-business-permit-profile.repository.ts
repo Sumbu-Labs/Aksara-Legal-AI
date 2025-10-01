@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import {
   BusinessPermitProfile,
@@ -12,8 +13,6 @@ type PrismaBusinessPermitProfileRecord = NonNullable<
     ReturnType<PrismaService['businessPermitProfile']['findUnique']>
   >
 >;
-
-type PrismaJsonInput = JsonValue | null | undefined;
 
 @Injectable()
 export class PrismaBusinessPermitProfileRepository
@@ -89,16 +88,16 @@ export class PrismaBusinessPermitProfileRepository
 
   private toJsonInput(
     value: JsonValue | null | undefined,
-  ): PrismaJsonInput {
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
     if (value === undefined) {
-      return undefined as PrismaJsonInput;
+      return undefined;
     }
 
     if (value === null) {
-      return null as PrismaJsonInput;
+      return Prisma.JsonNull;
     }
 
-    return value as unknown as PrismaJsonInput;
+    return value as unknown as Prisma.InputJsonValue;
   }
 
   private fromJsonValue(value: unknown): JsonValue | null {
