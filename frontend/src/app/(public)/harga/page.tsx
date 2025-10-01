@@ -121,9 +121,8 @@ export default function PricingPage(): ReactElement {
       <motion.section
         className="border-b-2 border-black bg-secondary/30"
         initial="hidden"
-        whileInView="visible"
+        animate="visible"
         variants={staggerContainer}
-        viewport={viewportConfig}
       >
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-10">
           <motion.div className="max-w-3xl space-y-4" variants={fadeInUp}>
@@ -157,9 +156,8 @@ export default function PricingPage(): ReactElement {
       <motion.section
         className="mx-auto max-w-7xl px-6 py-16 lg:px-10"
         initial="hidden"
-        whileInView="visible"
+        animate="visible"
         variants={staggerContainer}
-        viewport={viewportConfig}
       >
         <motion.header className="max-w-3xl space-y-3" variants={fadeInUp}>
           <h2 className="font-heading text-3xl md:text-4xl">Bandingkan paket secara ringkas</h2>
