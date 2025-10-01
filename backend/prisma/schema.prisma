@@ -19,6 +19,7 @@ model User {
   documents        Document[]
   documentVersions DocumentVersion[] @relation("DocumentVersionUploader")
   notifications    Notification[]
+  subscriptions    Subscription[]
 }
 
 model BusinessProfile {
@@ -121,6 +122,64 @@ model Notification {
   @@index([emailStatus])
 }
 
+model SubscriptionPlan {
+  id            String             @id @default(uuid())
+  name          String
+  description   String?
+  price         Int
+  currency      String             @default("IDR")
+  billingPeriod BillingPeriod
+  isActive      Boolean            @default(true)
+  metadata      Json?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id                   String              @id @default(uuid())
+  userId               String
+  planId               String
+  status               SubscriptionStatus  @default(PENDING)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean             @default(false)
+  midtransSubscriptionId String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan   SubscriptionPlan  @relation(fields: [planId], references: [id])
+  payments PaymentTransaction[]
+
+  @@index([userId])
+  @@index([planId])
+}
+
+model PaymentTransaction {
+  id                    String           @id @default(uuid())
+  subscriptionId        String
+  status                PaymentStatus    @default(PENDING)
+  amount                Int
+  currency              String           @default("IDR")
+  paymentType           String?
+  midtransOrderId       String           @unique
+  midtransTransactionId String?
+  snapToken             String?
+  snapRedirectUrl       String?
+  rawResponse           Json?
+  metadata              Json?
+  paidAt                DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([status])
+}
+
 enum NotificationType {
   ACCOUNT_REGISTERED
   BUSINESS_PROFILE_COMPLETED
@@ -163,4 +222,24 @@ enum PermitType {
   HALAL
   PIRT
   BPOM
+}
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELED
+  EXPIRED
 }

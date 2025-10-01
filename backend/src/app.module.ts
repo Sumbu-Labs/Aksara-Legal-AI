@@ -9,6 +9,7 @@ import { AssistantModule } from './modules/assistant/assistant.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { DocsModule } from './docs/docs.module';
 import { MailModule } from './infrastructure/mail/mail.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MailModule } from './infrastructure/mail/mail.module';
     AssistantModule,
     MailModule,
     NotificationsModule,
+    SubscriptionsModule,
     DocsModule,
   ],
   controllers: [AppController],
