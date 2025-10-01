@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 import {
   createContext,
   useCallback,
@@ -33,7 +33,7 @@ const ToastContext = createContext<ToastMethods | undefined>(undefined);
 const TOAST_DURATION = 4500;
 const EXIT_ANIMATION_DURATION = 220;
 
-export function ToastProvider({ children }: { children: React.ReactNode }): JSX.Element {
+export function ToastProvider({ children }: { children: React.ReactNode }): ReactElement {
   const [toasts, setToasts] = useState<ToastDefinition[]>([]);
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const exitTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -136,7 +136,7 @@ function ToastStack({
 }: {
   toasts: ToastDefinition[];
   onDismiss: (id: string) => void;
-}): JSX.Element {
+}): ReactElement {
   return (
     <div className="pointer-events-none fixed left-0 right-0 top-4 z-[1050] flex flex-col items-center gap-3 px-4 sm:items-end">
       {toasts.map((toast) => (

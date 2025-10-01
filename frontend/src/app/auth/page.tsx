@@ -3,14 +3,10 @@
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent, ReactElement } from 'react';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  login as loginRequest,
-  persistTokens,
-  register as registerRequest,
-} from '@/services/auth';
 import type { LoginPayload, RegisterPayload } from '@/services/auth';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/components/ToastProvider';
 
 type AuthMode = 'register' | 'login';
@@ -31,6 +27,11 @@ function AuthPageContent(): ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const { login: loginUser, register: registerUser, status, isChecking, isAuthenticated } = useAuth();
+
+  const sanitizedNext = useMemo(() => sanitizeNext(searchParams.get('next')), [searchParams]);
+  const redirectRef = useRef(false);
+  const isBusy = isSubmitting || isChecking;
 
   useEffect(() => {
     const requestedMode = searchParams.get('mode');
@@ -39,14 +40,25 @@ function AuthPageContent(): ReactElement {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (status === 'authenticated') {
+      if (!redirectRef.current) {
+        redirectRef.current = true;
+        router.replace(sanitizedNext ?? '/dashboard');
+      }
+    } else if (status === 'unauthenticated') {
+      redirectRef.current = false;
+    }
+  }, [router, sanitizedNext, status]);
+
   const handleRegister = useCallback(
     async (payload: RegisterPayload) => {
       setIsSubmitting(true);
       try {
-        const tokens = await registerRequest(payload);
-        persistTokens(tokens);
-        toast.success('Pendaftaran berhasil! Selamat datang di Aksara Legal AI.');
-        router.push('/onboarding');
+        const user = await registerUser(payload);
+        const firstName = extractFirstName(user.name);
+        toast.success(`Pendaftaran berhasil! Selamat datang, ${firstName}!`);
+        router.push(sanitizedNext ?? '/onboarding');
       } catch (error) {
         const message = error instanceof Error ? error.message : null;
         toast.error(localizeErrorMessage(message, 'register'));
@@ -54,17 +66,17 @@ function AuthPageContent(): ReactElement {
         setIsSubmitting(false);
       }
     },
-    [router, toast],
+    [registerUser, router, sanitizedNext, toast],
   );
 
   const handleLogin = useCallback(
     async (payload: LoginPayload) => {
       setIsSubmitting(true);
       try {
-        const tokens = await loginRequest(payload);
-        persistTokens(tokens);
-        toast.success('Berhasil masuk. Senang bertemu lagi!');
-        router.push('/onboarding');
+        const user = await loginUser(payload);
+        const firstName = extractFirstName(user.name);
+        toast.success(`Berhasil masuk. Senang bertemu lagi, ${firstName}!`);
+        router.push(sanitizedNext ?? '/dashboard');
       } catch (error) {
         const message = error instanceof Error ? error.message : null;
         toast.error(localizeErrorMessage(message, 'login'));
@@ -72,16 +84,30 @@ function AuthPageContent(): ReactElement {
         setIsSubmitting(false);
       }
     },
-    [router, toast],
+    [loginUser, router, sanitizedNext, toast],
   );
 
   const switchToRegister = useCallback(() => {
+    if (isBusy) {
+      return;
+    }
     setMode('register');
-  }, []);
+  }, [isBusy]);
 
   const switchToLogin = useCallback(() => {
+    if (isBusy) {
+      return;
+    }
     setMode('login');
-  }, []);
+  }, [isBusy]);
+
+  if (isChecking && !isSubmitting) {
+    return <AuthPageFallback />;
+  }
+
+  if (isAuthenticated) {
+    return <AuthRedirectNotice />;
+  }
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -95,7 +121,7 @@ function AuthPageContent(): ReactElement {
           <RegisterForm
             onSwitchMode={switchToLogin}
             onSubmit={handleRegister}
-            isSubmitting={isSubmitting}
+            isSubmitting={isBusy}
           />
         </section>
 
@@ -108,7 +134,7 @@ function AuthPageContent(): ReactElement {
           <LoginForm
             onSwitchMode={switchToRegister}
             onSubmit={handleLogin}
-            isSubmitting={isSubmitting}
+            isSubmitting={isBusy}
           />
         </section>
 
@@ -143,7 +169,38 @@ function AuthPageFallback(): ReactElement {
   );
 }
 
+function AuthRedirectNotice(): ReactElement {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <p className="text-sm text-neutral-mid" role="status" aria-live="polite">
+        Mengalihkan ke dashboard...
+      </p>
+    </div>
+  );
+}
+
 const SECTION_BASE = 'relative flex-1 flex-col justify-center gap-10 px-8 py-12 sm:px-12 lg:px-16';
+
+function sanitizeNext(nextParam: string | null): string | null {
+  if (!nextParam) {
+    return null;
+  }
+
+  const trimmed = nextParam.trim();
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) {
+    return null;
+  }
+
+  return trimmed;
+}
+
+function extractFirstName(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return 'Pengguna';
+  }
+  return trimmed.split(/\s+/)[0];
+}
 
 function localizeErrorMessage(rawMessage: string | null | undefined, context: AuthMode): string {
   const fallback = context === 'register'

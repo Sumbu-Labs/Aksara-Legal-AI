@@ -2,7 +2,7 @@
 
 import { PermitCard } from './PermitCard';
 import type { PermitCardData } from './PermitCard';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 
 type ChecklistBoardProps = {
@@ -15,7 +15,7 @@ export function ChecklistBoard({
   items,
   onSelectPermit,
   emptyMessage = 'Klik &quot;Buat Checklist&quot; untuk melihat izin yang direkomendasikan.',
-}: ChecklistBoardProps): JSX.Element {
+}: ChecklistBoardProps): ReactElement {
   if (items.length === 0) {
     return (
       <div className="border-2 border-black bg-white px-6 py-12 text-center text-sm text-neutral-mid">

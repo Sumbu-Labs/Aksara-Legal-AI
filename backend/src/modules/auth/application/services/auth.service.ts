@@ -20,6 +20,7 @@ import {
   BaseJwtPayload,
 } from '../../domain/interfaces/jwt-payload.interface';
 import { Tokens } from '../../domain/interfaces/tokens.interface';
+import { AuthSession } from '../../domain/interfaces/auth-session.interface';
 import { UserRepository } from '../../domain/repositories/user.repository';
 import { NotificationsService } from '../../../notifications/application/services/notifications.service';
 import { NotificationType } from '../../../notifications/domain/enums/notification-type.enum';
@@ -44,7 +45,7 @@ export class AuthService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async register(command: RegisterCommand): Promise<Tokens> {
+  async register(command: RegisterCommand): Promise<AuthSession> {
     const existingUser = await this.userRepository.findByEmail(command.email);
     if (existingUser) {
       throw new ConflictException('Email already registered');
@@ -65,10 +66,10 @@ export class AuthService {
 
     await this.safeNotifyAccountRegistered(user.id, user.name);
 
-    return tokens;
+    return this.buildAuthSession(user, tokens);
   }
 
-  async login(command: LoginCommand): Promise<Tokens> {
+  async login(command: LoginCommand): Promise<AuthSession> {
     const user = await this.userRepository.findByEmail(command.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -86,10 +87,10 @@ export class AuthService {
     user.updateRefreshTokenHash(await this.hash(tokens.refreshToken));
     await this.userRepository.save(user);
 
-    return tokens;
+    return this.buildAuthSession(user, tokens);
   }
 
-  async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
+  async refreshTokens(userId: string, refreshToken: string): Promise<AuthSession> {
     const user = await this.userRepository.findById(userId);
     if (!user || !user.refreshTokenHash) {
       throw new UnauthorizedException('Access denied');
@@ -107,7 +108,7 @@ export class AuthService {
     user.updateRefreshTokenHash(await this.hash(tokens.refreshToken));
     await this.userRepository.save(user);
 
-    return tokens;
+    return this.buildAuthSession(user, tokens);
   }
 
   async clearRefreshToken(userId: string): Promise<void> {
@@ -126,11 +127,7 @@ export class AuthService {
       throw new UnauthorizedException('Token validation failed');
     }
 
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-    };
+    return this.toAuthenticatedUser(user);
   }
 
   private async generateTokens(user: User): Promise<Tokens> {
@@ -158,6 +155,21 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  private buildAuthSession(user: User, tokens: Tokens): AuthSession {
+    return {
+      ...tokens,
+      user: this.toAuthenticatedUser(user),
+    };
+  }
+
+  private toAuthenticatedUser(user: User): AuthenticatedUser {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
   }
 
   private async hash(data: string): Promise<string> {

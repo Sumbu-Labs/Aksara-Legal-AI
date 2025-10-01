@@ -2,16 +2,24 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
-
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { BusinessProfileForm } from '@/components/onboarding/BusinessProfileForm';
 import type { BusinessProfileFormValues } from '@/components/onboarding/BusinessProfileForm';
 import { useToast } from '@/components/ToastProvider';
 
 const STORAGE_KEY = 'aksara_business_profile';
 
-export default function OnboardingPage(): JSX.Element {
+export default function OnboardingPage(): ReactElement {
+  return (
+    <AuthGuard fallback={<OnboardingFallback />}>
+      <OnboardingContent />
+    </AuthGuard>
+  );
+}
+
+function OnboardingContent(): ReactElement {
   const router = useRouter();
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,3 +99,12 @@ export default function OnboardingPage(): JSX.Element {
   );
 }
 
+function OnboardingFallback(): ReactElement {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <p className="text-sm text-neutral-mid" role="status" aria-live="polite">
+        Memuat halaman onboarding...
+      </p>
+    </div>
+  );
+}

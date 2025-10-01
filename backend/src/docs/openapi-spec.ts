@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { OpenAPIObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { AuthTokensResponseDto } from '../modules/auth/presentation/dto/auth-tokens-response.dto';
+import { AuthenticatedUserDto } from '../modules/auth/presentation/dto/authenticated-user.dto';
 import { BusinessProfileResponseDto } from '../modules/business-profile/presentation/dto/business-profile-response.dto';
 import { BusinessPermitProfileDto } from '../modules/business-profile/presentation/dto/business-permit-profile.dto';
 
@@ -35,6 +36,7 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
   return SwaggerModule.createDocument(app, config, {
     extraModels: [
       AuthTokensResponseDto,
+      AuthenticatedUserDto,
       BusinessProfileResponseDto,
       BusinessPermitProfileDto,
     ],

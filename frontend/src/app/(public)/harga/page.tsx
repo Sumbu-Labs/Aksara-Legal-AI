@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 const PRICING_PLANS = [
   {
@@ -110,7 +110,7 @@ const VALUE_POINTS = [
   },
 ] as const;
 
-export default function PricingPage(): JSX.Element {
+export default function PricingPage(): ReactElement {
   return (
     <main className="bg-background text-neutral-dark">
       <section className="border-b-2 border-black bg-secondary/30">
@@ -258,4 +258,3 @@ export default function PricingPage(): JSX.Element {
     </main>
   );
 }
-

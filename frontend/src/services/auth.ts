@@ -1,10 +1,23 @@
 'use client';
 
-import { extractErrorMessage, getBackendBaseUrl } from './api-client';
+const DEFAULT_BACKEND_URL = 'http://localhost:3000';
+const TOKENS_STORAGE_KEY = 'aksara_auth_tokens';
+const LEGACY_ACCESS_KEY = 'accessToken';
+const LEGACY_REFRESH_KEY = 'refreshToken';
 
-export type TokensResponse = {
+export type Tokens = {
   accessToken: string;
   refreshToken: string;
+};
+
+export type AuthenticatedUser = {
+  id: string;
+  email: string;
+  name: string;
+};
+
+export type AuthSession = Tokens & {
+  user: AuthenticatedUser;
 };
 
 export type RegisterPayload = {
@@ -18,12 +31,7 @@ export type LoginPayload = {
   password: string;
 };
 
-const DEFAULT_BACKEND_URL = 'http://localhost:3000';
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-
-
-export async function register(payload: RegisterPayload): Promise<TokensResponse> {
+export async function register(payload: RegisterPayload): Promise<AuthSession> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/register`, {
     method: 'POST',
     headers: {
@@ -38,12 +46,10 @@ export async function register(payload: RegisterPayload): Promise<TokensResponse
     throw new Error(message || 'Pendaftaran gagal.');
   }
 
-  const tokens = (await response.json()) as TokensResponse;
-  persistTokens(tokens);
-  return tokens;
+  return (await response.json()) as AuthSession;
 }
 
-export async function login(payload: LoginPayload): Promise<TokensResponse> {
+export async function login(payload: LoginPayload): Promise<AuthSession> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/login`, {
     method: 'POST',
     headers: {
@@ -58,17 +64,10 @@ export async function login(payload: LoginPayload): Promise<TokensResponse> {
     throw new Error(message || 'Masuk gagal.');
   }
 
-  const tokens = (await response.json()) as TokensResponse;
-  persistTokens(tokens);
-  return tokens;
+  return (await response.json()) as AuthSession;
 }
 
-export async function refreshTokens(): Promise<TokensResponse | null> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    return null;
-  }
-
+export async function refresh(refreshToken: string): Promise<AuthSession> {
   const response = await fetch(`${getBackendBaseUrl()}/auth/refresh`, {
     method: 'POST',
     headers: {
@@ -78,61 +77,106 @@ export async function refreshTokens(): Promise<TokensResponse | null> {
   });
 
   if (!response.ok) {
-    return null;
+    const message = await extractErrorMessage(response);
+    throw new Error(message || 'Sesi tidak lagi valid.');
   }
 
-  const tokens = (await response.json()) as TokensResponse;
-  persistTokens(tokens);
-  return tokens;
+  return (await response.json()) as AuthSession;
 }
 
-export function persistTokens(tokens: TokensResponse): void {
+export async function fetchAuthenticatedUser(accessToken: string): Promise<AuthenticatedUser> {
+  const response = await fetch(`${getBackendBaseUrl()}/auth/check`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const message = await extractErrorMessage(response);
+    throw new Error(message || 'Gagal memverifikasi sesi.');
+  }
+
+  return (await response.json()) as AuthenticatedUser;
+}
+
+export async function revokeSession(accessToken: string | null | undefined): Promise<void> {
+  if (!accessToken) {
+    return;
+  }
+
   try {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-      window.localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+    await fetch(`${getBackendBaseUrl()}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+    });
+  } catch (error) {
+    // ignore network errors during logout to keep UX smooth
+    console.warn('Failed to revoke session on server', error);
+  }
+}
+
+export function storeTokens(tokens: Tokens): void {
+  try {
+    if (typeof window === 'undefined') {
+      return;
     }
+
+    window.localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(tokens));
+    window.localStorage.removeItem(LEGACY_ACCESS_KEY);
+    window.localStorage.removeItem(LEGACY_REFRESH_KEY);
   } catch (error) {
     console.error('Failed to persist tokens', error);
   }
 }
 
-export function getAccessToken(): string | null {
+export function loadTokens(): Tokens | null {
   if (typeof window === 'undefined') {
     return null;
   }
-  return window.localStorage.getItem(ACCESS_TOKEN_KEY);
-}
 
-export function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
-}
-
-export function getStoredTokens(): TokensResponse | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  const accessToken = window.localStorage.getItem(ACCESS_TOKEN_KEY);
-  const refreshToken = window.localStorage.getItem(REFRESH_TOKEN_KEY);
-  if (!accessToken || !refreshToken) {
-    return null;
-  }
-  return { accessToken, refreshToken };
-}
-
-export function clearTokens(): void {
   try {
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(ACCESS_TOKEN_KEY);
-      window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+    const stored = window.localStorage.getItem(TOKENS_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<Tokens> | null;
+      if (parsed?.accessToken && parsed?.refreshToken) {
+        return { accessToken: parsed.accessToken, refreshToken: parsed.refreshToken };
+      }
+    }
+
+    const legacyAccess = window.localStorage.getItem(LEGACY_ACCESS_KEY);
+    const legacyRefresh = window.localStorage.getItem(LEGACY_REFRESH_KEY);
+    if (legacyAccess && legacyRefresh) {
+      const tokens: Tokens = { accessToken: legacyAccess, refreshToken: legacyRefresh };
+      storeTokens(tokens);
+      return tokens;
     }
   } catch (error) {
-    console.error('Failed to clear tokens', error);
+    console.error('Failed to read tokens from storage', error);
+  }
+
+  return null;
+}
+
+export function clearStoredTokens(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(TOKENS_STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_ACCESS_KEY);
+    window.localStorage.removeItem(LEGACY_REFRESH_KEY);
+  } catch (error) {
+    console.error('Failed to clear tokens from storage', error);
   }
 }
+
+export const persistTokens = storeTokens;
 
 function getBackendBaseUrl(): string {
   return getEnv('NEXT_PUBLIC_BACKEND_URL', DEFAULT_BACKEND_URL);

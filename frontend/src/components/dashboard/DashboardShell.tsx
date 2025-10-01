@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ReactNode } from 'react';
-import type { JSX } from 'react';
+import { useCallback } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+
+import { useAuth } from '@/components/auth/AuthProvider';
 
 type NavItem = {
   href: string;
@@ -18,8 +20,13 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/settings', label: 'Pengaturan' },
 ];
 
-export function DashboardShell({ children }: { children: ReactNode }): JSX.Element {
+export function DashboardShell({ children }: { children: ReactNode }): ReactElement {
   const pathname = usePathname();
+  const { user, logout, isChecking } = useAuth();
+
+  const handleLogout = useCallback(() => {
+    void logout();
+  }, [logout]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-neutral-dark">
@@ -77,9 +84,22 @@ export function DashboardShell({ children }: { children: ReactNode }): JSX.Eleme
             </p>
           </div>
           <div className="flex items-center gap-4 text-sm text-neutral-dark">
-            <span className="border-2 border-black bg-secondary/40 px-4 py-2 uppercase tracking-[0.2em]">
+            <span className="hidden border-2 border-black bg-secondary/40 px-4 py-2 uppercase tracking-[0.2em] md:inline-flex">
               Mode Demo
             </span>
+            <div className="text-right">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-primary-dark">Masuk sebagai</p>
+              <p className="mt-1 text-base font-semibold text-neutral-dark">{user?.name ?? 'Pengguna'}</p>
+              <p className="text-xs text-neutral-mid">{user?.email ?? 'Memuat akun...'}</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isChecking}
+              className="border-2 border-black bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+            >
+              Keluar
+            </button>
           </div>
         </header>
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 const SETTINGS_LINKS = [
   {
@@ -22,7 +22,7 @@ const SETTINGS_LINKS = [
   },
 ];
 
-export default function DashboardSettingsPage(): JSX.Element {
+export default function DashboardSettingsPage(): ReactElement {
   return (
     <div className="flex flex-col gap-12">
       <header className="border-b-2 border-black pb-8">
@@ -54,4 +54,3 @@ export default function DashboardSettingsPage(): JSX.Element {
     </div>
   );
 }
-

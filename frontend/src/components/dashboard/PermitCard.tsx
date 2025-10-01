@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 
 export type PermitStatus = 'not_started' | 'in_progress' | 'ready';
@@ -44,7 +44,7 @@ export function PermitCard({
   status,
   nextAction,
   onClick,
-}: PermitCardProps): JSX.Element {
+}: PermitCardProps): ReactElement {
   const handleClick = useCallback(() => {
     if (onClick) {
       onClick(id);

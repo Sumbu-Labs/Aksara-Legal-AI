@@ -1,13 +1,12 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import { Navbar } from '@/components/Navbar';
-import type { JSX } from 'react';
 
 export default function PublicLayout({
   children,
 }: {
   children: ReactNode;
-}): JSX.Element {
+}): ReactElement {
   return (
     <div className="flex min-h-screen flex-col bg-background text-neutral-dark">
       <Navbar />
@@ -15,4 +14,3 @@ export default function PublicLayout({
     </div>
   );
 }
-
