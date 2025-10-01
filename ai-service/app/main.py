@@ -13,6 +13,7 @@ from structlog.contextvars import bind_contextvars, clear_contextvars
 from app.api.router import router
 from app.core.config import get_settings
 from app.core.logging import configure_logging, get_logger
+from app.db.migrations import apply_migrations
 from app.utils.auth import decode_jwt
 from app.utils.ids import generate_request_id
 from app.utils.rate_limiter import rate_limiter
@@ -174,6 +175,11 @@ async def root() -> dict[str, str]:
 @app.on_event("startup")
 async def startup_event() -> None:
     logger.info("app_startup", env=settings.app_env)
+    try:
+        await apply_migrations()
+    except Exception:
+        logger.exception("migrations_failed")
+        raise
 
 
 @app.on_event("shutdown")
