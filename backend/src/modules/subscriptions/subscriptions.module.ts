@@ -3,7 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { SubscriptionPlansService } from './application/services/subscription-plans.service';
 import { SubscriptionsService } from './application/services/subscriptions.service';
-import { SUBSCRIPTION_PLAN_REPOSITORY, SUBSCRIPTION_REPOSITORY, PAYMENT_TRANSACTION_REPOSITORY } from './common/subscription.constants';
+import {
+  SUBSCRIPTION_PLAN_REPOSITORY,
+  SUBSCRIPTION_REPOSITORY,
+  PAYMENT_TRANSACTION_REPOSITORY,
+} from './common/subscription.constants';
 import { PrismaSubscriptionPlanRepository } from './infrastructure/repositories/prisma-subscription-plan.repository';
 import { PrismaSubscriptionRepository } from './infrastructure/repositories/prisma-subscription.repository';
 import { PrismaPaymentTransactionRepository } from './infrastructure/repositories/prisma-payment-transaction.repository';
@@ -18,9 +22,18 @@ import { SubscriptionsWebhookController } from './presentation/controllers/subsc
     SubscriptionPlansService,
     SubscriptionsService,
     MidtransService,
-    { provide: SUBSCRIPTION_PLAN_REPOSITORY, useClass: PrismaSubscriptionPlanRepository },
-    { provide: SUBSCRIPTION_REPOSITORY, useClass: PrismaSubscriptionRepository },
-    { provide: PAYMENT_TRANSACTION_REPOSITORY, useClass: PrismaPaymentTransactionRepository },
+    {
+      provide: SUBSCRIPTION_PLAN_REPOSITORY,
+      useClass: PrismaSubscriptionPlanRepository,
+    },
+    {
+      provide: SUBSCRIPTION_REPOSITORY,
+      useClass: PrismaSubscriptionRepository,
+    },
+    {
+      provide: PAYMENT_TRANSACTION_REPOSITORY,
+      useClass: PrismaPaymentTransactionRepository,
+    },
   ],
   exports: [SubscriptionsService, SubscriptionPlansService],
 })

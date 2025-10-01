@@ -9,7 +9,9 @@ import { WorkspaceSummaryResponseDto } from '../dto/workspace-summary.response.d
 @Controller('workspace')
 export class WorkspaceController {
   private readonly fallbackUserId =
-    process.env.DEFAULT_WORKSPACE_USER_ID ?? 'demo-user';
+    process.env.DEFAULT_WORKSPACE_USER_ID ??
+    process.env.DEMO_USER_ID ??
+    'demo-user';
 
   constructor(private readonly workspaceService: WorkspaceService) {}
 

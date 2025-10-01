@@ -8,7 +8,9 @@ import {
 } from '../../domain/repositories/payment-transaction.repository';
 
 @Injectable()
-export class PrismaPaymentTransactionRepository implements PaymentTransactionRepository {
+export class PrismaPaymentTransactionRepository
+  implements PaymentTransactionRepository
+{
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
@@ -36,7 +38,14 @@ export class PrismaPaymentTransactionRepository implements PaymentTransactionRep
     data: Partial<
       Pick<
         PaymentTransactionEntity,
-        'status' | 'paymentType' | 'midtransTransactionId' | 'snapToken' | 'snapRedirectUrl' | 'rawResponse' | 'metadata' | 'paidAt'
+        | 'status'
+        | 'paymentType'
+        | 'midtransTransactionId'
+        | 'snapToken'
+        | 'snapRedirectUrl'
+        | 'rawResponse'
+        | 'metadata'
+        | 'paidAt'
       >
     >,
   ): Promise<PaymentTransactionEntity> {
@@ -57,7 +66,9 @@ export class PrismaPaymentTransactionRepository implements PaymentTransactionRep
     return this.toEntity(record);
   }
 
-  async findByMidtransOrderId(orderId: string): Promise<PaymentTransactionEntity | null> {
+  async findByMidtransOrderId(
+    orderId: string,
+  ): Promise<PaymentTransactionEntity | null> {
     const record = await this.prisma.paymentTransaction.findUnique({
       where: { midtransOrderId: orderId },
     });
@@ -65,7 +76,9 @@ export class PrismaPaymentTransactionRepository implements PaymentTransactionRep
     return record ? this.toEntity(record) : null;
   }
 
-  private toEntity(record: Prisma.PaymentTransaction): PaymentTransactionEntity {
+  private toEntity(
+    record: Prisma.PaymentTransaction,
+  ): PaymentTransactionEntity {
     return {
       id: record.id,
       subscriptionId: record.subscriptionId,
@@ -85,7 +98,9 @@ export class PrismaPaymentTransactionRepository implements PaymentTransactionRep
     };
   }
 
-  private asRecord(value: Prisma.JsonValue | null): Record<string, unknown> | null {
+  private asRecord(
+    value: Prisma.JsonValue | null,
+  ): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }

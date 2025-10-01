@@ -53,7 +53,8 @@ export class PrismaDocumentRepository implements DocumentRepository {
   async save(document: Document): Promise<void> {
     const data = document.toJSON();
     const versions = data.versions;
-    const currentVersionId = data.currentVersion?.id ?? versions.at(-1)?.id ?? null;
+    const currentVersionId =
+      data.currentVersion?.id ?? versions.at(-1)?.id ?? null;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.document.create({
@@ -81,7 +82,9 @@ export class PrismaDocumentRepository implements DocumentRepository {
             size: BigInt(version.size),
             checksum: version.checksum,
             notes: version.notes,
-            metadata: (version.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
+            metadata: (version.metadata ?? undefined) as
+              | Prisma.InputJsonValue
+              | undefined,
             uploadedBy: version.uploadedBy,
             createdAt: version.createdAt,
           })),

@@ -8,7 +8,9 @@ export class PaymentTransactionResponseDto {
   @ApiProperty()
   subscriptionId!: string;
 
-  @ApiProperty({ enum: ['PENDING', 'SUCCESS', 'FAILED', 'CANCELED', 'EXPIRED'] })
+  @ApiProperty({
+    enum: ['PENDING', 'SUCCESS', 'FAILED', 'CANCELED', 'EXPIRED'],
+  })
   status!: PaymentTransactionEntity['status'];
 
   @ApiProperty()
@@ -35,7 +37,9 @@ export class PaymentTransactionResponseDto {
   @ApiProperty({ type: Date, required: false, nullable: true })
   paidAt!: Date | null;
 
-  static fromEntity(entity: PaymentTransactionEntity): PaymentTransactionResponseDto {
+  static fromEntity(
+    entity: PaymentTransactionEntity,
+  ): PaymentTransactionResponseDto {
     const dto = new PaymentTransactionResponseDto();
     dto.id = entity.id;
     dto.subscriptionId = entity.subscriptionId;

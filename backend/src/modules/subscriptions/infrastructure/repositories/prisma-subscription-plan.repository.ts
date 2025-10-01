@@ -7,7 +7,9 @@ import {
 } from '../../domain/repositories/subscription-plan.repository';
 
 @Injectable()
-export class PrismaSubscriptionPlanRepository implements SubscriptionPlanRepository {
+export class PrismaSubscriptionPlanRepository
+  implements SubscriptionPlanRepository
+{
   constructor(private readonly prisma: PrismaService) {}
 
   async findActive(): Promise<SubscriptionPlanEntity[]> {
@@ -20,7 +22,9 @@ export class PrismaSubscriptionPlanRepository implements SubscriptionPlanReposit
   }
 
   async findById(id: string): Promise<SubscriptionPlanEntity | null> {
-    const record = await this.prisma.subscriptionPlan.findUnique({ where: { id } });
+    const record = await this.prisma.subscriptionPlan.findUnique({
+      where: { id },
+    });
     return record ? this.toEntity(record) : null;
   }
 
@@ -39,7 +43,9 @@ export class PrismaSubscriptionPlanRepository implements SubscriptionPlanReposit
     };
   }
 
-  private asRecord(value: Prisma.JsonValue | null): Record<string, unknown> | null {
+  private asRecord(
+    value: Prisma.JsonValue | null,
+  ): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
