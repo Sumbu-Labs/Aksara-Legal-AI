@@ -1,4 +1,9 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
 
 const plans = [
   {
@@ -48,22 +53,29 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="bg-background py-20 px-4 scroll-mt-16">
+    <motion.section
+      id="pricing"
+      className="bg-background px-4 py-20 scroll-mt-16"
+      initial="hidden"
+      whileInView="visible"
+      variants={staggerContainer}
+      viewport={viewportConfig}
+    >
       <div className="mx-auto max-w-6xl">
-        <div className="text-center">
-          
-          <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
+        <motion.div className="text-center" variants={fadeInUp}>
+          <h2 className="mt-4 font-heading text-3xl font-bold text-neutral-dark md:text-4xl">
             Pilih paket yang sesuai dengan kebutuhan izin Anda
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
           {plans.map((plan) => (
-            <div
+            <motion.div
               key={plan.name}
               className={`flex h-full flex-col gap-6 border-2 border-neutral-light bg-white/95 p-8 shadow-card transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg ${
                 plan.highlight ? 'ring-4 ring-primary/60 ring-offset-2 ring-offset-background' : ''
               }`}
+              variants={fadeInUp}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -108,10 +120,10 @@ export function PricingSection() {
               >
                 {plan.ctaLabel}
               </Link>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

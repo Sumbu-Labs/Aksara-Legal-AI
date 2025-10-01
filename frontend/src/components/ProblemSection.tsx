@@ -1,17 +1,31 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+import { fadeInUp, viewportConfig } from '@/lib/motion';
+
 export function ProblemSection() {
   return (
-    <section className="py-16 px-4 bg-primary">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-4xl md:text-5xl lg:text-6xl font-heading text-[var(--background)] leading-tight uppercase">
+    <motion.section
+      className="bg-primary px-4 py-16"
+      initial="hidden"
+      whileInView="visible"
+      variants={fadeInUp}
+      viewport={viewportConfig}
+    >
+      <div className="mx-auto max-w-6xl">
+        <motion.div
+          className="font-heading text-4xl uppercase leading-tight text-[var(--background)] md:text-5xl lg:text-6xl"
+          variants={fadeInUp}
+        >
           <span className="opacity-100">AKSARA Legal AI</span> mengubah<br />
           birokrasi kompleks 📋✨<br />
           Kami <span className="opacity-90">memberdayakan</span> UMKM<br />
-          dengan kepatuhan cerdas 🤖<br /> di mana
-          regulasi menjadi <span className="opacity-90">sederhana</span>💡<br /> dan
-          mimpi bisnis
+          dengan kepatuhan cerdas 🤖<br /> di mana regulasi menjadi <span className="opacity-90">sederhana</span>💡<br />
+          dan mimpi bisnis
           <span className="opacity-100"> melambung</span> 🚀
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

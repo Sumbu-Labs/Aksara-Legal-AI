@@ -1,3 +1,9 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
+
 const benefits = [
   {
     title: 'Checklist otomatis yang selalu update',
@@ -33,33 +39,41 @@ const benefits = [
 
 export function BenefitsSection() {
   return (
-    <section id="services" className="bg-background py-20 px-4 scroll-mt-16">
+    <motion.section
+      id="services"
+      className="bg-background px-4 py-20 scroll-mt-16"
+      initial="hidden"
+      whileInView="visible"
+      variants={staggerContainer}
+      viewport={viewportConfig}
+    >
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-dark">
+        <motion.div className="mx-auto max-w-2xl text-center" variants={fadeInUp}>
+          <h2 className="font-heading text-3xl font-bold text-neutral-dark md:text-4xl">
             Keunggulan Aksara
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-12 grid auto-rows-[minmax(180px,auto)] gap-6 md:grid-cols-6 lg:grid-cols-12 lg:[grid-template-rows:minmax(0,1fr)_minmax(140px,1fr)]">
           {benefits.map((benefit) => (
-            <div
+            <motion.div
               key={benefit.title}
               className={`group relative overflow-hidden border-2 border-neutral-light bg-secondary/60 p-8 shadow-card transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${benefit.layoutClass}`}
+              variants={fadeInUp}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative flex h-full flex-col gap-4">
                 <h3 className="font-heading text-2xl font-semibold text-neutral-dark">
                   {benefit.title}
                 </h3>
-                <p className="text-neutral-mid text-base leading-relaxed">
+                <p className="text-base leading-relaxed text-neutral-mid">
                   {benefit.description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

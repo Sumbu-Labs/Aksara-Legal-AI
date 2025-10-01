@@ -1,4 +1,9 @@
+'use client';
+
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+
+import { fadeInUp, viewportConfig } from '@/lib/motion';
 
 const partners = [
   {
@@ -32,14 +37,23 @@ const marqueePartners = Array.from({ length: 3 }).flatMap(() => partners);
 
 export function PartnersSection() {
   return (
-    <section className="bg-secondary/30 py-12">
+    <motion.section
+      className="bg-secondary/30 py-12"
+      initial="hidden"
+      whileInView="visible"
+      variants={fadeInUp}
+      viewport={viewportConfig}
+    >
       <div className="w-full">
         <div className="mx-auto max-w-6xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-mid md:text-base">
+          <motion.p
+            className="text-sm font-semibold uppercase tracking-[0.4em] text-neutral-mid md:text-base"
+            variants={fadeInUp}
+          >
             Dipercayai oleh
-          </p>
+          </motion.p>
         </div>
-        <div className="mt-8 overflow-hidden">
+        <motion.div className="mt-8 overflow-hidden" variants={fadeInUp}>
           <div className="partner-marquee">
             {[0, 1].map((index) => (
               <ul
@@ -64,8 +78,8 @@ export function PartnersSection() {
               </ul>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
