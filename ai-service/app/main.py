@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any, cast
 
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
 from structlog.contextvars import bind_contextvars, clear_contextvars
@@ -69,6 +70,26 @@ app = FastAPI(
         },
         {"name": "health", "description": "Check service, database, RAG index, and LLM readiness."},
     ],
+)
+
+cors_allowed_origins = [
+    origin.strip()
+    for origin in settings.cors_allowed_origins.split(',')
+    if origin.strip()
+]
+
+if not cors_allowed_origins:
+    cors_allowed_origins = ['http://localhost:7500']
+
+allow_all_origins = any(origin in {'*', 'http://*', 'https://*'} for origin in cors_allowed_origins)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'] if allow_all_origins else cors_allowed_origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+    expose_headers=['X-Request-ID'],
 )
 app.include_router(router)
 

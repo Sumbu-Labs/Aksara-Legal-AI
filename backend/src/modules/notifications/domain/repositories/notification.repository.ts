@@ -5,7 +5,10 @@ export interface NotificationRepository {
   create(notification: Notification): Promise<void>;
   save(notification: Notification): Promise<void>;
   findByIdForUser(id: string, userId: string): Promise<Notification | null>;
-  listByUser(userId: string, options: { status?: NotificationStatus; skip?: number; take?: number }): Promise<Notification[]>;
+  listByUser(
+    userId: string,
+    options: { status?: NotificationStatus; skip?: number; take?: number },
+  ): Promise<Notification[]>;
   markAllAsRead(userId: string): Promise<number>;
   delete(notificationId: string, userId: string): Promise<void>;
 }

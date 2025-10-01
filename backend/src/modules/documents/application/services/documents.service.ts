@@ -8,12 +8,19 @@ import {
 } from '@nestjs/common';
 import { randomUUID, createHash } from 'crypto';
 import { ObjectStorageService } from '../../../../infrastructure/storage/object-storage.service';
-import { DOCUMENT_REPOSITORY, DOCUMENT_VERSION_REPOSITORY } from '../../common/document.constants';
+import {
+  DOCUMENT_REPOSITORY,
+  DOCUMENT_VERSION_REPOSITORY,
+} from '../../common/document.constants';
 import { Document } from '../../domain/entities/document.entity';
 import { DocumentVersion } from '../../domain/entities/document-version.entity';
 import { DocumentRepository } from '../../domain/repositories/document.repository';
 import { DocumentVersionRepository } from '../../domain/repositories/document-version.repository';
-import { BatchUploadDocumentCommand, ReplaceDocumentCommand, UploadDocumentCommand } from '../dto/upload-document.command';
+import {
+  BatchUploadDocumentCommand,
+  ReplaceDocumentCommand,
+  UploadDocumentCommand,
+} from '../dto/upload-document.command';
 import { DocumentQuotaService } from './document-quota.service';
 import { NotificationsService } from '../../../notifications/application/services/notifications.service';
 import { NotificationType } from '../../../notifications/domain/enums/notification-type.enum';
@@ -37,11 +44,18 @@ export class DocumentsService {
     options: { skipQuota?: boolean } = {},
   ): Promise<Document> {
     if (!options.skipQuota) {
-      await this.quotaService.ensureCanUpload(command.userId, [command.file], { additionalDocuments: 1 });
+      await this.quotaService.ensureCanUpload(command.userId, [command.file], {
+        additionalDocuments: 1,
+      });
     }
     const documentId = randomUUID();
     const versionId = randomUUID();
-    const storageKey = this.buildStorageKey(command.userId, documentId, versionId, command.file.originalname);
+    const storageKey = this.buildStorageKey(
+      command.userId,
+      documentId,
+      versionId,
+      command.file.originalname,
+    );
     const checksum = this.computeChecksum(command.file.buffer);
 
     await this.objectStorage.uploadObject({
@@ -82,7 +96,10 @@ export class DocumentsService {
       throw error;
     }
 
-    const created = await this.documentRepository.findByIdForUser(documentId, command.userId);
+    const created = await this.documentRepository.findByIdForUser(
+      documentId,
+      command.userId,
+    );
     if (!created) {
       throw new NotFoundException('Document not found after creation');
     }
@@ -109,24 +126,39 @@ export class DocumentsService {
 
     const results: Document[] = [];
     for (const doc of command.documents) {
-      const document = await this.uploadDocument({ ...doc, userId: command.userId }, { skipQuota: true });
+      const document = await this.uploadDocument(
+        { ...doc, userId: command.userId },
+        { skipQuota: true },
+      );
       results.push(document);
     }
     return results;
   }
 
   async replaceDocument(command: ReplaceDocumentCommand): Promise<Document> {
-    const document = await this.documentRepository.findByIdForUser(command.documentId, command.userId);
+    const document = await this.documentRepository.findByIdForUser(
+      command.documentId,
+      command.userId,
+    );
     if (!document) {
       throw new NotFoundException('Document not found');
     }
 
-    await this.quotaService.ensureCanUpload(command.userId, [command.file], { additionalDocuments: 0 });
+    await this.quotaService.ensureCanUpload(command.userId, [command.file], {
+      additionalDocuments: 0,
+    });
 
-    const latest = await this.documentVersionRepository.findLatestVersion(command.documentId);
+    const latest = await this.documentVersionRepository.findLatestVersion(
+      command.documentId,
+    );
     const nextVersion = (latest?.version ?? 0) + 1;
     const versionId = randomUUID();
-    const storageKey = this.buildStorageKey(command.userId, command.documentId, versionId, command.file.originalname);
+    const storageKey = this.buildStorageKey(
+      command.userId,
+      command.documentId,
+      versionId,
+      command.file.originalname,
+    );
     const checksum = this.computeChecksum(command.file.buffer);
 
     await this.objectStorage.uploadObject({
@@ -168,7 +200,10 @@ export class DocumentsService {
       throw error;
     }
 
-    const refreshed = await this.documentRepository.findByIdForUser(command.documentId, command.userId);
+    const refreshed = await this.documentRepository.findByIdForUser(
+      command.documentId,
+      command.userId,
+    );
     if (!refreshed) {
       throw new NotFoundException('Document not found after update');
     }
@@ -188,18 +223,25 @@ export class DocumentsService {
   }
 
   async deleteDocument(userId: string, documentId: string): Promise<void> {
-    const document = await this.documentRepository.findByIdForUser(documentId, userId);
+    const document = await this.documentRepository.findByIdForUser(
+      documentId,
+      userId,
+    );
     if (!document) {
       throw new NotFoundException('Document not found');
     }
 
-    const versions = await this.documentVersionRepository.findVersions(documentId);
+    const versions =
+      await this.documentVersionRepository.findVersions(documentId);
     try {
       for (const version of versions) {
         await this.objectStorage.deleteObject(version.storageKey);
       }
     } catch (error) {
-      this.logger.error(`Failed to delete storage objects for document ${documentId}`, error as Error);
+      this.logger.error(
+        `Failed to delete storage objects for document ${documentId}`,
+        error as Error,
+      );
       throw new InternalServerErrorException('Failed to delete document files');
     }
 
@@ -207,8 +249,14 @@ export class DocumentsService {
     await this.documentRepository.softDelete(document);
   }
 
-  async getDocument(userId: string, documentId: string): Promise<{ document: Document; downloadUrl: string | undefined }> {
-    const document = await this.documentRepository.findByIdForUser(documentId, userId);
+  async getDocument(
+    userId: string,
+    documentId: string,
+  ): Promise<{ document: Document; downloadUrl: string | undefined }> {
+    const document = await this.documentRepository.findByIdForUser(
+      documentId,
+      userId,
+    );
     if (!document || document.deletedAt) {
       throw new NotFoundException('Document not found');
     }
@@ -216,7 +264,9 @@ export class DocumentsService {
     if (!currentVersion) {
       throw new NotFoundException('Document version not found');
     }
-    const downloadUrl = await this.objectStorage.generateDownloadUrl(currentVersion.storageKey);
+    const downloadUrl = await this.objectStorage.generateDownloadUrl(
+      currentVersion.storageKey,
+    );
     return { document, downloadUrl };
   }
 
@@ -225,7 +275,10 @@ export class DocumentsService {
   }
 
   async ensureOwnership(userId: string, documentId: string): Promise<Document> {
-    const document = await this.documentRepository.findByIdForUser(documentId, userId);
+    const document = await this.documentRepository.findByIdForUser(
+      documentId,
+      userId,
+    );
     if (!document) {
       throw new UnauthorizedException('Document not accessible');
     }
@@ -235,8 +288,15 @@ export class DocumentsService {
     return document;
   }
 
-  private buildStorageKey(userId: string, documentId: string, versionId: string, originalName: string): string {
-    const safeName = originalName.replace(/[^a-zA-Z0-9_.-]+/g, '-').toLowerCase();
+  private buildStorageKey(
+    userId: string,
+    documentId: string,
+    versionId: string,
+    originalName: string,
+  ): string {
+    const safeName = originalName
+      .replace(/[^a-zA-Z0-9_.-]+/g, '-')
+      .toLowerCase();
     return `documents/${userId}/${documentId}/${versionId}/${safeName}`;
   }
 
@@ -266,7 +326,9 @@ export class DocumentsService {
         emailActionUrl: options.emailActionUrl,
       });
     } catch (error) {
-      this.logger.warn(`Failed to enqueue notification for user ${userId}: ${(error as Error).message}`);
+      this.logger.warn(
+        `Failed to enqueue notification for user ${userId}: ${(error as Error).message}`,
+      );
     }
   }
 }

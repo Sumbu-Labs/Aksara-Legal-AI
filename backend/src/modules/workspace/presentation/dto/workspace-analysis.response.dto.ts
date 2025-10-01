@@ -24,7 +24,11 @@ export class WorkspaceAnalysisTaskResponseDto {
   @ApiProperty({ enum: ['high', 'medium', 'low'] })
   priority: WorkspaceTaskPriority;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Jenis izin terkait' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Jenis izin terkait',
+  })
   permitType: string | null;
 
   @ApiProperty({ description: 'Ringkasan apa yang harus dilakukan' })
@@ -33,13 +37,24 @@ export class WorkspaceAnalysisTaskResponseDto {
   @ApiProperty({ type: [String], description: 'Langkah tindakan selanjutnya' })
   nextActions: string[];
 
-  @ApiProperty({ type: [String], description: 'Daftar ID dokumen yang terkait' })
+  @ApiProperty({
+    type: [String],
+    description: 'Daftar ID dokumen yang terkait',
+  })
   relatedDocuments: string[];
 
-  @ApiProperty({ required: false, nullable: true, description: 'Due date dalam ISO string bila tersedia' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Due date dalam ISO string bila tersedia',
+  })
   dueDate: string | null;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Alasan task terblokir jika ada' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Alasan task terblokir jika ada',
+  })
   blockedReason: string | null;
 
   static fromAi(task: WorkspaceTaskDto): WorkspaceAnalysisTaskResponseDto {
@@ -74,13 +89,21 @@ export class WorkspaceAnalysisDocumentResponseDto {
   @ApiProperty({ description: 'Ringkasan status dokumen' })
   summary: string;
 
-  @ApiProperty({ type: [String], description: 'Aksi yang perlu dilakukan agar dokumen siap' })
+  @ApiProperty({
+    type: [String],
+    description: 'Aksi yang perlu dilakukan agar dokumen siap',
+  })
   requiredActions: string[];
 
-  @ApiProperty({ type: [String], description: 'Task ID yang berelasi dengan dokumen ini' })
+  @ApiProperty({
+    type: [String],
+    description: 'Task ID yang berelasi dengan dokumen ini',
+  })
   linkedTasks: string[];
 
-  static fromAi(document: WorkspaceDocumentDto): WorkspaceAnalysisDocumentResponseDto {
+  static fromAi(
+    document: WorkspaceDocumentDto,
+  ): WorkspaceAnalysisDocumentResponseDto {
     return {
       id: document.id,
       title: document.title,
@@ -106,7 +129,9 @@ export class WorkspaceAnalysisSummaryResponseDto {
   @ApiProperty({ description: 'Langkah berikutnya yang direkomendasikan' })
   nextAction: string;
 
-  static fromAi(summary: WorkspaceSummaryDto): WorkspaceAnalysisSummaryResponseDto {
+  static fromAi(
+    summary: WorkspaceSummaryDto,
+  ): WorkspaceAnalysisSummaryResponseDto {
     return {
       headline: summary.headline,
       overallStatus: summary.overall_status,
@@ -126,11 +151,17 @@ export class WorkspaceAnalysisResponseDto {
   @ApiProperty({ type: () => [WorkspaceAnalysisDocumentResponseDto] })
   documents: WorkspaceAnalysisDocumentResponseDto[];
 
-  static fromAiResponse(response: AiWorkspaceResponse): WorkspaceAnalysisResponseDto {
+  static fromAiResponse(
+    response: AiWorkspaceResponse,
+  ): WorkspaceAnalysisResponseDto {
     return {
       summary: WorkspaceAnalysisSummaryResponseDto.fromAi(response.summary),
-      tasks: response.tasks.map((task) => WorkspaceAnalysisTaskResponseDto.fromAi(task)),
-      documents: response.documents.map((document) => WorkspaceAnalysisDocumentResponseDto.fromAi(document)),
+      tasks: response.tasks.map((task) =>
+        WorkspaceAnalysisTaskResponseDto.fromAi(task),
+      ),
+      documents: response.documents.map((document) =>
+        WorkspaceAnalysisDocumentResponseDto.fromAi(document),
+      ),
     };
   }
 }

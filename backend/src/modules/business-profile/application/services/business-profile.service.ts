@@ -1,4 +1,9 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { USER_REPOSITORY } from '../../../auth/common/auth.constants';
 import { UserRepository } from '../../../auth/domain/repositories/user.repository';
 import { BusinessProfile } from '../../domain/entities/business-profile.entity';
@@ -6,7 +11,10 @@ import { BusinessPermitProfile } from '../../domain/entities/business-permit-pro
 import { BusinessScale } from '../../domain/enums/business-scale.enum';
 import { BusinessType } from '../../domain/enums/business-type.enum';
 import { PermitType } from '../../domain/enums/permit-type.enum';
-import { BUSINESS_PROFILE_REPOSITORY, BUSINESS_PERMIT_PROFILE_REPOSITORY } from '../../common/business-profile.constants';
+import {
+  BUSINESS_PROFILE_REPOSITORY,
+  BUSINESS_PERMIT_PROFILE_REPOSITORY,
+} from '../../common/business-profile.constants';
 import { BusinessProfileRepository } from '../../domain/repositories/business-profile.repository';
 import { BusinessPermitProfileRepository } from '../../domain/repositories/business-permit-profile.repository';
 import { CreateBusinessProfileCommand } from '../dto/create-business-profile.command';
@@ -30,12 +38,18 @@ export class BusinessProfileService {
     return this.businessProfileRepository.findByUserId(userId);
   }
 
-  async createProfile(command: CreateBusinessProfileCommand): Promise<BusinessProfile> {
+  async createProfile(
+    command: CreateBusinessProfileCommand,
+  ): Promise<BusinessProfile> {
     await this.ensureUserExists(command.userId);
 
-    const existingProfile = await this.businessProfileRepository.findByUserId(command.userId);
+    const existingProfile = await this.businessProfileRepository.findByUserId(
+      command.userId,
+    );
     if (existingProfile) {
-      throw new ConflictException('Business profile already exists for this user');
+      throw new ConflictException(
+        'Business profile already exists for this user',
+      );
     }
 
     const profile = BusinessProfile.create({
@@ -55,13 +69,20 @@ export class BusinessProfileService {
     const permits = await this.ensureDefaultPermitProfiles(profile.id);
     profile.updatePermits(permits);
     const completion = await this.updateCompletionStatus(profile);
-    await this.safeNotifyProfileCompleted(profile.userId, completion.justCompleted);
+    await this.safeNotifyProfileCompleted(
+      profile.userId,
+      completion.justCompleted,
+    );
 
     return profile;
   }
 
-  async updateProfile(command: UpdateBusinessProfileCommand): Promise<BusinessProfile> {
-    const profile = await this.businessProfileRepository.findByUserId(command.userId);
+  async updateProfile(
+    command: UpdateBusinessProfileCommand,
+  ): Promise<BusinessProfile> {
+    const profile = await this.businessProfileRepository.findByUserId(
+      command.userId,
+    );
     if (!profile) {
       throw new NotFoundException('Business profile not found');
     }
@@ -78,24 +99,35 @@ export class BusinessProfileService {
 
     await this.businessProfileRepository.save(profile);
 
-    const permits = await this.businessPermitProfileRepository.findManyByProfileId(profile.id);
+    const permits =
+      await this.businessPermitProfileRepository.findManyByProfileId(
+        profile.id,
+      );
     profile.updatePermits(permits);
     const completion = await this.updateCompletionStatus(profile);
-    await this.safeNotifyProfileCompleted(profile.userId, completion.justCompleted);
+    await this.safeNotifyProfileCompleted(
+      profile.userId,
+      completion.justCompleted,
+    );
 
     return profile;
   }
 
-  async updatePermit(command: UpdatePermitProfileCommand): Promise<BusinessProfile> {
-    const profile = await this.businessProfileRepository.findByUserId(command.userId);
+  async updatePermit(
+    command: UpdatePermitProfileCommand,
+  ): Promise<BusinessProfile> {
+    const profile = await this.businessProfileRepository.findByUserId(
+      command.userId,
+    );
     if (!profile) {
       throw new NotFoundException('Business profile not found');
     }
 
-    let permit = await this.businessPermitProfileRepository.findByProfileAndType(
-      profile.id,
-      command.permitType,
-    );
+    let permit =
+      await this.businessPermitProfileRepository.findByProfileAndType(
+        profile.id,
+        command.permitType,
+      );
 
     if (!permit) {
       permit = BusinessPermitProfile.create({
@@ -112,7 +144,10 @@ export class BusinessProfileService {
 
     await this.businessPermitProfileRepository.save(permit);
 
-    const permits = await this.businessPermitProfileRepository.findManyByProfileId(profile.id);
+    const permits =
+      await this.businessPermitProfileRepository.findManyByProfileId(
+        profile.id,
+      );
     profile.updatePermits(permits);
     const completion = await this.updateCompletionStatus(profile);
     if (completion.justCompleted) {
@@ -120,7 +155,8 @@ export class BusinessProfileService {
         userId: profile.userId,
         type: NotificationType.BUSINESS_PROFILE_COMPLETED,
         title: 'Profil bisnis lengkap',
-        message: 'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
+        message:
+          'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
         sendEmail: true,
       });
     }
@@ -135,8 +171,13 @@ export class BusinessProfileService {
     }
   }
 
-  private async ensureDefaultPermitProfiles(businessProfileId: string): Promise<BusinessPermitProfile[]> {
-    const permits = await this.businessPermitProfileRepository.findManyByProfileId(businessProfileId);
+  private async ensureDefaultPermitProfiles(
+    businessProfileId: string,
+  ): Promise<BusinessPermitProfile[]> {
+    const permits =
+      await this.businessPermitProfileRepository.findManyByProfileId(
+        businessProfileId,
+      );
     const existingTypes = new Set(permits.map((permit) => permit.permitType));
 
     const defaultTypes = Object.values(PermitType);
@@ -161,7 +202,9 @@ export class BusinessProfileService {
   ): Promise<{ completed: boolean; justCompleted: boolean }> {
     const wasCompleted = profile.completedAt !== null;
     const isBasicInfoComplete = this.isBasicInfoComplete(profile);
-    const allPermitCompleted = profile.permits.length > 0 && profile.permits.every((permit) => permit.isChecklistComplete);
+    const allPermitCompleted =
+      profile.permits.length > 0 &&
+      profile.permits.every((permit) => permit.isChecklistComplete);
 
     if (isBasicInfoComplete && allPermitCompleted) {
       profile.markCompleted();
@@ -186,11 +229,17 @@ export class BusinessProfileService {
     return !!value && value.trim().length > 0;
   }
 
-  private isValidEnumValue<T extends Record<string, string>>(value: string, enumObj: T): boolean {
+  private isValidEnumValue<T extends Record<string, string>>(
+    value: string,
+    enumObj: T,
+  ): boolean {
     return Object.values(enumObj).includes(value);
   }
 
-  private async safeNotifyProfileCompleted(userId: string, shouldNotify: boolean): Promise<void> {
+  private async safeNotifyProfileCompleted(
+    userId: string,
+    shouldNotify: boolean,
+  ): Promise<void> {
     if (!shouldNotify) {
       return;
     }
@@ -199,7 +248,8 @@ export class BusinessProfileService {
         userId,
         type: NotificationType.BUSINESS_PROFILE_COMPLETED,
         title: 'Profil bisnis lengkap',
-        message: 'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
+        message:
+          'Profil bisnis Anda sudah lengkap. Anda siap membuat checklist izin!',
         sendEmail: true,
       });
     } catch (error) {

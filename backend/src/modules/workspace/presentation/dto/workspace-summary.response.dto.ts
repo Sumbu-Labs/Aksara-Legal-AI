@@ -4,7 +4,11 @@ import { WorkspaceAnalysisResponseDto } from './workspace-analysis.response.dto'
 import { WorkspaceDocumentSnapshotDto } from './workspace-document-snapshot.dto';
 
 export class WorkspaceSummaryResponseDto {
-  @ApiProperty({ type: () => BusinessProfileResponseDto, required: false, nullable: true })
+  @ApiProperty({
+    type: () => BusinessProfileResponseDto,
+    required: false,
+    nullable: true,
+  })
   profile: BusinessProfileResponseDto | null;
 
   @ApiProperty({ type: () => [WorkspaceDocumentSnapshotDto] })

@@ -6,11 +6,15 @@ import { DocumentVersionRepository } from '../../domain/repositories/document-ve
 import { DocumentMapper } from '../mappers/document.mapper';
 
 @Injectable()
-export class PrismaDocumentVersionRepository implements DocumentVersionRepository {
+export class PrismaDocumentVersionRepository
+  implements DocumentVersionRepository
+{
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<DocumentVersion | null> {
-    const record = await this.prisma.documentVersion.findUnique({ where: { id } });
+    const record = await this.prisma.documentVersion.findUnique({
+      where: { id },
+    });
     return record ? DocumentMapper.mapVersion(record) : null;
   }
 
@@ -43,7 +47,9 @@ export class PrismaDocumentVersionRepository implements DocumentVersionRepositor
         size: BigInt(data.size),
         checksum: data.checksum,
         notes: data.notes,
-        metadata: (data.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
+        metadata: (data.metadata ?? undefined) as
+          | Prisma.InputJsonValue
+          | undefined,
         uploadedBy: data.uploadedBy,
         createdAt: data.createdAt,
       },

@@ -1,14 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { BusinessPermitProfile as PrismaBusinessPermitProfile, Prisma, $Enums } from '@prisma/client';
+import {
+  BusinessPermitProfile as PrismaBusinessPermitProfile,
+  Prisma,
+  $Enums,
+} from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
-import { BusinessPermitProfile, JsonValue } from '../../domain/entities/business-permit-profile.entity';
+import {
+  BusinessPermitProfile,
+  JsonValue,
+} from '../../domain/entities/business-permit-profile.entity';
 import { PermitType } from '../../domain/enums/permit-type.enum';
 import { BusinessPermitProfileRepository } from '../../domain/repositories/business-permit-profile.repository';
 
 type PrismaPermitWithRelations = PrismaBusinessPermitProfile;
 
 @Injectable()
-export class PrismaBusinessPermitProfileRepository implements BusinessPermitProfileRepository {
+export class PrismaBusinessPermitProfileRepository
+  implements BusinessPermitProfileRepository
+{
   constructor(private readonly prisma: PrismaService) {}
 
   async findByProfileAndType(
@@ -27,7 +36,9 @@ export class PrismaBusinessPermitProfileRepository implements BusinessPermitProf
     return permit ? this.toDomain(permit) : null;
   }
 
-  async findManyByProfileId(businessProfileId: string): Promise<BusinessPermitProfile[]> {
+  async findManyByProfileId(
+    businessProfileId: string,
+  ): Promise<BusinessPermitProfile[]> {
     const permits = await this.prisma.businessPermitProfile.findMany({
       where: { businessProfileId },
     });

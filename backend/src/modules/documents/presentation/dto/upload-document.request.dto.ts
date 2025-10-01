@@ -23,14 +23,19 @@ export class UploadDocumentRequestDto {
   @IsString()
   notes?: string;
 
-  @ApiPropertyOptional({ description: 'Metadata tambahan dalam bentuk JSON string' })
+  @ApiPropertyOptional({
+    description: 'Metadata tambahan dalam bentuk JSON string',
+  })
   @IsOptional()
   @IsString()
   metadata?: string;
 }
 
 export class BatchUploadDocumentRequestDto {
-  @ApiPropertyOptional({ description: 'Metadata per dokumen dalam urutan yang sama dengan file, dalam bentuk JSON string array' })
+  @ApiPropertyOptional({
+    description:
+      'Metadata per dokumen dalam urutan yang sama dengan file, dalam bentuk JSON string array',
+  })
   @IsOptional()
   @IsString()
   metadata?: string;

@@ -1,6 +1,12 @@
 import { PermitType } from '../../domain/enums/permit-type.enum';
 
-type JsonValue = Record<string, unknown> | unknown[] | string | number | boolean | null;
+type JsonValue =
+  | Record<string, unknown>
+  | unknown[]
+  | string
+  | number
+  | boolean
+  | null;
 
 type Nullable<T> = T | null | undefined;
 

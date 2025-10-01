@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { BusinessProfileService } from '../../../business-profile/application/services/business-profile.service';
 import { DocumentsService } from '../../../documents/application/services/documents.service';
-import { AssistantService,
+import {
+  AssistantService,
   WorkspaceAnalysisCommand,
 } from '../../../assistant/application/services/assistant.service';
 import { BusinessProfileResponseDto } from '../../../business-profile/presentation/dto/business-profile-response.dto';
@@ -20,17 +21,27 @@ export class WorkspaceService {
 
   async getSummary(userId: string): Promise<WorkspaceSummaryResponseDto> {
     const profile = await this.businessProfileService.getProfileByUser(userId);
-    const profileDto = profile ? BusinessProfileResponseDto.fromDomain(profile) : null;
+    const profileDto = profile
+      ? BusinessProfileResponseDto.fromDomain(profile)
+      : null;
 
     const documents = await this.documentsService.listDocuments(userId);
-    const documentDtos = documents.map((document) => DocumentResponseDto.fromDomain(document));
+    const documentDtos = documents.map((document) =>
+      DocumentResponseDto.fromDomain(document),
+    );
 
     const command = this.buildAnalysisCommand(profileDto, documentDtos);
     const aiResponse = await this.assistantService.analyzeWorkspace(command);
     const analysisDto = WorkspaceAnalysisResponseDto.fromAiResponse(aiResponse);
-    const documentSnapshots = documentDtos.map((document) => WorkspaceDocumentSnapshotDto.fromDocument(document));
+    const documentSnapshots = documentDtos.map((document) =>
+      WorkspaceDocumentSnapshotDto.fromDocument(document),
+    );
 
-    return WorkspaceSummaryResponseDto.create(profileDto, documentSnapshots, analysisDto);
+    return WorkspaceSummaryResponseDto.create(
+      profileDto,
+      documentSnapshots,
+      analysisDto,
+    );
   }
 
   private buildAnalysisCommand(
@@ -38,8 +49,12 @@ export class WorkspaceService {
     documents: DocumentResponseDto[],
   ): WorkspaceAnalysisCommand {
     const permits = profile ? this.serializePermits(profile.permits) : [];
-    const businessProfile = profile ? this.serializeBusinessProfile(profile) : null;
-    const documentPayload = documents.map((document) => this.serializeDocument(document));
+    const businessProfile = profile
+      ? this.serializeBusinessProfile(profile)
+      : null;
+    const documentPayload = documents.map((document) =>
+      this.serializeDocument(document),
+    );
 
     return {
       businessProfile,
@@ -49,7 +64,9 @@ export class WorkspaceService {
     };
   }
 
-  private serializeBusinessProfile(profile: BusinessProfileResponseDto): Record<string, unknown> {
+  private serializeBusinessProfile(
+    profile: BusinessProfileResponseDto,
+  ): Record<string, unknown> {
     return {
       id: profile.id,
       user_id: profile.userId,
@@ -60,7 +77,9 @@ export class WorkspaceService {
       city: profile.city,
       address: profile.address,
       industry_tags: profile.industryTags,
-      completed_at: profile.completedAt ? this.toIsoString(profile.completedAt) : null,
+      completed_at: profile.completedAt
+        ? this.toIsoString(profile.completedAt)
+        : null,
       created_at: this.toIsoString(profile.createdAt),
       updated_at: this.toIsoString(profile.updatedAt),
       permits: this.serializePermits(profile.permits),
@@ -81,7 +100,9 @@ export class WorkspaceService {
     }));
   }
 
-  private serializeDocument(document: DocumentResponseDto): Record<string, unknown> {
+  private serializeDocument(
+    document: DocumentResponseDto,
+  ): Record<string, unknown> {
     const currentVersion = document.currentVersion;
     return {
       id: document.id,
@@ -104,8 +125,8 @@ export class WorkspaceService {
       return value.toISOString();
     }
     const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? new Date(0).toISOString() : parsed.toISOString();
+    return Number.isNaN(parsed.getTime())
+      ? new Date(0).toISOString()
+      : parsed.toISOString();
   }
 }
-
-

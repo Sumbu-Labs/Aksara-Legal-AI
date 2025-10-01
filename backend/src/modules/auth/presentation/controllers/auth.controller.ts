@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -28,7 +36,9 @@ export class AuthController {
   @ApiResponse({ status: 201, type: AuthTokensResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid payload' })
   @ApiResponse({ status: 409, description: 'Email already registered' })
-  async register(@Body() dto: RegisterRequestDto): Promise<AuthTokensResponseDto> {
+  async register(
+    @Body() dto: RegisterRequestDto,
+  ): Promise<AuthTokensResponseDto> {
     const tokens = await this.authService.register(dto);
     return new AuthTokensResponseDto(tokens);
   }
@@ -55,7 +65,10 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token missing');
     }
 
-    const tokens = await this.authService.refreshTokens(user.id, user.refreshToken);
+    const tokens = await this.authService.refreshTokens(
+      user.id,
+      user.refreshToken,
+    );
     return new AuthTokensResponseDto(tokens);
   }
 

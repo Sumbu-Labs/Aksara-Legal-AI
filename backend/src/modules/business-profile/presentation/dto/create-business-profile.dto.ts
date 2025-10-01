@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { BusinessScale } from '../../domain/enums/business-scale.enum';
 import { BusinessType } from '../../domain/enums/business-type.enum';
 
@@ -17,13 +23,19 @@ export class CreateBusinessProfileDto {
   @IsEnum(BusinessScale)
   businessScale: BusinessScale;
 
-  @ApiPropertyOptional({ description: 'Provinsi lokasi bisnis', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Provinsi lokasi bisnis',
+    nullable: true,
+  })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   province?: string | null;
 
-  @ApiPropertyOptional({ description: 'Kota/Kabupaten lokasi bisnis', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Kota/Kabupaten lokasi bisnis',
+    nullable: true,
+  })
   @IsOptional()
   @IsString()
   @IsNotEmpty()

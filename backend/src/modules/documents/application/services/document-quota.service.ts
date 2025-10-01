@@ -12,9 +12,16 @@ export class DocumentQuotaService {
   private readonly maxDocuments: number;
   private readonly maxStorageBytes: bigint;
 
-  constructor(private readonly prisma: PrismaService, configService: ConfigService) {
-    this.maxDocuments = Number(configService.get('DOCUMENT_MAX_TOTAL_FILES') ?? 200);
-    const sizeMb = Number(configService.get('DOCUMENT_MAX_TOTAL_SIZE_MB') ?? 500);
+  constructor(
+    private readonly prisma: PrismaService,
+    configService: ConfigService,
+  ) {
+    this.maxDocuments = Number(
+      configService.get('DOCUMENT_MAX_TOTAL_FILES') ?? 200,
+    );
+    const sizeMb = Number(
+      configService.get('DOCUMENT_MAX_TOTAL_SIZE_MB') ?? 500,
+    );
     this.maxStorageBytes = BigInt(sizeMb) * BigInt(1024 * 1024);
   }
 
@@ -24,7 +31,10 @@ export class DocumentQuotaService {
     options?: { additionalDocuments?: number },
   ): Promise<void> {
     const additionalDocuments = options?.additionalDocuments ?? files.length;
-    const additionalBytes = files.reduce((acc, file) => acc + BigInt(file.size), BigInt(0));
+    const additionalBytes = files.reduce(
+      (acc, file) => acc + BigInt(file.size),
+      BigInt(0),
+    );
     await this.ensureCapacity(userId, additionalDocuments, additionalBytes);
   }
 
@@ -55,7 +65,11 @@ export class DocumentQuotaService {
     };
   }
 
-  private async ensureCapacity(userId: string, additionalDocuments: number, additionalBytes: bigint): Promise<void> {
+  private async ensureCapacity(
+    userId: string,
+    additionalDocuments: number,
+    additionalBytes: bigint,
+  ): Promise<void> {
     const usage = await this.readUsage(userId);
     if (usage.documentCount + additionalDocuments > this.maxDocuments) {
       throw new BadRequestException('Document limit exceeded for your plan');

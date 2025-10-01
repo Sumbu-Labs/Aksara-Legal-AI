@@ -27,5 +27,3 @@ import { MailModule } from './infrastructure/mail/mail.module';
   providers: [AppService],
 })
 export class AppModule {}
-
-

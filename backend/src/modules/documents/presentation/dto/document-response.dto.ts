@@ -12,16 +12,28 @@ export class DocumentResponseDto {
   @ApiProperty({ description: 'Owner user identifier' })
   userId: string;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Related business profile identifier' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Related business profile identifier',
+  })
   businessProfileId: Nullable<string>;
 
   @ApiProperty({ required: false, nullable: true, enum: PermitType })
   permitType: Nullable<PermitType>;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Display label for the document' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Display label for the document',
+  })
   label: Nullable<string>;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Timestamp when document was soft deleted' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Timestamp when document was soft deleted',
+  })
   deletedAt: Nullable<Date>;
 
   @ApiProperty({ description: 'Creation timestamp' })
@@ -36,9 +48,15 @@ export class DocumentResponseDto {
   @ApiProperty({ type: () => [DocumentVersionResponseDto] })
   versions: DocumentVersionResponseDto[];
 
-  static fromDomain(document: Document, downloadUrl?: string): DocumentResponseDto {
+  static fromDomain(
+    document: Document,
+    downloadUrl?: string,
+  ): DocumentResponseDto {
     const currentVersion = document.currentVersion
-      ? DocumentVersionResponseDto.fromDomain(document.currentVersion, downloadUrl)
+      ? DocumentVersionResponseDto.fromDomain(
+          document.currentVersion,
+          downloadUrl,
+        )
       : null;
     return {
       id: document.id,
@@ -53,7 +71,9 @@ export class DocumentResponseDto {
       versions: document.versions.map((version) =>
         DocumentVersionResponseDto.fromDomain(
           version,
-          currentVersion && currentVersion.id === version.id ? downloadUrl : undefined,
+          currentVersion && currentVersion.id === version.id
+            ? downloadUrl
+            : undefined,
         ),
       ),
     };

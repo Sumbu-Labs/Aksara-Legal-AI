@@ -26,7 +26,11 @@ export type AiAskResponse = {
 
 export type WorkspaceTaskStatus = 'todo' | 'in_progress' | 'blocked' | 'done';
 export type WorkspaceTaskPriority = 'high' | 'medium' | 'low';
-export type WorkspaceDocumentStatus = 'missing' | 'collecting' | 'ready' | 'submitted';
+export type WorkspaceDocumentStatus =
+  | 'missing'
+  | 'collecting'
+  | 'ready'
+  | 'submitted';
 export type WorkspaceOverallStatus = 'on_track' | 'at_risk' | 'blocked';
 export type WorkspaceRiskLevel = 'low' | 'medium' | 'high';
 
@@ -73,10 +77,24 @@ export type WorkspaceAnalysisCommand = {
   locale?: string;
 };
 
-const TASK_STATUS_VALUES: WorkspaceTaskStatus[] = ['todo', 'in_progress', 'blocked', 'done'];
+const TASK_STATUS_VALUES: WorkspaceTaskStatus[] = [
+  'todo',
+  'in_progress',
+  'blocked',
+  'done',
+];
 const TASK_PRIORITY_VALUES: WorkspaceTaskPriority[] = ['high', 'medium', 'low'];
-const DOCUMENT_STATUS_VALUES: WorkspaceDocumentStatus[] = ['missing', 'collecting', 'ready', 'submitted'];
-const OVERALL_STATUS_VALUES: WorkspaceOverallStatus[] = ['on_track', 'at_risk', 'blocked'];
+const DOCUMENT_STATUS_VALUES: WorkspaceDocumentStatus[] = [
+  'missing',
+  'collecting',
+  'ready',
+  'submitted',
+];
+const OVERALL_STATUS_VALUES: WorkspaceOverallStatus[] = [
+  'on_track',
+  'at_risk',
+  'blocked',
+];
 const RISK_LEVEL_VALUES: WorkspaceRiskLevel[] = ['low', 'medium', 'high'];
 
 @Injectable()
@@ -125,7 +143,9 @@ export class AssistantService {
     }
   }
 
-  async analyzeWorkspace(command: WorkspaceAnalysisCommand): Promise<AiWorkspaceResponse> {
+  async analyzeWorkspace(
+    command: WorkspaceAnalysisCommand,
+  ): Promise<AiWorkspaceResponse> {
     const baseUrl =
       this.configService.get<string>('AI_SERVICE_BASE_URL') ??
       'http://localhost:7700';
@@ -143,16 +163,12 @@ export class AssistantService {
     } satisfies Record<string, unknown>;
 
     try {
-      const { data } = await this.httpService.axiosRef.post(
-        endpoint,
-        payload,
-        {
-          headers: bearerToken
-            ? { Authorization: 'Bearer ' + bearerToken }
-            : undefined,
-          timeout: timeoutMs,
-        },
-      );
+      const { data } = await this.httpService.axiosRef.post(endpoint, payload, {
+        headers: bearerToken
+          ? { Authorization: 'Bearer ' + bearerToken }
+          : undefined,
+        timeout: timeoutMs,
+      });
       return this.normalizeWorkspaceResponse(data);
     } catch (error) {
       return this.handleError(error, endpoint);
@@ -173,9 +189,13 @@ export class AssistantService {
     const record = this.ensureRecord(raw);
     const summary = this.coerceSummary(record.summary);
     const tasksRaw = Array.isArray(record.tasks) ? record.tasks : [];
-    const documentsRaw = Array.isArray(record.documents) ? record.documents : [];
+    const documentsRaw = Array.isArray(record.documents)
+      ? record.documents
+      : [];
     const tasks = tasksRaw.map((task, index) => this.coerceTask(task, index));
-    const documents = documentsRaw.map((doc, index) => this.coerceDocument(doc, index));
+    const documents = documentsRaw.map((doc, index) =>
+      this.coerceDocument(doc, index),
+    );
     return { summary, tasks, documents };
   }
 
@@ -183,12 +203,19 @@ export class AssistantService {
     const record = this.ensureRecord(value);
     const id = this.coerceString(record.id) ?? `task-${index + 1}`;
     const title = this.coerceString(record.title) ?? 'Tugas Kepatuhan';
-    const description = this.coerceString(record.description) ?? 'Detail tugas belum tersedia.';
+    const description =
+      this.coerceString(record.description) ?? 'Detail tugas belum tersedia.';
     const status = this.coerceEnum(record.status, TASK_STATUS_VALUES, 'todo');
-    const priority = this.coerceEnum(record.priority, TASK_PRIORITY_VALUES, 'medium');
+    const priority = this.coerceEnum(
+      record.priority,
+      TASK_PRIORITY_VALUES,
+      'medium',
+    );
     const permitType = this.coerceString(record['permit_type']);
     const nextActions = this.coerceStringArray(record['next_actions']);
-    const relatedDocuments = this.coerceStringArray(record['related_documents']);
+    const relatedDocuments = this.coerceStringArray(
+      record['related_documents'],
+    );
     const dueDate = this.coerceString(record['due_date']);
     const blockedReason = this.coerceString(record['blocked_reason']);
     return {
@@ -209,9 +236,14 @@ export class AssistantService {
     const record = this.ensureRecord(value);
     const id = this.coerceString(record.id) ?? `doc-${index + 1}`;
     const title = this.coerceString(record.title) ?? 'Dokumen Pendukung';
-    const status = this.coerceEnum(record.status, DOCUMENT_STATUS_VALUES, 'collecting');
+    const status = this.coerceEnum(
+      record.status,
+      DOCUMENT_STATUS_VALUES,
+      'collecting',
+    );
     const permitType = this.coerceString(record['permit_type']);
-    const summary = this.coerceString(record.summary) ?? 'Status dokumen belum tersedia.';
+    const summary =
+      this.coerceString(record.summary) ?? 'Status dokumen belum tersedia.';
     const requiredActions = this.coerceStringArray(record['required_actions']);
     const linkedTasks = this.coerceStringArray(record['linked_tasks']);
     return {
@@ -227,10 +259,22 @@ export class AssistantService {
 
   private coerceSummary(value: unknown): WorkspaceSummaryDto {
     const record = this.ensureRecord(value);
-    const headline = this.coerceString(record.headline) ?? 'Checklist izin perlu ditindaklanjuti';
-    const overallStatus = this.coerceEnum(record['overall_status'], OVERALL_STATUS_VALUES, 'at_risk');
-    const riskLevel = this.coerceEnum(record['risk_level'], RISK_LEVEL_VALUES, 'medium');
-    const nextAction = this.coerceString(record['next_action']) ?? 'Buka toolbar AI untuk melanjutkan langkah berikutnya';
+    const headline =
+      this.coerceString(record.headline) ??
+      'Checklist izin perlu ditindaklanjuti';
+    const overallStatus = this.coerceEnum(
+      record['overall_status'],
+      OVERALL_STATUS_VALUES,
+      'at_risk',
+    );
+    const riskLevel = this.coerceEnum(
+      record['risk_level'],
+      RISK_LEVEL_VALUES,
+      'medium',
+    );
+    const nextAction =
+      this.coerceString(record['next_action']) ??
+      'Buka toolbar AI untuk melanjutkan langkah berikutnya';
     return {
       headline,
       overall_status: overallStatus,
@@ -240,7 +284,9 @@ export class AssistantService {
   }
 
   private ensureRecord(value: unknown): Record<string, unknown> {
-    return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+    return value && typeof value === 'object'
+      ? (value as Record<string, unknown>)
+      : {};
   }
 
   private coerceString(value: unknown): string | null {
@@ -256,11 +302,18 @@ export class AssistantService {
       return [];
     }
     return value
-      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      .filter(
+        (item): item is string =>
+          typeof item === 'string' && item.trim().length > 0,
+      )
       .map((item) => item.trim());
   }
 
-  private coerceEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+  private coerceEnum<T extends string>(
+    value: unknown,
+    allowed: readonly T[],
+    fallback: T,
+  ): T {
     if (typeof value === 'string' && allowed.includes(value as T)) {
       return value as T;
     }

@@ -14,11 +14,19 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly enabled: boolean;
 
-  constructor(private readonly mailer: MailerService, configService: ConfigService) {
-    this.enabled = (configService.get<string>('ENABLE_EMAIL_NOTIFICATIONS') ?? 'false').toLowerCase() === 'true';
+  constructor(
+    private readonly mailer: MailerService,
+    configService: ConfigService,
+  ) {
+    this.enabled =
+      (
+        configService.get<string>('ENABLE_EMAIL_NOTIFICATIONS') ?? 'false'
+      ).toLowerCase() === 'true';
   }
 
-  async sendNotificationEmail(payload: NotificationEmailPayload): Promise<{ status: 'SENT' | 'SKIPPED' | 'FAILED'; error?: string }> {
+  async sendNotificationEmail(
+    payload: NotificationEmailPayload,
+  ): Promise<{ status: 'SENT' | 'SKIPPED' | 'FAILED'; error?: string }> {
     if (!this.enabled) {
       return { status: 'SKIPPED' };
     }
@@ -37,7 +45,10 @@ export class MailService {
       return { status: 'SENT' };
     } catch (error) {
       const err = error as Error;
-      this.logger.error(`Failed to send notification email to ${payload.to}`, err);
+      this.logger.error(
+        `Failed to send notification email to ${payload.to}`,
+        err,
+      );
       return { status: 'FAILED', error: err.message };
     }
   }

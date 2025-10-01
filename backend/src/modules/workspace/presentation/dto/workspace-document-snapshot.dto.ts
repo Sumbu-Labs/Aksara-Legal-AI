@@ -5,16 +5,32 @@ export class WorkspaceDocumentSnapshotDto {
   @ApiProperty({ description: 'Identifier dokumen' })
   id: string;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Label dokumen' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Label dokumen',
+  })
   label: string | null;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Jenis izin terkait' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Jenis izin terkait',
+  })
   permitType: string | null;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Nama file terbaru' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Nama file terbaru',
+  })
   filename: string | null;
 
-  @ApiProperty({ required: false, nullable: true, description: 'Ukuran file terbaru dalam byte' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Ukuran file terbaru dalam byte',
+  })
   size: number | null;
 
   @ApiProperty({ description: 'Timestamp unggah dalam ISO string' })
@@ -23,7 +39,9 @@ export class WorkspaceDocumentSnapshotDto {
   @ApiProperty({ description: 'Timestamp pembaruan terakhir dalam ISO string' })
   updatedAt: string;
 
-  static fromDocument(document: DocumentResponseDto): WorkspaceDocumentSnapshotDto {
+  static fromDocument(
+    document: DocumentResponseDto,
+  ): WorkspaceDocumentSnapshotDto {
     const currentVersion = document.currentVersion;
     return {
       id: document.id,
@@ -44,6 +62,8 @@ export class WorkspaceDocumentSnapshotDto {
       return value.toISOString();
     }
     const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? new Date(0).toISOString() : parsed.toISOString();
+    return Number.isNaN(parsed.getTime())
+      ? new Date(0).toISOString()
+      : parsed.toISOString();
   }
 }
