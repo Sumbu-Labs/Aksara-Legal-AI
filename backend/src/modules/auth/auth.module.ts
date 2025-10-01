@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { AuthService } from './application/services/auth.service';
+import { DemoUserService } from './application/services/demo-user.service';
 import {
   USER_REPOSITORY,
   DEFAULT_ACCESS_TOKEN_EXPIRES_IN,
@@ -42,6 +43,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
   controllers: [AuthController],
   providers: [
     AuthService,
+    DemoUserService,
     JwtStrategy,
     JwtRefreshStrategy,
     JwtAuthGuard,

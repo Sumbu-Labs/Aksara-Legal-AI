@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationStatus, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Notification } from '../../domain/entities/notification.entity';
 import { NotificationEmailStatus } from '../../domain/enums/notification-email-status.enum';
@@ -22,10 +22,10 @@ export class PrismaNotificationRepository implements NotificationRepository {
         title: data.title,
         message: data.message,
         payload: this.toJsonValue(data.payload),
-        status: data.status,
+        status: this.toPrismaNotificationStatus(data.status),
         readAt: data.readAt,
         sentAt: data.sentAt,
-        emailStatus: data.emailStatus,
+        emailStatus: this.toPrismaNotificationEmailStatus(data.emailStatus),
         emailSentAt: data.emailSentAt,
         emailError: data.emailError,
         createdAt: data.createdAt,
@@ -39,9 +39,9 @@ export class PrismaNotificationRepository implements NotificationRepository {
     await this.prisma.notification.update({
       where: { id: data.id },
       data: {
-        status: data.status,
+        status: this.toPrismaNotificationStatus(data.status),
         readAt: data.readAt,
-        emailStatus: data.emailStatus,
+        emailStatus: this.toPrismaNotificationEmailStatus(data.emailStatus),
         emailSentAt: data.emailSentAt,
         emailError: data.emailError,
         updatedAt: data.updatedAt,
@@ -71,20 +71,25 @@ export class PrismaNotificationRepository implements NotificationRepository {
     const records = await this.prisma.notification.findMany({
       where: {
         userId,
-        status: options.status as NotificationStatus | undefined,
+        status: this.toPrismaNotificationStatus(options.status),
       },
       orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
-    return records.map(NotificationMapper.toDomain);
+    return records.map((record) => NotificationMapper.toDomain(record));
   }
 
   async markAllAsRead(userId: string): Promise<number> {
     const result = await this.prisma.notification.updateMany({
-      where: { userId, status: NotificationStatus.UNREAD },
+      where: {
+        userId,
+        status: this.toPrismaNotificationStatus(
+          DomainNotificationStatus.UNREAD,
+        ),
+      },
       data: {
-        status: NotificationStatus.READ,
+        status: this.toPrismaNotificationStatus(DomainNotificationStatus.READ),
         readAt: new Date(),
         updatedAt: new Date(),
       },
@@ -101,12 +106,30 @@ export class PrismaNotificationRepository implements NotificationRepository {
   private toJsonValue(
     payload: Record<string, unknown> | null | undefined,
   ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
-    if (payload === null) {
-      return Prisma.JsonNull;
-    }
     if (payload === undefined) {
       return undefined;
     }
+
+    if (payload === null) {
+      return Prisma.JsonNull;
+    }
+
     return payload as Prisma.InputJsonValue;
+  }
+
+  private toPrismaNotificationStatus(
+    status: DomainNotificationStatus | undefined,
+  ) {
+    if (status === undefined) {
+      return undefined;
+    }
+
+    return status;
+  }
+
+  private toPrismaNotificationEmailStatus(
+    status: NotificationEmailStatus,
+  ) {
+    return status;
   }
 }

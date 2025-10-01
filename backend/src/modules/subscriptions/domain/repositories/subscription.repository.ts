@@ -19,16 +19,28 @@ export type SubscriptionEntity = {
 export interface SubscriptionRepository {
   findActiveByUserId(userId: string): Promise<SubscriptionEntity | null>;
   findById(id: string): Promise<SubscriptionEntity | null>;
-  create(subscription: Pick<
-    SubscriptionEntity,
-    'userId' | 'planId' | 'status' | 'cancelAtPeriodEnd' | 'currentPeriodStart' | 'currentPeriodEnd' | 'midtransSubscriptionId'
-  >): Promise<SubscriptionEntity>;
+  create(
+    subscription: Pick<
+      SubscriptionEntity,
+      | 'userId'
+      | 'planId'
+      | 'status'
+      | 'cancelAtPeriodEnd'
+      | 'currentPeriodStart'
+      | 'currentPeriodEnd'
+      | 'midtransSubscriptionId'
+    >,
+  ): Promise<SubscriptionEntity>;
   update(
     id: string,
     data: Partial<
       Pick<
         SubscriptionEntity,
-        'status' | 'currentPeriodStart' | 'currentPeriodEnd' | 'cancelAtPeriodEnd' | 'midtransSubscriptionId'
+        | 'status'
+        | 'currentPeriodStart'
+        | 'currentPeriodEnd'
+        | 'cancelAtPeriodEnd'
+        | 'midtransSubscriptionId'
       >
     >,
   ): Promise<SubscriptionEntity>;

@@ -10,7 +10,9 @@ export class SubscriptionCheckoutResponseDto {
   @ApiProperty({ type: () => PaymentTransactionResponseDto })
   payment!: PaymentTransactionResponseDto;
 
-  static fromResult(result: SubscriptionCheckoutResult): SubscriptionCheckoutResponseDto {
+  static fromResult(
+    result: SubscriptionCheckoutResult,
+  ): SubscriptionCheckoutResponseDto {
     const dto = new SubscriptionCheckoutResponseDto();
     dto.subscription = SubscriptionResponseDto.fromEntity(result.subscription);
     dto.payment = PaymentTransactionResponseDto.fromEntity(result.payment);

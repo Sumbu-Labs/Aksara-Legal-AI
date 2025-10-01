@@ -47,9 +47,7 @@ export class PrismaDocumentVersionRepository
         size: BigInt(data.size),
         checksum: data.checksum,
         notes: data.notes,
-        metadata: (data.metadata ?? undefined) as
-          | Prisma.InputJsonValue
-          | undefined,
+        metadata: this.toJsonInput(data.metadata),
         uploadedBy: data.uploadedBy,
         createdAt: data.createdAt,
       },
@@ -58,5 +56,19 @@ export class PrismaDocumentVersionRepository
 
   async delete(version: DocumentVersion): Promise<void> {
     await this.prisma.documentVersion.delete({ where: { id: version.id } });
+  }
+
+  private toJsonInput(
+    value: Record<string, unknown> | null | undefined,
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return Prisma.JsonNull;
+    }
+
+    return value as Prisma.InputJsonValue;
   }
 }

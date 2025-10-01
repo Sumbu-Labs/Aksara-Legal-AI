@@ -1,5 +1,19 @@
-import { Body, Controller, Headers, HttpCode, HttpStatus, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiExcludeController, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiExcludeController,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SubscriptionsService } from '../../application/services/subscriptions.service';
 import { MidtransWebhookDto } from '../dto/midtrans-webhook.dto';
 
@@ -11,7 +25,9 @@ export class SubscriptionsWebhookController {
 
   @Post('midtrans')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Webhook Midtrans untuk memperbarui status langganan' })
+  @ApiOperation({
+    summary: 'Webhook Midtrans untuk memperbarui status langganan',
+  })
   @ApiResponse({ status: 200, description: 'Webhook diproses' })
   @UsePipes(
     new ValidationPipe({

@@ -20,6 +20,8 @@ class GeminiClient:
         self._api_key = settings.gemini_api_key.get_secret_value()
         self._qa_model = settings.gemini_model_qa
         self._embed_model = settings.gemini_model_embed
+        self._qa_model_path = self._normalize_model_name(self._qa_model)
+        self._embed_model_path = self._normalize_model_name(self._embed_model)
         self._timeout = settings.llm_timeout_seconds
         self._max_retries = settings.llm_max_retries
         self._base_url = "https://generativelanguage.googleapis.com/v1beta"
@@ -27,6 +29,15 @@ class GeminiClient:
             "x-goog-api-key": self._api_key,
             "Content-Type": "application/json",
         }
+
+    def _normalize_model_name(self, model_name: str) -> str:
+        """
+        Normalize model name into the expected API path form.
+        Example: "embed-model" -> "models/embed-model"
+        """
+        if model_name.startswith("models/"):
+            return model_name
+        return f"models/{model_name}"
 
     async def _post(self, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
         url = f"{self._base_url}/{endpoint}"
@@ -39,7 +50,16 @@ class GeminiClient:
             ):
                 with attempt:
                     response = await client.post(url, json=payload, headers=self._default_headers)
-                    response.raise_for_status()
+                    try:
+                        response.raise_for_status()
+                    except httpx.HTTPStatusError as exc:  # pragma: no cover - defensive log
+                        logger.error(
+                            "gemini_api_error",
+                            url=url,
+                            status=exc.response.status_code,
+                            response_body=exc.response.text,
+                        )
+                        raise
                     data = cast(dict[str, Any], response.json())
                     logger.debug("gemini_api_response", payload=payload, data=data)
                     return data
@@ -47,12 +67,12 @@ class GeminiClient:
 
     async def embed_text(self, text: str) -> list[float]:
         payload = {
-            "model": f"models/{self._embed_model}",
+            "model": self._embed_model_path,
             "content": {
                 "parts": [{"text": text}],
             },
         }
-        endpoint = f"models/{self._embed_model}:embedContent"
+        endpoint = f"{self._embed_model_path}:embedContent"
         data = await self._post(endpoint, payload)
         embedding: Any | None = data.get("embedding")
         if embedding is None and "embeddings" in data:
@@ -77,7 +97,7 @@ class GeminiClient:
                 {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_LOW_AND_ABOVE"}
             ],
         }
-        endpoint = f"models/{self._qa_model}:generateContent"
+        endpoint = f"{self._qa_model_path}:generateContent"
         return await self._post(endpoint, payload)
 
     async def call_resolver(self, prompt: str, context: dict[str, Any]) -> dict[str, Any]:
@@ -94,7 +114,7 @@ class GeminiClient:
                 }
             ],
         }
-        endpoint = f"models/{self._qa_model}:generateContent"
+        endpoint = f"{self._qa_model_path}:generateContent"
         return await self._post(endpoint, payload)
 
     async def rerank(self, query: str, candidates: list[str]) -> list[int]:
@@ -115,7 +135,7 @@ class GeminiClient:
                 }
             ],
         }
-        endpoint = f"models/{self._qa_model}:generateContent"
+        endpoint = f"{self._qa_model_path}:generateContent"
         data = await self._post(endpoint, payload)
         try:
             text = data["candidates"][0]["content"]["parts"][0]["text"]

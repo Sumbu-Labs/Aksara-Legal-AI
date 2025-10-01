@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, SubscriptionStatus as PrismaSubscriptionStatus } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import {
   SubscriptionEntity,
@@ -7,6 +6,33 @@ import {
   SubscriptionStatus,
 } from '../../domain/repositories/subscription.repository';
 import { SubscriptionPlanEntity } from '../../domain/repositories/subscription-plan.repository';
+
+type SubscriptionPlanRecord = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  billingPeriod: SubscriptionPlanEntity['billingPeriod'];
+  isActive: boolean;
+  metadata: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type SubscriptionRecord = {
+  id: string;
+  userId: string;
+  planId: string;
+  status: SubscriptionStatus;
+  currentPeriodStart: Date | null;
+  currentPeriodEnd: Date | null;
+  cancelAtPeriodEnd: boolean;
+  midtransSubscriptionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  plan?: SubscriptionPlanRecord | null;
+};
 
 @Injectable()
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
@@ -16,7 +42,9 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     const record = await this.prisma.subscription.findFirst({
       where: {
         userId,
-        status: { in: [PrismaSubscriptionStatus.ACTIVE, PrismaSubscriptionStatus.PENDING] },
+        status: {
+          in: ['ACTIVE', 'PENDING'] as SubscriptionStatus[],
+        },
       },
       orderBy: { createdAt: 'desc' },
       include: { plan: true },
@@ -37,14 +65,20 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   async create(
     subscription: Pick<
       SubscriptionEntity,
-      'userId' | 'planId' | 'status' | 'cancelAtPeriodEnd' | 'currentPeriodStart' | 'currentPeriodEnd' | 'midtransSubscriptionId'
+      | 'userId'
+      | 'planId'
+      | 'status'
+      | 'cancelAtPeriodEnd'
+      | 'currentPeriodStart'
+      | 'currentPeriodEnd'
+      | 'midtransSubscriptionId'
     >,
   ): Promise<SubscriptionEntity> {
     const record = await this.prisma.subscription.create({
       data: {
         userId: subscription.userId,
         planId: subscription.planId,
-        status: subscription.status as PrismaSubscriptionStatus,
+        status: subscription.status,
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
         currentPeriodStart: subscription.currentPeriodStart,
         currentPeriodEnd: subscription.currentPeriodEnd,
@@ -59,13 +93,20 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   async update(
     id: string,
     data: Partial<
-      Pick<SubscriptionEntity, 'status' | 'currentPeriodStart' | 'currentPeriodEnd' | 'cancelAtPeriodEnd' | 'midtransSubscriptionId'>
+      Pick<
+        SubscriptionEntity,
+        | 'status'
+        | 'currentPeriodStart'
+        | 'currentPeriodEnd'
+        | 'cancelAtPeriodEnd'
+        | 'midtransSubscriptionId'
+      >
     >,
   ): Promise<SubscriptionEntity> {
     const record = await this.prisma.subscription.update({
       where: { id },
       data: {
-        status: data.status ? (data.status as PrismaSubscriptionStatus) : undefined,
+        status: data.status ?? undefined,
         currentPeriodStart: data.currentPeriodStart ?? undefined,
         currentPeriodEnd: data.currentPeriodEnd ?? undefined,
         cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? undefined,
@@ -78,13 +119,13 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   }
 
   private toEntity(
-    record: Prisma.SubscriptionGetPayload<{ include: { plan: true } }>,
+    record: SubscriptionRecord,
   ): SubscriptionEntity & { plan?: SubscriptionPlanEntity } {
     return {
       id: record.id,
       userId: record.userId,
       planId: record.planId,
-      status: record.status as SubscriptionStatus,
+      status: record.status,
       currentPeriodStart: record.currentPeriodStart,
       currentPeriodEnd: record.currentPeriodEnd,
       cancelAtPeriodEnd: record.cancelAtPeriodEnd,
@@ -108,7 +149,9 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     };
   }
 
-  private asRecord(value: Prisma.JsonValue | null): Record<string, unknown> | null {
+  private asRecord(
+    value: unknown,
+  ): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }

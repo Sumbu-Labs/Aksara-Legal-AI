@@ -36,7 +36,9 @@ export class SubscriptionResponseDto {
     dto.currentPeriodEnd = entity.currentPeriodEnd;
     dto.cancelAtPeriodEnd = entity.cancelAtPeriodEnd;
     dto.midtransSubscriptionId = entity.midtransSubscriptionId;
-    dto.plan = entity.plan ? SubscriptionPlanResponseDto.fromEntity(entity.plan) : undefined;
+    dto.plan = entity.plan
+      ? SubscriptionPlanResponseDto.fromEntity(entity.plan)
+      : undefined;
     return dto;
   }
 }

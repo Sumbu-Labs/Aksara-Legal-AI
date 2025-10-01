@@ -1,4 +1,9 @@
-export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'CANCELED' | 'EXPIRED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'CANCELED'
+  | 'EXPIRED';
 
 export type PaymentTransactionEntity = {
   id: string;
@@ -19,10 +24,12 @@ export type PaymentTransactionEntity = {
 };
 
 export interface PaymentTransactionRepository {
-  create(transaction: Pick<
-    PaymentTransactionEntity,
-    'subscriptionId' | 'status' | 'amount' | 'currency' | 'midtransOrderId'
-  > & { metadata?: Record<string, unknown> | null }): Promise<PaymentTransactionEntity>;
+  create(
+    transaction: Pick<
+      PaymentTransactionEntity,
+      'subscriptionId' | 'status' | 'amount' | 'currency' | 'midtransOrderId'
+    > & { metadata?: Record<string, unknown> | null },
+  ): Promise<PaymentTransactionEntity>;
   update(
     id: string,
     data: Partial<
@@ -39,5 +46,7 @@ export interface PaymentTransactionRepository {
       >
     >,
   ): Promise<PaymentTransactionEntity>;
-  findByMidtransOrderId(orderId: string): Promise<PaymentTransactionEntity | null>;
+  findByMidtransOrderId(
+    orderId: string,
+  ): Promise<PaymentTransactionEntity | null>;
 }

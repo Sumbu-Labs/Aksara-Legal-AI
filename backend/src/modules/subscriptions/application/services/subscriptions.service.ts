@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common/decorators';
 import { PaymentStatus } from '../../domain/repositories/payment-transaction.repository';
-import { SUBSCRIPTION_REPOSITORY, PAYMENT_TRANSACTION_REPOSITORY } from '../../common/subscription.constants';
+import {
+  SUBSCRIPTION_REPOSITORY,
+  PAYMENT_TRANSACTION_REPOSITORY,
+} from '../../common/subscription.constants';
 import { SubscriptionPlansService } from './subscription-plans.service';
 import {
   SubscriptionEntity,
@@ -18,7 +21,10 @@ import {
   PaymentTransactionRepository,
 } from '../../domain/repositories/payment-transaction.repository';
 import { CreateSubscriptionCommand } from '../dto/create-subscription.command';
-import { MidtransService, MidtransNotificationPayload } from '../../infrastructure/midtrans/midtrans.service';
+import {
+  MidtransService,
+  MidtransNotificationPayload,
+} from '../../infrastructure/midtrans/midtrans.service';
 
 export type SubscriptionCheckoutResult = {
   subscription: SubscriptionEntity;
@@ -36,19 +42,32 @@ export class SubscriptionsService {
     private readonly midtransService: MidtransService,
   ) {}
 
-  async getActiveSubscription(userId: string): Promise<SubscriptionEntity | null> {
+  async getActiveSubscription(
+    userId: string,
+  ): Promise<SubscriptionEntity | null> {
     return this.subscriptionRepository.findActiveByUserId(userId);
   }
 
-  async createSubscriptionCheckout(command: CreateSubscriptionCommand): Promise<SubscriptionCheckoutResult> {
-    const plan = await this.subscriptionPlansService.getPlanById(command.planId);
+  async createSubscriptionCheckout(
+    command: CreateSubscriptionCommand,
+  ): Promise<SubscriptionCheckoutResult> {
+    const plan = await this.subscriptionPlansService.getPlanById(
+      command.planId,
+    );
     if (!plan || !plan.isActive) {
       throw new NotFoundException('Paket langganan tidak ditemukan');
     }
 
-    const existing = await this.subscriptionRepository.findActiveByUserId(command.userId);
-    if (existing && (existing.status === 'ACTIVE' || existing.status === 'PENDING')) {
-      throw new ConflictException('Pengguna sudah memiliki langganan aktif atau menunggu pembayaran');
+    const existing = await this.subscriptionRepository.findActiveByUserId(
+      command.userId,
+    );
+    if (
+      existing &&
+      (existing.status === 'ACTIVE' || existing.status === 'PENDING')
+    ) {
+      throw new ConflictException(
+        'Pengguna sudah memiliki langganan aktif atau menunggu pembayaran',
+      );
     }
 
     const subscription = await this.subscriptionRepository.create({
@@ -93,11 +112,14 @@ export class SubscriptionsService {
       ],
     });
 
-    const updatedPayment = await this.paymentTransactionRepository.update(payment.id, {
-      snapToken: snapResponse.token,
-      snapRedirectUrl: snapResponse.redirect_url,
-      rawResponse: snapResponse as unknown as Record<string, unknown>,
-    });
+    const updatedPayment = await this.paymentTransactionRepository.update(
+      payment.id,
+      {
+        snapToken: snapResponse.token,
+        snapRedirectUrl: snapResponse.redirect_url,
+        rawResponse: snapResponse as unknown as Record<string, unknown>,
+      },
+    );
 
     return {
       subscription,
@@ -108,7 +130,10 @@ export class SubscriptionsService {
   async processMidtransWebhook(
     notification: MidtransNotificationPayload,
     callbackToken?: string,
-  ): Promise<{ subscription: SubscriptionEntity; payment: PaymentTransactionEntity }> {
+  ): Promise<{
+    subscription: SubscriptionEntity;
+    payment: PaymentTransactionEntity;
+  }> {
     if (!this.midtransService.isCallbackTokenValid(callbackToken)) {
       throw new UnauthorizedException('Invalid callback token');
     }
@@ -117,46 +142,67 @@ export class SubscriptionsService {
       throw new UnauthorizedException('Signature tidak valid');
     }
 
-    const payment = await this.paymentTransactionRepository.findByMidtransOrderId(notification.order_id);
+    const payment =
+      await this.paymentTransactionRepository.findByMidtransOrderId(
+        notification.order_id,
+      );
     if (!payment) {
       throw new NotFoundException('Transaksi tidak ditemukan');
     }
 
-    const subscription = await this.subscriptionRepository.findById(payment.subscriptionId);
+    const subscription = await this.subscriptionRepository.findById(
+      payment.subscriptionId,
+    );
     if (!subscription) {
-      throw new InternalServerErrorException('Langganan tidak ditemukan untuk transaksi ini');
+      throw new InternalServerErrorException(
+        'Langganan tidak ditemukan untuk transaksi ini',
+      );
     }
 
     const nextPaymentStatus = this.mapPaymentStatus(notification);
-    const updatedPayment = await this.paymentTransactionRepository.update(payment.id, {
-      status: nextPaymentStatus,
-      paymentType: notification.payment_type ?? payment.paymentType,
-      midtransTransactionId: notification.transaction_id,
-      rawResponse: notification as unknown as Record<string, unknown>,
-      paidAt: this.extractPaidAt(notification, payment.paidAt),
-    });
+    const updatedPayment = await this.paymentTransactionRepository.update(
+      payment.id,
+      {
+        status: nextPaymentStatus,
+        paymentType: notification.payment_type ?? payment.paymentType,
+        midtransTransactionId: notification.transaction_id,
+        rawResponse: notification as unknown as Record<string, unknown>,
+        paidAt: this.extractPaidAt(notification, payment.paidAt),
+      },
+    );
 
     const nextSubscriptionStatus = this.mapSubscriptionStatus(notification);
-    const plan = subscription.plan ?? (await this.subscriptionPlansService.getPlanById(subscription.planId));
+    const plan =
+      subscription.plan ??
+      (await this.subscriptionPlansService.getPlanById(subscription.planId));
 
     if (!plan) {
       throw new InternalServerErrorException('Paket langganan tidak ditemukan');
     }
 
-    const updatedSubscription = await this.subscriptionRepository.update(subscription.id, {
-      status: nextSubscriptionStatus,
-      ...(nextSubscriptionStatus === 'ACTIVE'
-        ? {
-            currentPeriodStart: updatedPayment.paidAt ?? new Date(),
-            currentPeriodEnd: this.calculatePeriodEnd(updatedPayment.paidAt ?? new Date(), plan.billingPeriod),
-          }
-        : {}),
-    });
+    const updatedSubscription = await this.subscriptionRepository.update(
+      subscription.id,
+      {
+        status: nextSubscriptionStatus,
+        ...(nextSubscriptionStatus === 'ACTIVE'
+          ? {
+              currentPeriodStart: updatedPayment.paidAt ?? new Date(),
+              currentPeriodEnd: this.calculatePeriodEnd(
+                updatedPayment.paidAt ?? new Date(),
+                plan.billingPeriod,
+              ),
+            }
+          : {}),
+      },
+    );
 
     return { subscription: updatedSubscription, payment: updatedPayment };
   }
 
-  private calculatePeriodEnd(start: Date, billingPeriod: 'MONTHLY' | 'YEARLY'): Date {
+  private calculatePeriodEnd(
+    start: Date,
+    billingPeriod: 'MONTHLY' | 'YEARLY',
+  ): Date {
     const end = new Date(start);
     if (billingPeriod === 'MONTHLY') {
       end.setMonth(end.getMonth() + 1);
@@ -166,7 +212,10 @@ export class SubscriptionsService {
     return end;
   }
 
-  private extractPaidAt(notification: MidtransNotificationPayload, fallback: Date | null): Date | null {
+  private extractPaidAt(
+    notification: MidtransNotificationPayload,
+    fallback: Date | null,
+  ): Date | null {
     if (notification.settlement_time) {
       const settled = new Date(notification.settlement_time);
       if (!Number.isNaN(settled.getTime())) {
@@ -174,20 +223,28 @@ export class SubscriptionsService {
       }
     }
 
-    if (notification.transaction_status === 'capture' || notification.transaction_status === 'settlement') {
+    if (
+      notification.transaction_status === 'capture' ||
+      notification.transaction_status === 'settlement'
+    ) {
       return fallback ?? new Date();
     }
 
     return fallback;
   }
 
-  private mapPaymentStatus(notification: MidtransNotificationPayload): PaymentStatus {
+  private mapPaymentStatus(
+    notification: MidtransNotificationPayload,
+  ): PaymentStatus {
     switch (notification.transaction_status) {
       case 'capture':
         if (notification.fraud_status === 'challenge') {
           return 'PENDING';
         }
-        if (notification.fraud_status && notification.fraud_status !== 'accept') {
+        if (
+          notification.fraud_status &&
+          notification.fraud_status !== 'accept'
+        ) {
           return 'FAILED';
         }
         return 'SUCCESS';
@@ -206,14 +263,19 @@ export class SubscriptionsService {
     }
   }
 
-  private mapSubscriptionStatus(notification: MidtransNotificationPayload): SubscriptionEntity['status'] {
+  private mapSubscriptionStatus(
+    notification: MidtransNotificationPayload,
+  ): SubscriptionEntity['status'] {
     switch (notification.transaction_status) {
       case 'capture':
       case 'settlement':
         if (notification.fraud_status === 'challenge') {
           return 'PENDING';
         }
-        if (notification.fraud_status && notification.fraud_status !== 'accept') {
+        if (
+          notification.fraud_status &&
+          notification.fraud_status !== 'accept'
+        ) {
           return 'CANCELED';
         }
         return 'ACTIVE';

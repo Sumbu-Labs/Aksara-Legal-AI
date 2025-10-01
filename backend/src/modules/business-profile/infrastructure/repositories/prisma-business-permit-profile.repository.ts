@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  BusinessPermitProfile as PrismaBusinessPermitProfile,
-  Prisma,
-  $Enums,
-} from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import {
   BusinessPermitProfile,
@@ -12,7 +8,11 @@ import {
 import { PermitType } from '../../domain/enums/permit-type.enum';
 import { BusinessPermitProfileRepository } from '../../domain/repositories/business-permit-profile.repository';
 
-type PrismaPermitWithRelations = PrismaBusinessPermitProfile;
+type PrismaBusinessPermitProfileRecord = NonNullable<
+  Awaited<
+    ReturnType<PrismaService['businessPermitProfile']['findUnique']>
+  >
+>;
 
 @Injectable()
 export class PrismaBusinessPermitProfileRepository
@@ -54,7 +54,7 @@ export class PrismaBusinessPermitProfileRepository
       create: {
         id: data.id,
         businessProfileId: data.businessProfileId,
-        permitType: data.permitType as $Enums.PermitType,
+        permitType: data.permitType,
         formData: this.toJsonInput(data.formData),
         fieldChecklist: this.toJsonInput(data.fieldChecklist),
         documents: this.toJsonInput(data.documents),
@@ -70,14 +70,16 @@ export class PrismaBusinessPermitProfileRepository
     });
   }
 
-  private toDomain(permit: PrismaPermitWithRelations): BusinessPermitProfile {
+  private toDomain(
+    permit: PrismaBusinessPermitProfileRecord,
+  ): BusinessPermitProfile {
     return BusinessPermitProfile.create({
       id: permit.id,
       businessProfileId: permit.businessProfileId,
-      permitType: permit.permitType as PermitType,
-      formData: permit.formData as JsonValue | null,
-      fieldChecklist: permit.fieldChecklist as JsonValue | null,
-      documents: permit.documents as JsonValue | null,
+      permitType: this.toDomainPermitType(permit.permitType),
+      formData: this.fromJsonValue(permit.formData),
+      fieldChecklist: this.fromJsonValue(permit.fieldChecklist),
+      documents: this.fromJsonValue(permit.documents),
       isChecklistComplete: permit.isChecklistComplete,
       createdAt: permit.createdAt,
       updatedAt: permit.updatedAt,
@@ -85,14 +87,36 @@ export class PrismaBusinessPermitProfileRepository
   }
 
   private toJsonInput(
-    value: unknown,
-  ): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
+    value: JsonValue | null | undefined,
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
     if (value === undefined) {
       return undefined;
     }
+
     if (value === null) {
       return Prisma.JsonNull;
     }
-    return value as Prisma.InputJsonValue;
+
+    return value as unknown as Prisma.InputJsonValue;
+  }
+
+  private fromJsonValue(value: unknown): JsonValue | null {
+    if (value === null) {
+      return null;
+    }
+
+    return value as JsonValue;
+  }
+
+  private toDomainPermitType(permitType: string): PermitType {
+    if (!this.isPermitType(permitType)) {
+      throw new Error(`Unexpected permit type received from database: ${permitType}`);
+    }
+
+    return permitType as PermitType;
+  }
+
+  private isPermitType(value: string): value is PermitType {
+    return Object.values(PermitType).includes(value as PermitType);
   }
 }

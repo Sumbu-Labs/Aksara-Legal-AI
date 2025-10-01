@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, PermitType } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Document } from '../../domain/entities/document.entity';
@@ -53,7 +53,8 @@ export class PrismaDocumentRepository implements DocumentRepository {
   async save(document: Document): Promise<void> {
     const data = document.toJSON();
     const versions = data.versions;
-    const currentVersionId = data.currentVersion?.id ?? versions.at(-1)?.id ?? null;
+    const currentVersionId =
+      data.currentVersion?.id ?? versions.at(-1)?.id ?? null;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.document.create({
@@ -61,7 +62,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
           id: data.id,
           userId: data.userId,
           businessProfileId: data.businessProfileId,
-          permitType: data.permitType as PermitType | null,
+          permitType: data.permitType ?? null,
           label: data.label,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -81,7 +82,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
             size: BigInt(version.size),
             checksum: version.checksum,
             notes: version.notes,
-            metadata: (version.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
+            metadata: this.toJsonInput(version.metadata),
             uploadedBy: version.uploadedBy,
             createdAt: version.createdAt,
           })),
@@ -103,7 +104,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
       where: { id: data.id },
       data: {
         businessProfileId: data.businessProfileId,
-        permitType: data.permitType as PermitType | null,
+        permitType: data.permitType ?? null,
         label: data.label,
         currentVersionId: data.currentVersion?.id ?? null,
         updatedAt: data.updatedAt,
@@ -121,18 +122,32 @@ export class PrismaDocumentRepository implements DocumentRepository {
     });
   }
 
-  private withRelations(): Prisma.DocumentInclude {
+  private withRelations() {
     return {
       currentVersion: true,
       versions: {
         orderBy: { version: 'asc' },
       },
-    };
+    } as const;
   }
 
   private isMissingTableError(error: unknown): boolean {
     return (
       error instanceof PrismaClientKnownRequestError && error.code === 'P2021'
     );
+  }
+
+  private toJsonInput(
+    value: Record<string, unknown> | null | undefined,
+  ): Prisma.InputJsonValue | Prisma.NullTypes.JsonNull | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return Prisma.JsonNull;
+    }
+
+    return value as Prisma.InputJsonValue;
   }
 }

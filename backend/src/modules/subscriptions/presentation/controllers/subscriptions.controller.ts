@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../auth/presentation/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../../auth/domain/interfaces/authenticated-user.interface';
@@ -39,9 +44,15 @@ export class SubscriptionsController {
       ],
     },
   })
-  async getMySubscription(@CurrentUser() user: AuthenticatedUser): Promise<SubscriptionResponseDto | null> {
-    const subscription = await this.subscriptionsService.getActiveSubscription(user.id);
-    return subscription ? SubscriptionResponseDto.fromEntity(subscription) : null;
+  async getMySubscription(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<SubscriptionResponseDto | null> {
+    const subscription = await this.subscriptionsService.getActiveSubscription(
+      user.id,
+    );
+    return subscription
+      ? SubscriptionResponseDto.fromEntity(subscription)
+      : null;
   }
 
   @Post('checkout')

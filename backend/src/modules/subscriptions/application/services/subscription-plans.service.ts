@@ -1,7 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  SUBSCRIPTION_PLAN_REPOSITORY,
-} from '../../common/subscription.constants';
+import { SUBSCRIPTION_PLAN_REPOSITORY } from '../../common/subscription.constants';
 import {
   SubscriptionPlanEntity,
   SubscriptionPlanRepository,

@@ -23,7 +23,9 @@ export class SubscriptionPlanResponseDto {
   @ApiProperty({ required: false, nullable: true, type: Object })
   metadata!: Record<string, unknown> | null;
 
-  static fromEntity(entity: SubscriptionPlanEntity): SubscriptionPlanResponseDto {
+  static fromEntity(
+    entity: SubscriptionPlanEntity,
+  ): SubscriptionPlanResponseDto {
     const dto = new SubscriptionPlanResponseDto();
     dto.id = entity.id;
     dto.name = entity.name;
