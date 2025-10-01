@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import {
   PaymentStatus,
@@ -17,8 +18,8 @@ type PaymentTransactionRecord = {
   midtransTransactionId: string | null;
   snapToken: string | null;
   snapRedirectUrl: string | null;
-  rawResponse: unknown;
-  metadata: unknown;
+  rawResponse: Prisma.JsonValue | null;
+  metadata: Prisma.JsonValue | null;
   paidAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -43,7 +44,7 @@ export class PrismaPaymentTransactionRepository
         amount: transaction.amount,
         currency: transaction.currency,
         midtransOrderId: transaction.midtransOrderId,
-        metadata: transaction.metadata ?? undefined,
+        metadata: this.toJsonInput(transaction.metadata),
       },
     });
 
@@ -74,8 +75,8 @@ export class PrismaPaymentTransactionRepository
         midtransTransactionId: data.midtransTransactionId ?? undefined,
         snapToken: data.snapToken ?? undefined,
         snapRedirectUrl: data.snapRedirectUrl ?? undefined,
-        rawResponse: data.rawResponse ?? undefined,
-        metadata: data.metadata ?? undefined,
+        rawResponse: this.toJsonInput(data.rawResponse),
+        metadata: this.toJsonInput(data.metadata),
         paidAt: data.paidAt ?? undefined,
       },
     });
@@ -90,7 +91,7 @@ export class PrismaPaymentTransactionRepository
       where: { midtransOrderId: orderId },
     });
 
-  return record ? this.toEntity(record as PaymentTransactionRecord) : null;
+    return record ? this.toEntity(record as PaymentTransactionRecord) : null;
   }
 
   private toEntity(
@@ -115,7 +116,22 @@ export class PrismaPaymentTransactionRepository
     };
   }
 
-  private asRecord(value: unknown): Record<string, unknown> | null {
+  private toJsonInput(
+    value: Record<string, unknown> | null | undefined,
+  ): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    if (value === null) {
+      return Prisma.JsonNull;
+    }
+
+    return value as Prisma.InputJsonValue;
+  }
+
+  private asRecord(
+    value: Prisma.JsonValue | null,
+  ): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
