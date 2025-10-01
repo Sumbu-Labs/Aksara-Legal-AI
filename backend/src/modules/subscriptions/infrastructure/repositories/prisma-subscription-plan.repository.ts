@@ -6,6 +6,19 @@ import {
   SubscriptionPlanRepository,
 } from '../../domain/repositories/subscription-plan.repository';
 
+type SubscriptionPlanRecord = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  currency: string;
+  billingPeriod: string;
+  isActive: boolean;
+  metadata: Prisma.JsonValue | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 @Injectable()
 export class PrismaSubscriptionPlanRepository
   implements SubscriptionPlanRepository
@@ -18,17 +31,19 @@ export class PrismaSubscriptionPlanRepository
       orderBy: { price: 'asc' },
     });
 
-    return records.map((record) => this.toEntity(record));
+    return records.map((record) =>
+      this.toEntity(record as SubscriptionPlanRecord),
+    );
   }
 
   async findById(id: string): Promise<SubscriptionPlanEntity | null> {
     const record = await this.prisma.subscriptionPlan.findUnique({
       where: { id },
     });
-    return record ? this.toEntity(record) : null;
+    return record ? this.toEntity(record as SubscriptionPlanRecord) : null;
   }
 
-  private toEntity(record: Prisma.SubscriptionPlan): SubscriptionPlanEntity {
+  private toEntity(record: SubscriptionPlanRecord): SubscriptionPlanEntity {
     return {
       id: record.id,
       name: record.name,
