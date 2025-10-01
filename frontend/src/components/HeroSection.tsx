@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -8,14 +9,14 @@ import { fadeInUp, staggerContainer, viewportConfig } from '@/lib/motion';
 export function HeroSection() {
   return (
     <motion.section
-      className="min-h-screen bg-background px-4 py-16"
+      className="min-h-screen bg-background py-16 pl-6 pr-0 md:py-24 md:pl-16"
       initial="hidden"
       whileInView="visible"
       viewport={viewportConfig}
       variants={staggerContainer}
     >
-      <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-2 md:items-center">
-        <motion.div className="flex flex-col gap-6" variants={fadeInUp}>
+      <div className="grid w-full gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
+        <motion.div className="flex max-w-xl flex-col gap-6" variants={fadeInUp}>
           <h1 className="font-heading text-4xl font-bold leading-tight text-neutral-dark md:text-5xl lg:text-6xl">
             Singkirkan kerumitan perizinan dengan co-pilot legal berbasis AI
           </h1>
@@ -34,10 +35,19 @@ export function HeroSection() {
         </motion.div>
 
         <motion.div
-          className="aspect-square border-2 border-neutral-light bg-white shadow-card"
+          className="relative h-[320px] overflow-hidden border-2 border-neutral-light bg-white shadow-card md:h-full md:min-h-[560px]"
           aria-hidden="true"
           variants={fadeInUp}
-        />
+        >
+          <Image
+            src="/images/product.jpg"
+            alt="Antarmuka Aksara Legal AI"
+            fill
+            priority
+            className="object-cover object-left"
+            sizes="(min-width: 768px) 55vw, 100vw"
+          />
+        </motion.div>
       </div>
     </motion.section>
   );
