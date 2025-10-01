@@ -4,7 +4,6 @@ import { PrismaService } from '../../../../database/prisma.service';
 import { Document } from '../../domain/entities/document.entity';
 import { DocumentRepository } from '../../domain/repositories/document.repository';
 import { DocumentMapper } from '../mappers/document.mapper';
-import { PermitType } from '../../../business-profile/domain/enums/permit-type.enum';
 
 @Injectable()
 export class PrismaDocumentRepository implements DocumentRepository {
@@ -82,7 +81,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
             size: BigInt(version.size),
             checksum: version.checksum,
             notes: version.notes,
-            metadata: version.metadata ?? undefined,
+            metadata: this.toJsonInput(version.metadata),
             uploadedBy: version.uploadedBy,
             createdAt: version.createdAt,
           })),
@@ -135,5 +134,19 @@ export class PrismaDocumentRepository implements DocumentRepository {
     return (
       error instanceof PrismaClientKnownRequestError && error.code === 'P2021'
     );
+  }
+
+  private toJsonInput(
+    value: Record<string, unknown> | null | undefined,
+  ) {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    if (value === null) {
+      return null;
+    }
+
+    return value;
   }
 }
