@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 
 import { ChecklistBoard } from '@/components/dashboard/ChecklistBoard';
@@ -47,7 +47,7 @@ const INITIAL_PERMITS: PermitCardData[] = [
   },
 ];
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage(): ReactElement {
   const router = useRouter();
   const toast = useToast();
 

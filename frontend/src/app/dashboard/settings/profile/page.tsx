@@ -1,8 +1,7 @@
 'use client';
 
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
 
 import { useToast } from '@/components/ToastProvider';
 import { SettingsBackLink } from '@/components/dashboard/SettingsBackLink';
@@ -80,7 +79,7 @@ function validate(
   return errors;
 }
 
-export default function AccountProfileSettingsPage(): JSX.Element {
+export default function AccountProfileSettingsPage(): ReactElement {
   const toast = useToast();
   const [initialProfile, setInitialProfile] = useState<InitialProfile>(DEFAULT_INITIAL_PROFILE);
   const [values, setValues] = useState<ProfileFormValues>(DEFAULT_VALUES);

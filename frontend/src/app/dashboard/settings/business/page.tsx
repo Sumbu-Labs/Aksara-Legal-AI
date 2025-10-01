@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 import { BusinessProfileForm } from '@/components/onboarding/BusinessProfileForm';
 import type { BusinessProfileFormValues } from '@/components/onboarding/BusinessProfileForm';
@@ -28,7 +28,7 @@ function formatUpdatedTimestamp(value: string | null): string | null {
   }).format(date);
 }
 
-export default function BusinessProfileSettingsPage(): JSX.Element {
+export default function BusinessProfileSettingsPage(): ReactElement {
   const toast = useToast();
   const [initialValues, setInitialValues] = useState<BusinessProfileFormValues | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

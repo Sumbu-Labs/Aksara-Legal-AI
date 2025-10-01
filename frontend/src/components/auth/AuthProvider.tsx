@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import {
   clearStoredTokens,
@@ -45,7 +45,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
+export function AuthProvider({ children }: { children: ReactNode }): ReactElement {
   const [status, setStatus] = useState<AuthStatus>('checking');
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [tokens, setTokens] = useState<Tokens | null>(null);

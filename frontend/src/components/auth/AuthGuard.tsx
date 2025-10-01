@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import { useAuth } from './AuthProvider';
 
@@ -11,7 +11,7 @@ type AuthGuardProps = {
   fallback?: ReactNode;
 };
 
-export function AuthGuard({ children, fallback }: AuthGuardProps): JSX.Element | null {
+export function AuthGuard({ children, fallback }: AuthGuardProps): ReactElement | null {
   const { status, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();

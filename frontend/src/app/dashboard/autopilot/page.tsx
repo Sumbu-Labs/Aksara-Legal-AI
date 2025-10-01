@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 import { listPermits } from '@/data/permits';
 
@@ -24,7 +24,7 @@ const AUTOPILOT_STEPS = [
   },
 ];
 
-export default function DashboardAutopilotPage(): JSX.Element {
+export default function DashboardAutopilotPage(): ReactElement {
   const permits = listPermits();
 
   return (

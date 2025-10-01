@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback } from 'react';
-import type { ReactNode } from 'react';
-import type { JSX } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -21,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/settings', label: 'Pengaturan' },
 ];
 
-export function DashboardShell({ children }: { children: ReactNode }): JSX.Element {
+export function DashboardShell({ children }: { children: ReactNode }): ReactElement {
   const pathname = usePathname();
   const { user, logout, isChecking } = useAuth();
 

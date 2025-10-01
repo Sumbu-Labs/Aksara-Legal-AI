@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 import { SettingsBackLink } from '@/components/dashboard/SettingsBackLink';
 
@@ -38,7 +38,7 @@ const BILLING_HISTORY = [
   },
 ];
 
-export default function SubscriptionSettingsPage(): JSX.Element {
+export default function SubscriptionSettingsPage(): ReactElement {
   return (
     <div className="flex flex-col gap-10">
       <SettingsBackLink />

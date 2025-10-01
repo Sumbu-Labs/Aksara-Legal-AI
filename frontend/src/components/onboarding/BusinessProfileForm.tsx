@@ -1,8 +1,7 @@
 'use client';
 
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactElement } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
 
 type BusinessSize = 'micro' | 'small' | 'medium' | 'enterprise';
 
@@ -82,7 +81,7 @@ export function BusinessProfileForm({
   initialValues,
   onSubmit,
   isSubmitting = false,
-}: BusinessProfileFormProps): JSX.Element {
+}: BusinessProfileFormProps): ReactElement {
   const mergedDefaults = useMemo(
     () => ({ ...DEFAULT_VALUES, ...initialValues }),
     [initialValues],

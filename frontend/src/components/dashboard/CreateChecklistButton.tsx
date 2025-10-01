@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 
 type CreateChecklistButtonProps = {
@@ -13,7 +13,7 @@ export function CreateChecklistButton({
   onClick,
   label = 'Buat Checklist Kepatuhan',
   subtitle = 'Aksara akan memetakan izin prioritas dan dokumen yang perlu disiapkan.',
-}: CreateChecklistButtonProps): JSX.Element {
+}: CreateChecklistButtonProps): ReactElement {
   return (
     <div className="space-y-4 border-2 border-black bg-white px-6 py-6">
       <div>
@@ -31,4 +31,3 @@ export function CreateChecklistButton({
     </div>
   );
 }
-

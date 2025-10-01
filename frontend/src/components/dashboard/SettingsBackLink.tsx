@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 type SettingsBackLinkProps = {
   label?: string;
 };
 
-export function SettingsBackLink({ label = 'Kembali ke Pengaturan' }: SettingsBackLinkProps): JSX.Element {
+export function SettingsBackLink({ label = 'Kembali ke Pengaturan' }: SettingsBackLinkProps): ReactElement {
   return (
     <Link
       href="/dashboard/settings"
@@ -18,4 +18,3 @@ export function SettingsBackLink({ label = 'Kembali ke Pengaturan' }: SettingsBa
     </Link>
   );
 }
-

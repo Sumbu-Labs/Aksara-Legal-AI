@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent, DragEvent, FormEvent } from 'react';
+import type { ChangeEvent, DragEvent, FormEvent, ReactElement } from 'react';
 
 import type { DocumentDto, PermitType, UploadDocumentPayload } from '@/services/documents';
 import {
@@ -316,7 +316,7 @@ function parseMetadataInput(rawValue: string): Record<string, unknown> | null {
   return parsed as Record<string, unknown>;
 }
 
-export default function DocumentUploadPage(): JSX.Element {
+export default function DocumentUploadPage(): ReactElement {
   const aiServiceBaseUrl = useMemo(
     () => getEnv('NEXT_PUBLIC_AI_SERVICE_URL', 'http://localhost:7700'),
     [],
