@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, PermitType } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../../../../database/prisma.service';
 import { Document } from '../../domain/entities/document.entity';
 import { DocumentRepository } from '../../domain/repositories/document.repository';
 import { DocumentMapper } from '../mappers/document.mapper';
+import { PermitType } from '../../../business-profile/domain/enums/permit-type.enum';
 
 @Injectable()
 export class PrismaDocumentRepository implements DocumentRepository {
@@ -62,7 +62,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
           id: data.id,
           userId: data.userId,
           businessProfileId: data.businessProfileId,
-          permitType: data.permitType as PermitType | null,
+          permitType: data.permitType ?? null,
           label: data.label,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -82,9 +82,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
             size: BigInt(version.size),
             checksum: version.checksum,
             notes: version.notes,
-            metadata: (version.metadata ?? undefined) as
-              | Prisma.InputJsonValue
-              | undefined,
+            metadata: version.metadata ?? undefined,
             uploadedBy: version.uploadedBy,
             createdAt: version.createdAt,
           })),
@@ -106,7 +104,7 @@ export class PrismaDocumentRepository implements DocumentRepository {
       where: { id: data.id },
       data: {
         businessProfileId: data.businessProfileId,
-        permitType: data.permitType as PermitType | null,
+        permitType: data.permitType ?? null,
         label: data.label,
         currentVersionId: data.currentVersion?.id ?? null,
         updatedAt: data.updatedAt,
@@ -124,13 +122,13 @@ export class PrismaDocumentRepository implements DocumentRepository {
     });
   }
 
-  private withRelations(): Prisma.DocumentInclude {
+  private withRelations() {
     return {
       currentVersion: true,
       versions: {
         orderBy: { version: 'asc' },
       },
-    };
+    } as const;
   }
 
   private isMissingTableError(error: unknown): boolean {

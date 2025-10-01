@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
 import { DocumentVersion } from '../../domain/entities/document-version.entity';
 import { DocumentVersionRepository } from '../../domain/repositories/document-version.repository';
@@ -47,9 +46,7 @@ export class PrismaDocumentVersionRepository
         size: BigInt(data.size),
         checksum: data.checksum,
         notes: data.notes,
-        metadata: (data.metadata ?? undefined) as
-          | Prisma.InputJsonValue
-          | undefined,
+        metadata: data.metadata ?? undefined,
         uploadedBy: data.uploadedBy,
         createdAt: data.createdAt,
       },

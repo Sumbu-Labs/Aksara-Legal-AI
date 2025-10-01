@@ -1,7 +1,6 @@
 import { Injectable, Logger, BadGatewayException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { AxiosError } from 'axios';
 
 export type AskCommand = {
   question: string;
@@ -33,6 +32,25 @@ export type WorkspaceDocumentStatus =
   | 'submitted';
 export type WorkspaceOverallStatus = 'on_track' | 'at_risk' | 'blocked';
 export type WorkspaceRiskLevel = 'low' | 'medium' | 'high';
+
+type HttpErrorLike = {
+  message?: string;
+  response?: { status?: number; data?: unknown };
+  stack?: string;
+};
+
+const isHttpErrorLike = (error: unknown): error is HttpErrorLike => {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const candidate = error as Record<string, unknown>;
+  const hasMessage = typeof candidate.message === 'string';
+  const hasResponse =
+    candidate.response !== undefined &&
+    typeof candidate.response === 'object' &&
+    candidate.response !== null;
+  return hasMessage || hasResponse;
+};
 
 export interface WorkspaceTaskDto {
   id: string;
@@ -321,7 +339,7 @@ export class AssistantService {
   }
 
   private handleError(error: unknown, endpoint: string): never {
-    if (error instanceof AxiosError) {
+    if (isHttpErrorLike(error)) {
       const statusCode = error.response?.status;
       const detail: unknown = error.response?.data ?? error.message;
       this.logger.error(

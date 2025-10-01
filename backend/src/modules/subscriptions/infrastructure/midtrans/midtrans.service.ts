@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AxiosError } from 'axios';
 import { createHash } from 'node:crypto';
 import { firstValueFrom } from 'rxjs';
 
@@ -51,6 +50,19 @@ export class MidtransService {
   private readonly serverKey: string;
   private readonly webhookSecret?: string;
 
+  private static isHttpErrorLike(
+    error: unknown,
+  ): error is { message?: string; response?: { data?: unknown } } {
+    if (typeof error !== 'object' || error === null) {
+      return false;
+    }
+    const candidate = error as Record<string, unknown>;
+    return (
+      typeof candidate.message === 'string' ||
+      (typeof candidate.response === 'object' && candidate.response !== null)
+    );
+  }
+
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -86,9 +98,9 @@ export class MidtransService {
 
       return response.data as MidtransSnapTransactionResponse;
     } catch (error) {
-      if (error instanceof AxiosError) {
+      if (MidtransService.isHttpErrorLike(error)) {
         this.logger.error(
-          `Failed to create Midtrans transaction: ${error.message}`,
+          `Failed to create Midtrans transaction: ${error.message ?? 'Unknown error'}`,
           error.response?.data
             ? JSON.stringify(error.response.data)
             : undefined,
