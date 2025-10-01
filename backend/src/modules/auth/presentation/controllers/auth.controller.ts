@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -29,8 +29,8 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid payload' })
   @ApiResponse({ status: 409, description: 'Email already registered' })
   async register(@Body() dto: RegisterRequestDto): Promise<AuthTokensResponseDto> {
-    const tokens = await this.authService.register(dto);
-    return new AuthTokensResponseDto(tokens);
+    const session = await this.authService.register(dto);
+    return new AuthTokensResponseDto(session);
   }
 
   @Post('login')
@@ -39,8 +39,8 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid payload' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() dto: LoginRequestDto): Promise<AuthTokensResponseDto> {
-    const tokens = await this.authService.login(dto);
-    return new AuthTokensResponseDto(tokens);
+    const session = await this.authService.login(dto);
+    return new AuthTokensResponseDto(session);
   }
 
   @UseGuards(JwtRefreshGuard)
@@ -55,8 +55,24 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token missing');
     }
 
-    const tokens = await this.authService.refreshTokens(user.id, user.refreshToken);
-    return new AuthTokensResponseDto(tokens);
+    const session = await this.authService.refreshTokens(user.id, user.refreshToken);
+    return new AuthTokensResponseDto(session);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(204)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Revoke refresh token for the current user' })
+  @ApiResponse({ status: 204, description: 'Refresh token cleared' })
+  @ApiResponse({ status: 401, description: 'Invalid or missing access token' })
+  async logout(@Req() req: RequestWithUser): Promise<void> {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedException('User context missing');
+    }
+
+    await this.authService.clearRefreshToken(user.id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Anton, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '../components/ToastProvider';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 
 const anton = Anton({
   variable: "--font-anton",
@@ -28,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${anton.variable} ${ibmPlexSans.variable} antialiased`}>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
