@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
+import {
+  jsonValueToRecord,
+  JsonValue,
+  toJsonValue,
+} from '../../../../common/types/json';
 import {
   PaymentStatus,
   PaymentTransactionEntity,
@@ -18,8 +22,8 @@ type PaymentTransactionRecord = {
   midtransTransactionId: string | null;
   snapToken: string | null;
   snapRedirectUrl: string | null;
-  rawResponse: Prisma.JsonValue | null;
-  metadata: Prisma.JsonValue | null;
+  rawResponse: JsonValue | null;
+  metadata: JsonValue | null;
   paidAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -44,7 +48,7 @@ export class PrismaPaymentTransactionRepository
         amount: transaction.amount,
         currency: transaction.currency,
         midtransOrderId: transaction.midtransOrderId,
-        metadata: this.toJsonInput(transaction.metadata),
+        metadata: toJsonValue(transaction.metadata) as never,
       },
     });
 
@@ -75,8 +79,8 @@ export class PrismaPaymentTransactionRepository
         midtransTransactionId: data.midtransTransactionId ?? undefined,
         snapToken: data.snapToken ?? undefined,
         snapRedirectUrl: data.snapRedirectUrl ?? undefined,
-        rawResponse: this.toJsonInput(data.rawResponse),
-        metadata: this.toJsonInput(data.metadata),
+        rawResponse: toJsonValue(data.rawResponse) as never,
+        metadata: toJsonValue(data.metadata) as never,
         paidAt: data.paidAt ?? undefined,
       },
     });
@@ -94,9 +98,7 @@ export class PrismaPaymentTransactionRepository
     return record ? this.toEntity(record as PaymentTransactionRecord) : null;
   }
 
-  private toEntity(
-    record: PaymentTransactionRecord,
-  ): PaymentTransactionEntity {
+  private toEntity(record: PaymentTransactionRecord): PaymentTransactionEntity {
     return {
       id: record.id,
       subscriptionId: record.subscriptionId,
@@ -108,33 +110,11 @@ export class PrismaPaymentTransactionRepository
       midtransTransactionId: record.midtransTransactionId,
       snapToken: record.snapToken,
       snapRedirectUrl: record.snapRedirectUrl,
-      rawResponse: this.asRecord(record.rawResponse),
-      metadata: this.asRecord(record.metadata),
+      rawResponse: jsonValueToRecord(record.rawResponse),
+      metadata: jsonValueToRecord(record.metadata),
       paidAt: record.paidAt,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     };
-  }
-
-  private toJsonInput(
-    value: Record<string, unknown> | null | undefined,
-  ): Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined {
-    if (value === undefined) {
-      return undefined;
-    }
-    if (value === null) {
-      return Prisma.JsonNull;
-    }
-
-    return value as Prisma.InputJsonValue;
-  }
-
-  private asRecord(
-    value: Prisma.JsonValue | null,
-  ): Record<string, unknown> | null {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-      return null;
-    }
-    return value as Record<string, unknown>;
   }
 }

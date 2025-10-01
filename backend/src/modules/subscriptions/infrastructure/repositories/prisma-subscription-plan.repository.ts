@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../database/prisma.service';
+import { jsonValueToRecord, JsonValue } from '../../../../common/types/json';
 import {
   SubscriptionPlanEntity,
   SubscriptionPlanRepository,
@@ -12,9 +12,9 @@ type SubscriptionPlanRecord = {
   description: string | null;
   price: number;
   currency: string;
-  billingPeriod: string;
+  billingPeriod: SubscriptionPlanEntity['billingPeriod'];
   isActive: boolean;
-  metadata: Prisma.JsonValue | null;
+  metadata: JsonValue | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -52,18 +52,9 @@ export class PrismaSubscriptionPlanRepository
       currency: record.currency,
       billingPeriod: record.billingPeriod,
       isActive: record.isActive,
-      metadata: this.asRecord(record.metadata),
+      metadata: jsonValueToRecord(record.metadata),
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     };
-  }
-
-  private asRecord(
-    value: Prisma.JsonValue | null,
-  ): Record<string, unknown> | null {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-      return null;
-    }
-    return value as Record<string, unknown>;
   }
 }
