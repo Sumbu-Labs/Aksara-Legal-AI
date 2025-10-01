@@ -7,7 +7,9 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   const configService = app.get(ConfigService, { strict: false });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -32,4 +34,4 @@ async function bootstrap() {
   await setupDocs(app);
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();

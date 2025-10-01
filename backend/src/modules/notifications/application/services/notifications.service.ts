@@ -24,14 +24,18 @@ export class NotificationsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async createNotification(command: CreateNotificationCommand): Promise<Notification> {
+  async createNotification(
+    command: CreateNotificationCommand,
+  ): Promise<Notification> {
     const notification = Notification.create({
       userId: command.userId,
       type: command.type,
       title: command.title,
       message: command.message,
       payload: command.payload ?? null,
-      emailStatus: command.sendEmail ? NotificationEmailStatus.PENDING : NotificationEmailStatus.SKIPPED,
+      emailStatus: command.sendEmail
+        ? NotificationEmailStatus.PENDING
+        : NotificationEmailStatus.SKIPPED,
     });
 
     await this.notificationRepository.create(notification);
@@ -45,9 +49,13 @@ export class NotificationsService {
       });
 
       if (result.status === 'SENT') {
-        notification.updateEmailStatus(NotificationEmailStatus.SENT, { sentAt: new Date() });
+        notification.updateEmailStatus(NotificationEmailStatus.SENT, {
+          sentAt: new Date(),
+        });
       } else if (result.status === 'FAILED') {
-        notification.updateEmailStatus(NotificationEmailStatus.FAILED, { error: result.error ?? 'Unknown error' });
+        notification.updateEmailStatus(NotificationEmailStatus.FAILED, {
+          error: result.error ?? 'Unknown error',
+        });
       } else {
         notification.updateEmailStatus(NotificationEmailStatus.SKIPPED);
       }
@@ -58,7 +66,10 @@ export class NotificationsService {
     return notification;
   }
 
-  async listNotifications(userId: string, options: ListNotificationsOptions): Promise<Notification[]> {
+  async listNotifications(
+    userId: string,
+    options: ListNotificationsOptions,
+  ): Promise<Notification[]> {
     const defaults = {
       skip: options.skip ?? 0,
       take: options.take ?? 20,
@@ -70,7 +81,10 @@ export class NotificationsService {
   }
 
   async markAsRead(userId: string, notificationId: string): Promise<void> {
-    const notification = await this.notificationRepository.findByIdForUser(notificationId, userId);
+    const notification = await this.notificationRepository.findByIdForUser(
+      notificationId,
+      userId,
+    );
     if (!notification) {
       throw new NotFoundException('Notification not found');
     }
@@ -82,8 +96,14 @@ export class NotificationsService {
     return this.notificationRepository.markAllAsRead(userId);
   }
 
-  async deleteNotification(userId: string, notificationId: string): Promise<void> {
-    const notification = await this.notificationRepository.findByIdForUser(notificationId, userId);
+  async deleteNotification(
+    userId: string,
+    notificationId: string,
+  ): Promise<void> {
+    const notification = await this.notificationRepository.findByIdForUser(
+      notificationId,
+      userId,
+    );
     if (!notification) {
       throw new NotFoundException('Notification not found');
     }
@@ -94,7 +114,7 @@ export class NotificationsService {
    * Placeholder resolver – ideally user email diambil via repository khusus.
    * Untuk sementara, notification akan menggunakan email dari user entity.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+
   private async resolveUserEmail(userId: string): Promise<string> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {

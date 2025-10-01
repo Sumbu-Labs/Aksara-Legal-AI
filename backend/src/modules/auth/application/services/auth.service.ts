@@ -1,4 +1,9 @@
-import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -10,7 +15,10 @@ import {
 } from '../../common/auth.constants';
 import { User } from '../../domain/entities/user.entity';
 import { AuthenticatedUser } from '../../domain/interfaces/authenticated-user.interface';
-import { AccessTokenPayload, BaseJwtPayload } from '../../domain/interfaces/jwt-payload.interface';
+import {
+  AccessTokenPayload,
+  BaseJwtPayload,
+} from '../../domain/interfaces/jwt-payload.interface';
 import { Tokens } from '../../domain/interfaces/tokens.interface';
 import { AuthSession } from '../../domain/interfaces/auth-session.interface';
 import { UserRepository } from '../../domain/repositories/user.repository';
@@ -67,7 +75,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(command.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      command.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -85,7 +96,10 @@ export class AuthService {
       throw new UnauthorizedException('Access denied');
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    const isRefreshTokenValid = await bcrypt.compare(
+      refreshToken,
+      user.refreshTokenHash,
+    );
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Access denied');
     }
@@ -160,8 +174,13 @@ export class AuthService {
 
   private async hash(data: string): Promise<string> {
     const configured = this.configService.get<string>('BCRYPT_SALT_ROUNDS');
-    const saltRounds = configured ? Number.parseInt(configured, 10) : DEFAULT_BCRYPT_SALT;
-    return bcrypt.hash(data, Number.isNaN(saltRounds) ? DEFAULT_BCRYPT_SALT : saltRounds);
+    const saltRounds = configured
+      ? Number.parseInt(configured, 10)
+      : DEFAULT_BCRYPT_SALT;
+    return bcrypt.hash(
+      data,
+      Number.isNaN(saltRounds) ? DEFAULT_BCRYPT_SALT : saltRounds,
+    );
   }
 
   private getAccessTokenSecret(): string {
@@ -196,7 +215,10 @@ export class AuthService {
     );
   }
 
-  private async safeNotifyAccountRegistered(userId: string, name: string): Promise<void> {
+  private async safeNotifyAccountRegistered(
+    userId: string,
+    name: string,
+  ): Promise<void> {
     try {
       await this.notificationsService.createNotification({
         userId,

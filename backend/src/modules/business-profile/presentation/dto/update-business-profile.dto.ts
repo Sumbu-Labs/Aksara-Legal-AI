@@ -19,12 +19,18 @@ export class UpdateBusinessProfileDto {
   @IsEnum(BusinessScale)
   businessScale?: BusinessScale;
 
-  @ApiPropertyOptional({ description: 'Provinsi lokasi bisnis', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Provinsi lokasi bisnis',
+    nullable: true,
+  })
   @IsOptional()
   @IsString()
   province?: string | null;
 
-  @ApiPropertyOptional({ description: 'Kota/Kabupaten lokasi bisnis', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Kota/Kabupaten lokasi bisnis',
+    nullable: true,
+  })
   @IsOptional()
   @IsString()
   city?: string | null;

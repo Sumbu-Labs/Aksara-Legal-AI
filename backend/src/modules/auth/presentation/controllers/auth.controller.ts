@@ -55,6 +55,7 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token missing');
     }
 
+
     const session = await this.authService.refreshTokens(user.id, user.refreshToken);
     return new AuthTokensResponseDto(session);
   }

@@ -68,7 +68,7 @@ export function DashboardShell({ children }: { children: ReactNode }): JSX.Eleme
             Upgrade untuk akses tak terbatas ke Aksara Autopilot dan dukungan prioritas.
           </p>
           <Link
-            href="/upgrade"
+            href="/dashboard/settings/subscription"
             className="mt-4 inline-flex w-full items-center justify-center rounded-full border-2 border-black bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
           >
             Upgrade Paket

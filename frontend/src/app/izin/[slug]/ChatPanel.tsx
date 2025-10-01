@@ -100,7 +100,7 @@ export default function ChatPanel({ permit }: ChatPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const backendBaseUrl = useMemo(
-    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:3000'),
+    () => getEnv('NEXT_PUBLIC_BACKEND_URL', 'http://localhost:7600'),
     [],
   );
   const assistantEndpoint = useMemo(() => {

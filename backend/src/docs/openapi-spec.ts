@@ -10,7 +10,8 @@ import { BusinessPermitProfileDto } from '../modules/business-profile/presentati
 export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
   const configService = app.get(ConfigService, { strict: false });
   const appName = configService?.get<string>('APP_NAME') ?? 'Aksara Legal API';
-  const appDescription = configService?.get<string>('APP_DESCRIPTION') ??
+  const appDescription =
+    configService?.get<string>('APP_DESCRIPTION') ??
     'API documentation for Aksara Legal services';
   const port = configService?.get<string>('PORT') ?? '3000';
   const baseUrl =

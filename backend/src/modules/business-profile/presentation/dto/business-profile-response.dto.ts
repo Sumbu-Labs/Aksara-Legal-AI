@@ -11,19 +11,48 @@ export class BusinessProfileResponseDto {
   userId: string;
   @ApiProperty({ description: 'Nama bisnis' })
   businessName: string;
-  @ApiProperty({ description: 'Jenis bisnis', enum: ['FOOD_BEVERAGE', 'TECH_STARTUP', 'SERVICES', 'MANUFACTURING', 'RETAIL', 'OTHER'] })
+  @ApiProperty({
+    description: 'Jenis bisnis',
+    enum: [
+      'FOOD_BEVERAGE',
+      'TECH_STARTUP',
+      'SERVICES',
+      'MANUFACTURING',
+      'RETAIL',
+      'OTHER',
+    ],
+  })
   businessType: string;
-  @ApiProperty({ description: 'Skala bisnis', enum: ['MICRO', 'SMALL', 'MEDIUM', 'LARGE'] })
+  @ApiProperty({
+    description: 'Skala bisnis',
+    enum: ['MICRO', 'SMALL', 'MEDIUM', 'LARGE'],
+  })
   businessScale: string;
-  @ApiProperty({ required: false, nullable: true, description: 'Provinsi lokasi bisnis' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Provinsi lokasi bisnis',
+  })
   province: Nullable<string>;
-  @ApiProperty({ required: false, nullable: true, description: 'Kota/Kabupaten lokasi bisnis' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Kota/Kabupaten lokasi bisnis',
+  })
   city: Nullable<string>;
-  @ApiProperty({ required: false, nullable: true, description: 'Alamat lengkap' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Alamat lengkap',
+  })
   address: Nullable<string>;
   @ApiProperty({ description: 'Tag industri terkait', type: [String] })
   industryTags: string[];
-  @ApiProperty({ required: false, nullable: true, description: 'Tanggal profil dinyatakan lengkap' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'Tanggal profil dinyatakan lengkap',
+  })
   completedAt: Nullable<Date>;
   @ApiProperty({ description: 'Tanggal dibuat' })
   createdAt: Date;
@@ -47,7 +76,9 @@ export class BusinessProfileResponseDto {
       completedAt: profile.completedAt,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-      permits: profile.permits.map((permit) => BusinessPermitProfileDto.fromDomain(permit)),
+      permits: profile.permits.map((permit) =>
+        BusinessPermitProfileDto.fromDomain(permit),
+      ),
     };
   }
 }

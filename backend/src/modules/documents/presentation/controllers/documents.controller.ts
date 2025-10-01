@@ -15,7 +15,14 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
@@ -24,7 +31,10 @@ import { AuthenticatedUser } from '../../../auth/domain/interfaces/authenticated
 import { DocumentsService } from '../../application/services/documents.service';
 import { DocumentResponseDto } from '../dto/document-response.dto';
 import { DocumentVersionResponseDto } from '../dto/document-version-response.dto';
-import { UploadDocumentRequestDto, BatchUploadDocumentRequestDto } from '../dto/upload-document.request.dto';
+import {
+  UploadDocumentRequestDto,
+  BatchUploadDocumentRequestDto,
+} from '../dto/upload-document.request.dto';
 import { BatchUploadDocumentCommand } from '../../application/dto/upload-document.command';
 import { PermitType } from '../../../business-profile/domain/enums/permit-type.enum';
 
@@ -44,17 +54,28 @@ export class DocumentsController {
       properties: {
         file: { type: 'string', format: 'binary' },
         businessProfileId: { type: 'string', nullable: true },
-        permitType: { type: 'string', nullable: true, enum: ['HALAL', 'PIRT', 'BPOM'] },
+        permitType: {
+          type: 'string',
+          nullable: true,
+          enum: ['HALAL', 'PIRT', 'BPOM'],
+        },
         label: { type: 'string', nullable: true },
         notes: { type: 'string', nullable: true },
-        metadata: { type: 'string', nullable: true, description: 'JSON string' },
+        metadata: {
+          type: 'string',
+          nullable: true,
+          description: 'JSON string',
+        },
       },
       required: ['file'],
     },
   })
   @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({ status: 201, type: DocumentResponseDto })
-  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({
+    status: 400,
+    description: 'Payload tidak valid atau kuota habis',
+  })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async uploadDocument(
     @CurrentUser() user: AuthenticatedUser,
@@ -76,7 +97,8 @@ export class DocumentsController {
       file,
     });
 
-    const { document: hydrated, downloadUrl } = await this.documentsService.getDocument(user.id, document.id);
+    const { document: hydrated, downloadUrl } =
+      await this.documentsService.getDocument(user.id, document.id);
     return DocumentResponseDto.fromDomain(hydrated, downloadUrl);
   }
 
@@ -101,7 +123,10 @@ export class DocumentsController {
   })
   @UseInterceptors(FilesInterceptor('files'))
   @ApiResponse({ status: 201, type: [DocumentResponseDto] })
-  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({
+    status: 400,
+    description: 'Payload tidak valid atau kuota habis',
+  })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async uploadDocumentsBatch(
     @CurrentUser() user: AuthenticatedUser,
@@ -112,12 +137,15 @@ export class DocumentsController {
       throw new BadRequestException('Files are required');
     }
 
-    const parsedMetadata = this.safeParseMetadataArray(body.metadata, files.length);
+    const parsedMetadata = this.safeParseMetadataArray(
+      body.metadata,
+      files.length,
+    );
 
     const batchCommand: BatchUploadDocumentCommand = {
       userId: user.id,
       documents: files.map((file, index) => {
-        const meta = parsedMetadata[index] as Record<string, unknown>;
+        const meta = parsedMetadata[index];
         return {
           file,
           businessProfileId: this.coerceString(meta.businessProfileId),
@@ -132,7 +160,8 @@ export class DocumentsController {
     const documents = await this.documentsService.uploadBatch(batchCommand);
     return Promise.all(
       documents.map(async (doc) => {
-        const { document: hydrated, downloadUrl } = await this.documentsService.getDocument(user.id, doc.id);
+        const { document: hydrated, downloadUrl } =
+          await this.documentsService.getDocument(user.id, doc.id);
         return DocumentResponseDto.fromDomain(hydrated, downloadUrl);
       }),
     );
@@ -149,7 +178,11 @@ export class DocumentsController {
         label: { type: 'string', nullable: true },
         notes: { type: 'string', nullable: true },
         metadata: { type: 'string', nullable: true },
-        permitType: { type: 'string', nullable: true, enum: ['HALAL', 'PIRT', 'BPOM'] },
+        permitType: {
+          type: 'string',
+          nullable: true,
+          enum: ['HALAL', 'PIRT', 'BPOM'],
+        },
         businessProfileId: { type: 'string', nullable: true },
       },
       required: ['file'],
@@ -157,7 +190,10 @@ export class DocumentsController {
   })
   @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({ status: 200, type: DocumentResponseDto })
-  @ApiResponse({ status: 400, description: 'Payload tidak valid atau kuota habis' })
+  @ApiResponse({
+    status: 400,
+    description: 'Payload tidak valid atau kuota habis',
+  })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
   async replaceDocument(
@@ -181,7 +217,8 @@ export class DocumentsController {
       file,
     });
 
-    const { document: hydrated, downloadUrl } = await this.documentsService.getDocument(user.id, document.id);
+    const { document: hydrated, downloadUrl } =
+      await this.documentsService.getDocument(user.id, document.id);
     return DocumentResponseDto.fromDomain(hydrated, downloadUrl);
   }
 
@@ -191,7 +228,10 @@ export class DocumentsController {
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
-  async deleteDocument(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<void> {
+  async deleteDocument(
+    @Param('id') documentId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<void> {
     await this.documentsService.deleteDocument(user.id, documentId);
   }
 
@@ -200,8 +240,14 @@ export class DocumentsController {
   @ApiResponse({ status: 200, type: DocumentResponseDto })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
-  async getDocument(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<DocumentResponseDto> {
-    const { document, downloadUrl } = await this.documentsService.getDocument(user.id, documentId);
+  async getDocument(
+    @Param('id') documentId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<DocumentResponseDto> {
+    const { document, downloadUrl } = await this.documentsService.getDocument(
+      user.id,
+      documentId,
+    );
     return DocumentResponseDto.fromDomain(document, downloadUrl);
   }
 
@@ -211,7 +257,8 @@ export class DocumentsController {
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   async listDocuments(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('includeDownloadUrl', new ParseBoolPipe({ optional: true })) includeDownloadUrl?: boolean,
+    @Query('includeDownloadUrl', new ParseBoolPipe({ optional: true }))
+    includeDownloadUrl?: boolean,
   ): Promise<DocumentResponseDto[]> {
     const documents = await this.documentsService.listDocuments(user.id);
 
@@ -219,7 +266,10 @@ export class DocumentsController {
       documents.map(async (document) => {
         let downloadUrl: string | undefined;
         if (includeDownloadUrl && document.currentVersion) {
-          const { downloadUrl: url } = await this.documentsService.getDocument(user.id, document.id);
+          const { downloadUrl: url } = await this.documentsService.getDocument(
+            user.id,
+            document.id,
+          );
           downloadUrl = url;
         }
         return DocumentResponseDto.fromDomain(document, downloadUrl);
@@ -232,9 +282,17 @@ export class DocumentsController {
   @ApiResponse({ status: 200, type: [DocumentVersionResponseDto] })
   @ApiResponse({ status: 401, description: 'Token tidak valid' })
   @ApiResponse({ status: 404, description: 'Dokumen tidak ditemukan' })
-  async listVersions(@Param('id') documentId: string, @CurrentUser() user: AuthenticatedUser): Promise<DocumentVersionResponseDto[]> {
-    const document = await this.documentsService.ensureOwnership(user.id, documentId);
-    return document.versions.map((version) => DocumentVersionResponseDto.fromDomain(version));
+  async listVersions(
+    @Param('id') documentId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<DocumentVersionResponseDto[]> {
+    const document = await this.documentsService.ensureOwnership(
+      user.id,
+      documentId,
+    );
+    return document.versions.map((version) =>
+      DocumentVersionResponseDto.fromDomain(version),
+    );
   }
 
   private safeParseMetadata(value?: string): Record<string, unknown> | null {
@@ -243,13 +301,18 @@ export class DocumentsController {
     }
     try {
       const parsed = JSON.parse(value);
-      return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : null;
+      return typeof parsed === 'object' && parsed !== null
+        ? (parsed as Record<string, unknown>)
+        : null;
     } catch (error) {
       throw new BadRequestException('Invalid metadata JSON');
     }
   }
 
-  private safeParseMetadataArray(value: string | undefined, expectedLength: number): Array<Record<string, unknown>> {
+  private safeParseMetadataArray(
+    value: string | undefined,
+    expectedLength: number,
+  ): Array<Record<string, unknown>> {
     if (!value) {
       return Array.from({ length: expectedLength }, () => ({}));
     }
@@ -259,9 +322,15 @@ export class DocumentsController {
         throw new BadRequestException('Metadata payload must be an array');
       }
       if (parsed.length !== expectedLength) {
-        throw new BadRequestException('Metadata array length must match files count');
+        throw new BadRequestException(
+          'Metadata array length must match files count',
+        );
       }
-      return parsed.map((item) => (typeof item === 'object' && item !== null ? (item as Record<string, unknown>) : {}));
+      return parsed.map((item) =>
+        typeof item === 'object' && item !== null
+          ? (item as Record<string, unknown>)
+          : {},
+      );
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -275,7 +344,9 @@ export class DocumentsController {
   }
 
   private coerceRecord(value: unknown): Record<string, unknown> | null {
-    return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : null;
+    return typeof value === 'object' && value !== null
+      ? (value as Record<string, unknown>)
+      : null;
   }
 
   private coercePermitType(value: unknown): PermitType | null {
@@ -283,6 +354,8 @@ export class DocumentsController {
       return null;
     }
     const upper = value.toUpperCase();
-    return Object.values(PermitType).includes(upper as PermitType) ? (upper as PermitType) : null;
+    return Object.values(PermitType).includes(upper as PermitType)
+      ? (upper as PermitType)
+      : null;
   }
 }
